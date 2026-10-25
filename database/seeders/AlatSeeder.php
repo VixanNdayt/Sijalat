@@ -14,7 +14,7 @@ class AlatSeeder extends Seeder
     public function run(): void
     {
         alat::create([
-            'code' => 'ALT-001',
+            'code' => 'ALT-004',
             'nama' => 'Multimeter Digital',
             'jumlah_stok' => 10,
             'img' => 'equipment/multimeter.jpg',

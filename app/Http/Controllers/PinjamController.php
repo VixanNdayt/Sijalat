@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\alat;
 use App\Models\pinjam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PinjamController extends Controller
 {
@@ -28,7 +30,13 @@ class PinjamController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validate = $request->validate([
+            'user_id' => 'requiared|exists:user,id',
+            'alat_id' => 'required|exists:alat,id',
+            'jumlah_minta' => 'required|integer|min:1',
+            'dipinjam_saat' => 'required|date|after_or_equal:today',
+            'deskripsi_minta' => 'required|string|max:255',
+        ]);
     }
 
     /**

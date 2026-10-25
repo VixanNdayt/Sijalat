@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable(['name', 'email', 'password', 'role_user'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,9 +30,21 @@ class User extends Authenticatable
         ];
     }
     
+    protected $fillable = [
+        'nama',
+        'nis',
+        'email',
+        'password',
+        'role_user',
+    ];
     public function pinjam()
     {
         return $this->hasMany(pinjam::class); // Satu siswa bisa punya banyak peminjaman
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
     }
 }
 
