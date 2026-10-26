@@ -1,0 +1,71 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 40px;
+    margin: 0;
+    height: 100%;
+    justify-content: center;
+    align-items: center;    
+}
+.page {
+    display: flex;
+    flex-direction: row;
+    justify-self: center;
+    width: 90%;
+    height: 90vh;
+    padding: 0;
+    margin: 0 auto;
+    background-color: #919191;
+    border-radius: 12px;
+}
+.hero1 {
+    background-image: linear-gradient(to bottom, #003527, #004130, #004E39, #005B43, #006A4E);
+    padding: 20px;
+    color: white;
+    width: 50%;
+    border-radius: 12px 0px 0px 12px;
+}
+.login {
+    padding: 30px;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    align-self: center;
+    width: 50%;
+    color: #004E39;
+    border-radius: 0px 12px 12px 0px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.logo img {
+    width: 50px;
+    height: 50px;
+}
+.login-form {
+    background-color: #f2f2f2;
+    padding: 10px;;
+    border-radius: 10px;
+    justify-self: center;
+    align-items: center;
+    align-self: center;
+    width: 80%;
+    height: 50vh;
+    margin: 0 auto;
+}
+input {
+    border-radius: 5px;
+    border: none;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 5px;
+    justify-self: center;
+    align-self: center;
+    text-align: left;
+    width: 60%;
+    height: 35px;
+    border-radius: 12px;
+}
+label {
+    font-size: 14px;
+}
