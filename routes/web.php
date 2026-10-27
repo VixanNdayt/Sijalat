@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // Jalur untuk menampilkan form register
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
