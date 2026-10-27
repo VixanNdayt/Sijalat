@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id(); // ID otomatis (Primary Key)
             $table->string('name'); // Nama siswa
-            $table->string('nis')->unique(); // NIS unik siswa
+            $table->bigInteger('nis')->unique(); // NIS unik siswa
             $table->string('email')->unique(); // Email siswa
             $table->string('password');
             $table->rememberToken();

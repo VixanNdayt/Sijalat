@@ -1,52 +1,106 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>@yield('title', 'register-SIJALAT')</title>
+        <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+        @stack('styles')
+    </head>
+    <body>
+         <main class="page">
+            <section class="hero1">
+                <div>
+                    <div class="logo">
+                        <h3>SIJALAT</h3>
+                    </div>
+                    <h2>Pinjam Alat dengan cepat</h2>
+                    <p>Lakukan peminjaman secara cepat dan efisien</p>
+                </div>
+                <div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+                </div>
+            </section>
+            <section class="login">
+                <h1>SIGN UP TO SIJALAT</h1>
+                <div class="login-form">
+                    <h2>Welcome to SIJALAT</h2>
+                    @if ($errors->any())
+                        <div class="alert-error">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form action="{{ route('register') }}" method="POST" class="form">
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+                        @csrf
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+                        <div>
+                            <div class="form-group" style="display: flex; flex-direction: row; margin-bottom: 20px; justify-content: center;">
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+                                <div class="form-group-reg-1" style="display: flex; flex-direction: column; gap: 5px;">
+                                    <label for="name">Nama:</label>
+                                    <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Masukkan namamu" required autofocus>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+                                    <!-- error email -->
+                                    @error('name')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
+                                </div>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+                                <div class="form-group-reg-1" style="display: flex; flex-direction: column; gap: 5px;">
+                                    <label for="nis">NIS</label>
+                                    <input type="number" id="nis" name="nis" value="{{ old('nis') }}" required>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+                                    <!-- error nis -->
+                                    @error('nis')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+                            <div class="form-group" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px;">
+                                <label for="email">Email:</label>
+                                <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email" required>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+                                <!-- error password -->
+                                @error('email')
+                                    <span class="error-text">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="form-group" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px;">
+                                <label for="password">Password:</label>
+                                <input type="password" id="password" name="password" placeholder="Masukkan password" required>
+
+                                <!-- error password -->
+                                @error('password')
+                                    <span class="error-text">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="form-group" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px;">
+                                <label for="password_confirmation">Konfirmasi Password</label>
+                                <input 
+                                    type="password" 
+                                    id="password_confirmation" 
+                                    name="password_confirmation" 
+                                    required 
+                                    placeholder="Ulangi password di atas"
+                                >
+                            </div>
+                            <p style="font-size: 12px;">Sudah punya akun? <a href="{{ route('login') }}">Log in</a></p>
+                        </div>
+                        <br>
+                        <input type="submit" value="register" style="background-color: #004E39; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; text-align: center; margin-bottom: 20px;">
+                    </form>
+                </div>
+            </section>
+        </main>
+
+    </body>
+</html>

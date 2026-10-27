@@ -29,7 +29,7 @@
                     @if ($errors->any())
                         <div class="alert-error">
                             <ul>
-                                @foreach ($errors->all as $error)
+                                @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
@@ -58,7 +58,7 @@
                                     <span class="error-text">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <p style="font-size: 12px;">Belum punya akun? <a href="register.php">Sign up</a></p>
+                            <p style="font-size: 12px;">Belum punya akun? <a href="{{ route('register') }}">Sign up</a></p>
                         </div>
                         <br>
                         <input type="submit" value="Login" style="background-color: #004E39; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; text-align: center; margin-bottom: 20px;">

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role_user'])]
+#[Fillable(['name', 'email', 'password', 'nis','role_user'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -31,7 +31,7 @@ class User extends Authenticatable
     }
     
     protected $fillable = [
-        'nama',
+        'name',
         'nis',
         'email',
         'password',
@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this->role_user === 'admin';
     }
 }
 
