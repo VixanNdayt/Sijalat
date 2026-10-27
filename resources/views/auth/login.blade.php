@@ -13,18 +13,17 @@
             <section class="hero1">
                 <div>
                     <div class="logo">
-                        <img src="ei_1790662022203-removebg-preview (1).png" alt="SIJALAT Logo">
                         <h3>SIJALAT</h3>
                     </div>
                     <h2>Pinjam Alat dengan cepat</h2>
-                    <p>Lorem ipsum</p>
+                    <p>Lakukan peminjaman secara cepat dan efisien</p>
                 </div>
                 <div>
 
                 </div>
             </section>
             <section class="login">
-                <h1 style="color: white;">LOGIN TO SIJALAT</h1>
+                <h1>LOGIN TO SIJALAT</h1>
                 <div class="login-form">
                     <h2>Welcome back to SIJALAT</h2>
                     @if ($errors->any())
