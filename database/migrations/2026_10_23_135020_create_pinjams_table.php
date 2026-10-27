@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('dikembalikan_saat')->nullable(); // Waktu pengembalian
             $table->integer('jumlah_minta')->default(1); // Jumlah alat yang dipinjam
             $table->text('deskripsi_minta'); // Deskripsi keperluan peminjaman
-            $table->enum('status', ['pending', 'approved', 'rejected', 'returned'])->default('pending');
+            $table->enum('status', ['pending', 'disetuji', 'dipinjam', 'ditolak', 'dikembalikan'])->default('pending');
             $table->timestamps();
         });
     }
