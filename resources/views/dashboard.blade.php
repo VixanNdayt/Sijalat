@@ -18,13 +18,13 @@
                 <h2>SIJALAT</h2>
                 <p>Dashboard</p>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="dashboard">Dashboard</a></li>
-                <li><a href="#">Peminjaman</a></li>
-                <li><a href="3">Riwayat</a></li>
-                <li><a href="3">Report</a></li>
-                <li><a href="3">Guide</a></li>
-            </ul>
+            <div class="sidebar-menu">
+                <button href="#">Dashboard</button>
+                <button>Peminjaman</button>
+                <button>Riwayat</button>
+                <button>Report</button>
+                <button>Guide</button>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -34,11 +34,11 @@
             <nav class="navbar">
                 <button class="toggle-btn" id="toggleBtn">☰</button>
                 <h2>SIJALAT</h2>
-                <div class="profile-edit">
-                    <p>{{ auth()->user()->name }}</p>
-                </div>
+                <button class="profile-edit" href="profile">
+                    <img src="{{ asset('svg/user_icon.svg') }}">
+                    <p>{{ auth()->user()->name }} </p>
+                </button>
             </nav>
-
             <script src="{{ asset('js/univ.js') }}"></script>
         </main>
     </body>

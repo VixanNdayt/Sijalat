@@ -26,6 +26,7 @@ body {
     align-items: center;
     padding: 8px 0px;
     height: 60px;
+    box-shadow: 1px 2px 1px 1px rgba(171, 171, 171, 0.815);
 }
 
 .navbar h2 {
@@ -38,7 +39,7 @@ body {
     border: none;
     padding: 12px;
     font-size: 12px;
-    border-radius: 0px 12px 12px 0px;
+    border-radius: 0px 30px 30px 0px;
     cursor: pointer;
     box-shadow: 0 4px 6px gray;
     transition: background-color 0.2s, transform 0.1s;
@@ -76,7 +77,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 180px;
+    width: 260px;
     height: 100vh;
     background-color: #003527;
     color: white;
@@ -89,38 +90,64 @@ body {
     box-shadow: 4px 0 15px grey;
 }
 
+.sidebar-header {
+    margin-bottom: 20px;
+}
+
 .sidebar.active {
     transform: translateX(0);
 }
 
-.sidebar-menu li {
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-menu button {
     margin-bottom: 8px;
 }
 
-.sidebar-menu a {
-    display: flex;
-    padding: 8px;
-    color: #003527;
+.sidebar-menu button {
+    padding: 12px;
+    background-color: #12211d;
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 30px;
+    border: none;
     color: white;
     font-weight: 400;
-
     transition: all 0.3s ease;
 }
 
-.sidebar-menu a:hover {
+.sidebar-menu button:hover {
     background-color: #004E39;
     transform: translateX(6px);
+    cursor: pointer;
 }
 
 .profile-edit {
     margin-right: 8px;
+    display: flex;
+    background-color: #004E39;
+    padding: 8px;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 30px;
+    transition: transform 0.2;
+}
+
+.profile-edit p {
+    color: white;
+    margin-left: 12px;
+}
+
+.profile-edit:hover {
+    cursor: pointer;
+    transform: scale(1.05);
 }
 
 @media (min-width: 768px) {
     body.sidebar-open .main-content {
-        margin-left: 180px;
+        margin-left: 260px;
     }
 
     .overlay {
