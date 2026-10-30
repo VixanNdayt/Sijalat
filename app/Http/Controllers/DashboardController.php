@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\pinjam;
+use App\Models\Pinjam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index() {
         $user = Auth::user();
-        $query = Pinjam::with('alats');
+        $query = Pinjam::with('alat');
 
         if ($user->role_user !== 'admin') {
         $query->where('user_id', $user->id);

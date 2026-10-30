@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['code', 'nama', 'jumlah_stok'])]
+#[Fillable(['code', 'nama', 'jumlah_stok', 'img'])]
 
 class Alat extends Model
 {
@@ -20,4 +20,9 @@ class Alat extends Model
         'jumlah_stok',
         'img',
     ];
+
+    public function pinjams()
+    {
+        return $this->hasMany(Pinjam::class);
+    }
 }

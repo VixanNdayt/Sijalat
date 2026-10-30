@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\alat;
-use App\Models\pinjam;
+use App\Models\Alat;
+use App\Models\Pinjam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +14,7 @@ class PinjamController extends Controller
      */
     public function index()
     {
-        //
+        return view('peminjaman');
     }
 
     /**
@@ -31,18 +31,25 @@ class PinjamController extends Controller
     public function store(Request $request)
     {
         $validate = $request->validate([
-            'user_id' => 'requiared|exists:user,id',
-            'alat_id' => 'required|exists:alat,id',
+            'user_id' => 'required|exists:users,id',
+            'alat_id' => 'required|exists:alats,id',
             'jumlah_minta' => 'required|integer|min:1',
             'dipinjam_saat' => 'required|date|after_or_equal:today',
             'deskripsi_minta' => 'required|string|max:255',
         ]);
+
+        $validate['status'] = 'pending';
+
+        Pinjam::create($validate);
+
+        return redirect()->back()->with('success', 'Pengajuan peminjaman berhasil dibuat!');
+        
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(pinjam $pinjam)
+    public function show(Pinjam $pinjam)
     {
         //
     }
@@ -50,7 +57,7 @@ class PinjamController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(pinjam $pinjam)
+    public function edit(Pinjam $pinjam)
     {
         //
     }
@@ -58,7 +65,7 @@ class PinjamController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, pinjam $pinjam)
+    public function update(Request $request, Pinjam $pinjam)
     {
         //
     }
@@ -66,8 +73,9 @@ class PinjamController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(pinjam $pinjam)
+    public function destroy(Pinjam $pinjam)
     {
         //
     }
+    
 }

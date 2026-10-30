@@ -39,7 +39,12 @@ class User extends Authenticatable
     ];
     public function pinjam()
     {
-        return $this->hasMany(pinjam::class); // Satu siswa bisa punya banyak peminjaman
+        return $this->hasMany(Pinjam::class); // Satu siswa bisa punya banyak peminjaman
+    }
+
+    public function pinjams()
+    {
+        return $this->hasMany(Pinjam::class);
     }
 
     public function isAdmin()

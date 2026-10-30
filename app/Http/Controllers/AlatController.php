@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\alat;
+use App\Models\Alat;
 use Illuminate\Http\Request;
 
 class AlatController extends Controller
@@ -34,7 +34,7 @@ class AlatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(alat $alat)
+    public function show(Alat $alat)
     {
         //
     }
@@ -42,7 +42,7 @@ class AlatController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(alat $alat)
+    public function edit(Alat $alat)
     {
         //
     }
@@ -50,7 +50,7 @@ class AlatController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, alat $alat)
+    public function update(Request $request, Alat $alat)
     {
         //
     }
@@ -58,7 +58,7 @@ class AlatController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(alat $alat)
+    public function destroy(Alat $alat)
     {
         //
     }
