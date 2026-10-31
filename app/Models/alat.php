@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['code', 'nama', 'jumlah_stok', 'img'])]
+#[Fillable(['code', 'nama', 'jumlah_stok', 'img', 'description', 'jenis'])]
 
 class Alat extends Model
 {
@@ -19,6 +19,8 @@ class Alat extends Model
         'nama',
         'jumlah_stok',
         'img',
+        'description',
+        'jenis',
     ];
 
     public function pinjams()

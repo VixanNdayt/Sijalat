@@ -1,0 +1,210 @@
+header {
+    margin: 30px 0px;
+    text-align: center;
+    width: 100%;
+}
+
+.main-con {
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 5%;
+}
+
+.left-information {
+    width: 65%;
+}
+
+.img-item img {
+    width: 100px;
+}
+
+.search-div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: aliceblue;
+    box-shadow: 0px 0px 5px 0px gray;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.search-div p {
+    font-size: small;
+}
+
+.search-div input {
+    border-radius: 15px;
+    padding: 8px;
+    border: none;
+    box-shadow: 0px 0px 8px 0px gray;
+    width: 80%;
+}
+
+.search-div button {
+    background-color: #004E39;
+    right: 0;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 15px;
+}
+
+/* Item box */
+.item-sec {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: space-evenly;
+}
+
+.item-box {
+    background-color: white;
+    width: 320px;
+    padding: 20px;
+    gap: 5px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 3px 0px gray;
+}
+
+.item-box-des {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-box-des button {
+    background-color: #004E39;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 10px;
+}
+
+.right-information {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+}
+
+.a-a {
+    margin-bottom: 10px;
+    text-align: center;
+    padding: 10px;
+    background-color: #004E39;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    position: static;
+}
+
+.form-peminjaman {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0px 0px 5px 0px gray;
+    padding: 12px;
+}
+
+.form-peminjaman h3 {
+    background-color: #004E39;
+    color: white;
+    text-align: center;
+    border-radius: 30px;
+    padding: 10px;
+    margin-bottom: 10px
+}
+
+.form-main {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-main input {
+    padding: 5px;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0px 0px 5px 0px gray;
+}
+
+.submit-btn {
+    padding: 10px;
+    background-color: #004E39;
+    color: white;
+    border: none;
+    box-shadow: 0px 2px 3px 0px;
+    border-radius: 30px;
+}
+
+.input {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 10px;
+}
+
+.keranjang {
+    box-shadow: 0px 1px 4px 0px grey;
+    padding: 10px;
+    border-radius: 5px; 
+    min-height: 60px;
+}
+
+.item-cart {
+    background-color: white;
+    box-shadow: 0px 0px 3px 0px grey;
+    padding: 5px;
+    font-size: small;
+}
+
+.cart-value {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cart-value button {
+    background-color: #004E39;
+    border-radius: 5px;
+    padding: 5px;
+    border: none;
+}
+
+textarea {
+    border-radius: 8px;
+}
+
+.two-form {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 3px;
+}
+
+.two-form input {
+    width: 40%;
+}
+
+@media (max-width: 991px) {
+    .main-con {
+        flex-direction: column;
+    }
+
+    .left-information {
+        align-self: center;
+        width: 90%
+    }
+
+    .right-information {
+        align-self: center;
+        width: 90%;
+        margin-top: 20px;
+    }
+
+    .item-box {
+        width: 450px;
+    }
+}

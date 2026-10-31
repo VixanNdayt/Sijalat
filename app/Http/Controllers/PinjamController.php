@@ -14,7 +14,7 @@ class PinjamController extends Controller
      */
     public function index()
     {
-        return view('peminjaman');
+        //
     }
 
     /**
@@ -22,7 +22,8 @@ class PinjamController extends Controller
      */
     public function create()
     {
-        //
+        $alats = Alat::where('jumlah_stok', '>', 0)->get();
+        return view('pinjam.create', compact('alats'));
     }
 
     /**
@@ -30,19 +31,30 @@ class PinjamController extends Controller
      */
     public function store(Request $request)
     {
-        $validate = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'alat_id' => 'required|exists:alats,id',
-            'jumlah_minta' => 'required|integer|min:1',
-            'dipinjam_saat' => 'required|date|after_or_equal:today',
-            'deskripsi_minta' => 'required|string|max:255',
+        $request->validate([
+            'alat_id'           => 'required|array',
+            'alat_id.*'         => 'required|exists:alats,id',
+            'jumlah_minta'      => 'required|array',
+            'jumlah_minta.*'    => 'required|integer|min:1',
+            'dipinjam_saat'     => 'required|date',
+            'dikembalikan_saat' => 'required|date|after_or_equal:dipinjam_saat',
+            'deskripsi_minta'   => 'required|string|max:255',
         ]);
 
-        $validate['status'] = 'pending';
+        foreach ($request->alat_id as $index => $id_alat) {
+            Pinjam::create([
+                'user_id'           => Auth::id(),
+                'alat_id'           => $id_alat,
+                'jumlah_minta'      => $request->jumlah_minta[$index],
+                'dipinjam_saat'     => $request->dipinjam_saat,
+                'dikembalikan_saat' => $request->dikembalikan_saat,
+                'deskripsi_minta'   => $request->deskripsi_minta,
+                'status'            => 'pending',
+            ]);
+        }
 
-        Pinjam::create($validate);
 
-        return redirect()->back()->with('success', 'Pengajuan peminjaman berhasil dibuat!');
+        return redirect()->route('dashboard')->with('success', 'Pengajuan peminjaman berhasil dibuat!');
         
     }
 

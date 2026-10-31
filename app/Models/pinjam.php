@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['user_id', 'alat_id', 'dipinjam_saat', 'dikembalikan_saat', 'jumlah_minta', 'deskripsi_minta', 'status'])]
+#[Fillable(['user_id', 'alat_id','dipinjam_saat', 'dikembalikan_saat', 'jumlah_minta', 'deskripsi_minta', 'status'])]
 class Pinjam extends Model
 {
     //
@@ -27,6 +27,9 @@ class Pinjam extends Model
         'dikembalikan_saat',
         'jumlah_minta',
         'deskripsi_minta',
+        'bukti_ambil',
+        'bukti_kembali',
+        'catatan',
         'status',
     ];
 }

@@ -33,9 +33,9 @@
                     <h2>Dashboard</h2>
                     <p>Halo, {{ auth()->user()->name }}. Pantau aktivitas peminjaman dan kewajiban anda</p>
                 </div>
-                <button>
+                <a href="{{ route('pinjam.create') }}">
                     Ajukan Peminjaman
-                </button>
+                </a>
             </div>
 
             <!-- 4Box -->
@@ -48,7 +48,11 @@
                 <div class="inner-information">
                     <p>Menunggu Approve</p>
                     <h2>{{ $menunggu }}</h2>
-                    <p>Waktu permintaan : {{ $riwayat->created_at->format('d M Y') }}</p>
+                    @if($terbaru)
+                        <p>Waktu permintaan : {{ \Carbon\Carbon::parse($terbaru->dipinjam_saat)->format('d M Y, H.i') }}</p>
+                    @else
+                        <p>Waktu permintaan : Belum ada</p>
+                    @endif
                 </div>
                 <div class="inner-information">
                     <p>Selesai dipinjam</p>
@@ -56,30 +60,88 @@
                     <p>Presentase tepat waktu</p>
                 </div>
                 <div class="inner-information">
-                    <p>Catatan Pelanggaram</p>
+                    <p>Catatan Pelanggaran</p>
                     <h2>{{ $pelanggaran }}</h2>
                     <p>Terakhir pada</p>
                 </div>
             </div>
 
             <!-- Barang yang sedang dipinjam -->
-            <div class="sedang-dipinjam">
-                <img src="{{ asset('svg/fluent_box-20-regular.svg') }}">
-                <div class="text-sd">
-                    <div class="inner-text-sd">
-                        <p>Nama alat : </p>
-                        <p>kondisi</p>
-                    </div>
-                    <div class="inner-text-sd">
-                        <p>kode</p>
-                        <p>Waktu peminjaman</p>
-                        <p>Waktu pengembalian</p>
-                    </div>
-                </div>
+            <div class="sedang-pinjam-outer">
+                @if ($pinjamanAktif->isNotEmpty())
+                    @foreach ( $pinjamanAktif as $item)
+                        <div class="sedang-dipinjam">
+                            <img src="{{ asset('svg/fluent_box-20-regular.svg') }}">
+                            <div class="text-sd">
+                                <div class="inner-text-sd">
+                                    <p>Nama alat : {{ $item->alat->nama }}</p>
+                                    @if ($item->status === 'pending')
+                                        <p>Pending</p>
+                                    @elseif ($item->status === 'dipinjam')
+                                        <p>Sedang dipinjam</p>
+                                    @endif
+                                </div>
+                                <div class="inner-text-sd">
+                                    <p>{{ $item->alat->code }}</p>
+                                    <p>{{ \Carbon\Carbon::parse($item->dipinjam_saat)->format('d M Y, H.i') }}</p>-
+                                    <p>{{ \Carbon\Carbon::parse($item->dikembalikan_saat)->format('d M Y, H.i') }}</p>
+                                </div>
+                            </div>                            
+                        </div>
+                    @endforeach 
+                @endif
             </div>
 
-            <div>
-
+            <!-- Bottom section -->
+            <div class="riwayat">
+                <div class="riwayat-peminjaman">
+                    <h2>Riwayat Peminjaman</h2>
+                    <div class="rp-a">
+                        <div class="rp-b"><h5>KODE</h5></div>
+                        <div class="rp-b"><h5>ALAT</h5></div>
+                        <div class="rp-b"><h5>PINJAM</h5></div>
+                        <div class="rp-b"><h5>KEMBALI</h5></div>
+                        <div class="rp-b"><h5>KONDISI</h5></div>
+                    </div>
+                    <div>
+                        @forelse ($riwayat as $item)
+                            <div class="rp-c1">
+                                <div class="rp-c">
+                                    {{ $item->alat->code }}
+                                </div>
+                                <div class="rp-c">
+                                    {{ $item->alat->nama }}
+                                </div>
+                                <div class="rp-c">
+                                    {{ \Carbon\Carbon::parse($item->dipinjam_saat)->format('d M Y, H.i') }}
+                                </div>
+                                <div class="rp-c">
+                                   {{  \Carbon\Carbon::parse($item->dikembalikan_saat)->format('d M Y, H.i')  }}
+                                </div>
+                                <div class="rp-c">
+                                    @if ($item->status === 'pending')
+                                        <span class="P">Pending</span>
+                                    @elseif ($item->status ==='dipinjam')
+                                        <span class="sd-a">Sedang dipinjam</span>
+                                    @elseif ($item->status === 'dikembalikan') 
+                                        <span class="sd-b">Sudah dikembalikan</span>
+                                    @else
+                                        <span>{{ ucfirst($item->status) }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <tr>
+                                <td>
+                                    Belum ada riwayat aktivitas
+                                </td>
+                            </tr>
+                        @endforelse
+                    </div>
+                </div>
+                <div class="riwayat-pelanggaran">
+                    <h2>Riwayat Pelanggaran</h2>
+                </div>
             </div>
         </main>
 
@@ -90,11 +152,11 @@
                 <p>Dashboard</p>
             </div>
             <div class="sidebar-menu">
-                <button href="#">Dashboard</button>
-                <button>Peminjaman</button>
-                <button>Riwayat</button>
-                <button>Report</button>
-                <button>Guide</button>
+                <a href="{{ route('dashboard') }}">Dashboard</a>
+                <a href="{{ route('pinjam.create') }}">Peminjaman</a>
+                <a>Riwayat</a>
+                <a>Report</a>
+                <a>Guide</a>
             </div>
         </aside>
 

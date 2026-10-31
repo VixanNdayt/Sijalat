@@ -8,18 +8,25 @@
     align-items: center;
 }
 
-.header-main button {
+.header-main a {
     background-color: #005c43;
     border: none;
     border-radius: 30px;
     color: white;
     padding: 8px;
+    text-decoration: none;
+    font-size: smaller;
+}
+
+.header-main a:hover {
+    transform: scale(1.05);
+    cursor: pointer;
 }
 
 .information-box {
     display: flex;
     justify-content: center;
-    width: 90%;
+    width: 100%;
     justify-self: center;
     gap: 20px;
     flex-wrap: wrap;
@@ -39,16 +46,30 @@
     gap: 20px;
 }
 
+.sedang-pinjam-outer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    justify-self: center;
+    align-self: center;
+    margin-bottom: 20px;
+}
+
 .sedang-dipinjam {
     display: flex;
-    gap: 5px;
+    gap: 10px;
     padding: 12px;
-    background-color: aliceblue;
+    background-color: #005c43;
     box-shadow: 0px 0px 8px 0px grey;
     border-radius: 12px;
+    color: white;
     width: 90%;
     justify-self: center;
     align-items: center;
+    margin-bottom: 10px;
 }
 
 .text-sd {
@@ -59,4 +80,73 @@
 .inner-text-sd {
     display: flex;
     gap: 6px;
+}
+
+.riwayat {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    justify-self: center;
+    flex-wrap: wrap;
+    gap: 1%;
+}
+
+.riwayat-peminjaman {
+    width: 64%;
+    box-shadow: 0px 0px 8px 0px grey;
+    background-color: aliceblue;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.riwayat-pelanggaran {
+    width: 25%;
+    box-shadow: 0px 0px 8px 0px grey;
+    border-radius: 12px;
+    background-color: aliceblue;
+    padding: 10px;
+}
+
+.rp-a {
+    display: flex;
+    flex-direction: row;
+    gap: 5%;
+    margin-top: 10px;
+
+}
+
+.rp-b {
+    width: 15%;
+    box-shadow: 0px 0px 2px 0px grey;
+    padding: 5px;
+    border-radius: 15px;
+}
+
+.rp-c1 {
+    display: flex;
+    flex-direction: row;
+    gap: 5%;
+}
+
+.rp-c {
+    width: 15%;
+    padding: 5px;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .riwayat {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .riwayat-peminjaman {
+        width: 90%;
+        justify-self: center;
+    }
+
+    .riwayat-pelanggaran {
+        width: 90%;
+    }
 }

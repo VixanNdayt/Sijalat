@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('code')->unique(); // Kode alat (misal: ALT-001)
             $table->string('nama'); // Nama alat
             $table->integer('jumlah_stok'); // Jumlah stok
+            $table->string('description');
+            $table->enum('jenis', ['alat_jaringan', 'laptop', 'switch', 'bagian_pc', 'router', 'IoT']);
             $table->string('img')->nullable(); // Path/nama file gambar alat
             $table->timestamps();
         });
