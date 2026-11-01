@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PinjamController;
@@ -29,6 +30,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/transaksi/scan', [TransaksiController::class, 'scanner'])->name('transaksi.scan');
     Route::post('/transaksi/proses', [TransaksiController::class, 'proses'])->name('transaksi.proses');
+    Route::post('/transaksi/cari-kode', [TransaksiController::class, 'cariKode'])->name('transaksi.cariKode');
+
+    Route::get('/admin/approval', [ApprovalController::class, 'index'])->name('approval.index');
+    Route::post('/admin/approval/proses/{id}', [ApprovalController::class, 'proses'])->name('approval.proses');
 });
 
 require __DIR__.'/auth.php';

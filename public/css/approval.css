@@ -1,0 +1,17 @@
+.admin-container { max-width: 1000px; margin: 0 auto; padding: 20px; font-family: sans-serif; }
+.header-teks h2 { margin: 0 0 5px 0; font-size: 20px; }
+.header-teks p { margin: 0 0 20px 0; color: #666; font-size: 13px; }
+
+.alert-success { background: #dcfce7; color: #166534; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; border: 1px solid #bbf7d0; }
+.table-container { display: flex; flex-direction: column; gap: 10px; }
+.table-header, .table-row { display: grid; grid-template-columns: 0.5fr 2fr 2fr 1fr 2fr 2.5fr; padding: 15px; background: white; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; align-items: center; }
+.table-header { font-weight: bold; border: none; background: transparent; padding-bottom: 5px; }
+
+.action-buttons { display: flex; gap: 8px; justify-content: center; }
+.action-buttons form { margin: 0; }
+
+.btn-approve { background: #22c55e; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+.btn-approve:hover { background: #16a34a; }
+
+.btn-reject { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold; }
+.btn-reject:hover { background: #dc2626; }

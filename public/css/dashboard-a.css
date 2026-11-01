@@ -1,0 +1,16 @@
+.admin-container { max-width: 1000px; margin: 0 auto; padding: 20px; font-family: sans-serif; }
+.header-teks h2 { margin: 0 0 5px 0; font-size: 20px; }
+.header-teks p { margin: 0 0 20px 0; color: #666; font-size: 13px; }
+.card-grid { display: flex; gap: 15px; margin-bottom: 20px; }
+.summary-card { flex: 1; background: white; padding: 20px; text-align: center; border-radius: 8px; border: 2px solid transparent; }
+.summary-card h3 { margin: 10px 0 5px 0; font-size: 24px; }
+.summary-card p { margin: 0; font-size: 12px; }
+/* Warna Border Kotak[cite: 7] */
+.border-blue { border-color: #3b82f6; color: #3b82f6; }
+.border-green { border-color: #22c55e; color: #22c55e; }
+.border-yellow { border-color: #eab308; color: #eab308; }
+.border-red { border-color: #ef4444; color: #ef4444; }
+    .info-banner { background: #d1d5db; padding: 15px; border-radius: 8px; font-size: 13px; color: #374151; margin-bottom: 20px; }
+.table-container { display: flex; flex-direction: column; gap: 10px; }
+.table-header, .table-row { display: grid; grid-template-columns: 0.5fr 2fr 1fr 1fr 2fr 2fr; padding: 15px; background: white; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; align-items: center; }
+.table-header { font-weight: bold; border: none; background: transparent; padding-bottom: 5px; }

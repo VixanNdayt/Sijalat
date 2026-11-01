@@ -124,6 +124,12 @@
                             </div>
 
                             <div class="input">
+                                <label>Ruangan</label>
+                                <input type="text" name="ruangan" required>
+                            </div>
+
+
+                            <div class="input">
                                 <label>Keterangan</label>
                                 <textarea name="deskripsi_minta" rows="2" required></textarea>
                             </div>

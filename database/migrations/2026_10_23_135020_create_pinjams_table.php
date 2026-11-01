@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('deskripsi_minta'); // Deskripsi keperluan peminjaman
             $table->string('bukti_ambil')->nullable(); // Path foto bukti ambil
             $table->string('bukti_kembali')->nullable(); // Path foto bukti kembali
+            $table->string('ruangan');
             $table->text('catatan')->nullable();
             $table->enum('status', ['pending', 'disetuji', 'dipinjam', 'ditolak', 'dikembalikan'])->default('pending');
             $table->timestamps();

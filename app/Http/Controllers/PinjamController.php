@@ -37,16 +37,19 @@ class PinjamController extends Controller
             'jumlah_minta'      => 'required|array',
             'jumlah_minta.*'    => 'required|integer|min:1',
             'dipinjam_saat'     => 'required|date',
+            'ruangan'           => 'required|string|max:255',
             'dikembalikan_saat' => 'required|date|after_or_equal:dipinjam_saat',
             'deskripsi_minta'   => 'required|string|max:255',
         ]);
 
         foreach ($request->alat_id as $index => $id_alat) {
             Pinjam::create([
+                'kode_pinjam'       => Pinjam::generateKodePinjam(),
                 'user_id'           => Auth::id(),
                 'alat_id'           => $id_alat,
                 'jumlah_minta'      => $request->jumlah_minta[$index],
                 'dipinjam_saat'     => $request->dipinjam_saat,
+                'ruangan'           => $request->ruangan,
                 'dikembalikan_saat' => $request->dikembalikan_saat,
                 'deskripsi_minta'   => $request->deskripsi_minta,
                 'status'            => 'pending',

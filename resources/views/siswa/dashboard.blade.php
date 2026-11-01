@@ -43,7 +43,11 @@
                 <div class="inner-information">
                     <p>Sedang dipinjam</p>
                     <h2>{{ $sedangDipinjam }}</h2>
-                    <p>Kembali pada waktu</p>
+                    @if($terbaru)
+                        <p>Kembali pada waktu : {{ \Carbon\Carbon::parse($terbaru->dikembalikan_saat)->format('d M Y, H.i') }}</p>
+                    @else
+                        <p>Belum ada peminjaman aktif</p>
+                    @endif
                 </div>
                 <div class="inner-information">
                     <p>Menunggu Approve</p>
