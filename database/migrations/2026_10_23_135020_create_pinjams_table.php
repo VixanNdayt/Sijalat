@@ -20,6 +20,9 @@ return new class extends Migration
             $table->dateTime('dikembalikan_saat')->nullable(); // Waktu pengembalian
             $table->integer('jumlah_minta')->default(1); // Jumlah alat yang dipinjam
             $table->text('deskripsi_minta'); // Deskripsi keperluan peminjaman
+            $table->string('bukti_ambil')->nullable(); // Path foto bukti ambil
+            $table->string('bukti_kembali')->nullable(); // Path foto bukti kembali
+            $table->text('catatan')->nullable();
             $table->enum('status', ['pending', 'disetuji', 'dipinjam', 'ditolak', 'dikembalikan'])->default('pending');
             $table->timestamps();
         });

@@ -73,7 +73,7 @@
 
                 </div>
                 <div class="right-information">
-                    <a class="a-a" href="">
+                    <a class="a-a" href="{{ route('pinjam.bukti') }}">
                         <p>Masuk ke page pengambilan/pengembalian</p>
                     </a>
                     <div class="form-peminjaman">
@@ -147,6 +147,7 @@
             <div class="sidebar-menu">
                 <a href="{{ route('dashboard') }}">Dashboard</a>
                 <a href="{{ route('pinjam.create') }}">Peminjaman</a>
+                <a href="{{ route('pinjam.bukti') }}">Pengambilan & Pengembalian</a>
                 <a>Riwayat</a>
                 <a>Report</a>
                 <a>Guide</a>
