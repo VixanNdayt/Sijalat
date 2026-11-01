@@ -107,7 +107,7 @@
             <div class="sidebar-menu">
                 <a href="{{ route('dashboard') }}">Dashboard</a>
                 <a href="{{ route('approval.index') }}">Approval</a>
-                <a>Manage Data</a>
+                <a href="{{ route('admin.alat.index') }}">Manage Data</a>
                 <a>Report</a>
                 <a>Guide</a>
             </div>

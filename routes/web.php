@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlatController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
@@ -34,6 +35,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin/approval', [ApprovalController::class, 'index'])->name('approval.index');
     Route::post('/admin/approval/proses/{id}', [ApprovalController::class, 'proses'])->name('approval.proses');
+
+    Route::get('/admin/alat', [AlatController::class, 'index'])->name('admin.alat.index');
+    Route::post('/admin/alat', [AlatController::class, 'store'])->name('admin.alat.store');
+    Route::put('/admin/alat/{id}', [AlatController::class, 'update'])->name('admin.alat.update');
+    Route::delete('/admin/alat/{id}', [AlatController::class, 'destroy'])->name('admin.alat.destroy');
 });
 
 require __DIR__.'/auth.php';

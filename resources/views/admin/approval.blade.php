@@ -47,6 +47,7 @@
                         <span>Nama Siswa</span>
                         <span>Barang</span>
                         <span>Qty</span>
+                        <span>Alasan</span>
                         <span>Waktu Pinjam</span>
                         <span style="text-align: center;">Aksi</span>
                     </div>
@@ -60,6 +61,7 @@
                         </span>
                         <span>{{ $trx->alat->nama }}</span>
                         <span>{{ $trx->jumlah_minta }} unit</span>
+                        <span>{{ $trx->deskripsi_minta }}</span>
                         <span>{{ \Carbon\Carbon::parse($trx->dipinjam_saat)->format('d M Y, H:i') }}</span>
                         
                         <div class="action-buttons">
@@ -95,7 +97,7 @@
             <div class="sidebar-menu">
                 <a href="{{ route('dashboard') }}">Dashboard</a>
                 <a href="{{ route('approval.index') }}">Approval</a>
-                <a>Manage Data</a>
+                <a href="{{ route('admin.alat.index') }}">Manage Data</a>
                 <a>Report</a>
                 <a>Guide</a>
             </div>
