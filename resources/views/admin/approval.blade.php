@@ -98,7 +98,7 @@
                 <a href="{{ route('dashboard') }}">Dashboard</a>
                 <a href="{{ route('approval.index') }}">Approval</a>
                 <a href="{{ route('admin.alat.index') }}">Manage Data</a>
-                <a>Report</a>
+                <a href="{{ route('admin.analisis') }}">Analisis</a>
                 <a>Guide</a>
             </div>
         </aside>

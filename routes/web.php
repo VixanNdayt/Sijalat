@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/alat', [AlatController::class, 'store'])->name('admin.alat.store');
     Route::put('/admin/alat/{id}', [AlatController::class, 'update'])->name('admin.alat.update');
     Route::delete('/admin/alat/{id}', [AlatController::class, 'destroy'])->name('admin.alat.destroy');
+
+    Route::get('/admin/analisis', [App\Http\Controllers\AnalisisController::class, 'index'])->name('admin.analisis');
 });
 
 require __DIR__.'/auth.php';

@@ -1,0 +1,27 @@
+.analisis-container { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: sans-serif; color: #333; }
+    
+.header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.header-action h2 { margin: 0; font-size: 24px; }
+.header-action p { margin: 5px 0 0 0; color: #666; font-size: 14px; }
+
+.kontrol-filter { display: flex; gap: 10px; }
+.date-picker, .btn-export { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; cursor: pointer; }
+.btn-export.pdf { background: #ef4444; color: white; border: none; font-weight: bold; }
+.btn-export.excel { background: #10b981; color: white; border: none; font-weight: bold; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+.kpi-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.kpi-card .icon { font-size: 30px; }
+.kpi-card .data p { margin: 0; font-size: 12px; color: #6b7280; font-weight: bold; }
+.kpi-card .data h3 { margin: 5px 0 0 0; font-size: 18px; }
+.chart-box, .table-widget { background: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.chart-box h4, .table-widget h4 { margin: 0 0 15px 0; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th, .data-table td { padding: 10px; text-align: left; border-bottom: 1px solid #f3f4f6; }
+.data-table th { background: #f9fafb; font-weight: bold; color: #4b5563; }
+
+.badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+.badge.pending { background: #fef08a; color: #854d0e; }
+.badge.disetuji { background: #bfdbfe; color: #1e3a8a; }
+.badge.dipinjam { background: #fecaca; color: #991b1b; }
+.badge.dikembalikan { background: #bbf7d0; color: #166534; }
