@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
         <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
@@ -23,10 +24,17 @@
                     <p>{{ auth()->user()->name }} </p>
                 </a>
                 
-                <h2>SIJALAT</h2>
-
-                <button class="toggle-btn" id="toggleBtn">☰</button>
+                @include('partials.brand')
+                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
             </nav>
+
+            @if (session('success'))
+                <div class="flash flash-success">{{ session('success') }}</div>
+            @endif
+
+            @if ($errors->has('hapus'))
+                <div class="flash flash-error">{{ $errors->first('hapus') }}</div>
+            @endif
 
             <div class="header-main">
                 <div>
@@ -61,12 +69,12 @@
                 <div class="inner-information">
                     <p>Selesai dipinjam</p>
                     <h2>{{ $dikembalikan }}</h2>
-                    <p>Presentase tepat waktu</p>
+                    <p>Total pengembalian selesai</p>
                 </div>
                 <div class="inner-information">
                     <p>Catatan Pelanggaran</p>
                     <h2>{{ $pelanggaran }}</h2>
-                    <p>Terakhir pada</p>
+                    <p>{{ $pelanggaran > 0 ? 'Pengajuan ditolak / terlambat' : 'Tidak ada pelanggaran' }}</p>
                 </div>
             </div>
 
@@ -90,7 +98,20 @@
                                     <p>{{ \Carbon\Carbon::parse($item->dipinjam_saat)->format('d M Y, H.i') }}</p>-
                                     <p>{{ \Carbon\Carbon::parse($item->dikembalikan_saat)->format('d M Y, H.i') }}</p>
                                 </div>
-                            </div>                            
+                            </div>
+
+                            @if ($item->status === 'pending')
+                                <form action="{{ route('pinjam.destroy', $item->id) }}" method="POST"
+                                      class="form-hapus-pinjam"
+                                      onsubmit="return confirm('Hapus pengajuan peminjaman {{ $item->alat->nama }}? Tindakan ini tidak bisa dibatalkan.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-hapus-pinjam" title="Hapus pengajuan">
+                                        <x-icon name="trash" size="16" />
+                                        <span>Hapus</span>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     @endforeach 
                 @endif
@@ -135,35 +156,40 @@
                                 </div>
                             </div>
                         @empty
-                            <tr>
-                                <td>
-                                    Belum ada riwayat aktivitas
-                                </td>
-                            </tr>
+                            <div class="rp-empty">
+                                <x-icon name="inbox" size="18" />
+                                <span>Belum ada riwayat aktivitas</span>
+                            </div>
                         @endforelse
                     </div>
                 </div>
                 <div class="riwayat-pelanggaran">
                     <h2>Riwayat Pelanggaran</h2>
+                    <div class="rp-pelanggaran-list">
+                        @forelse ($daftarPelanggaran as $item)
+                            <div class="rp-pelanggaran-item">
+                                <div>
+                                    <strong>{{ $item->alat->nama }}</strong>
+                                    <small>{{ \Carbon\Carbon::parse($item->dipinjam_saat)->format('d M Y') }}</small>
+                                </div>
+                                <span class="rp-badge {{ $item->status }}">
+                                    {{ $item->status === 'ditolak' ? 'Ditolak' : 'Terlambat' }}
+                                </span>
+                            </div>
+                        @empty
+                            <div class="rp-empty">
+                                <x-icon name="check-circle" size="18" />
+                                <span>Tidak ada pelanggaran tercatat</span>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
+            @include('partials.footer')
         </main>
 
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>SIJALAT</h2>
-                <p>Dashboard</p>
-            </div>
-            <div class="sidebar-menu">
-                <a href="{{ route('dashboard') }}">Dashboard</a>
-                <a href="{{ route('pinjam.create') }}">Peminjaman</a>
-                <a href="{{ route('pinjam.bukti') }}">Pengambilan & Pengembalian</a>
-                <a>Riwayat</a>
-                <a>Report</a>
-                <a>Guide</a>
-            </div>
-        </aside>
+        @include('partials.sidebar-siswa')
 
         <script src="{{ asset('js/univ.js') }}"></script>
     </body>

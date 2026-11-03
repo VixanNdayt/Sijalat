@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
         <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
@@ -23,9 +24,8 @@
                     <p>{{ auth()->user()->name }} </p>
                 </a>
                 
-                <h2>SIJALAT</h2>
-
-                <button class="toggle-btn" id="toggleBtn">☰</button>
+                @include('partials.brand')
+                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
             </nav>
 
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -39,36 +39,36 @@
                     </div>
                     <div class="kontrol-filter">
                         <input type="date" class="date-picker">
-                        <button class="btn-export pdf">📄 Export PDF</button>
-                        <button class="btn-export excel">📊 Export Excel</button>
+                        <button class="btn-export pdf"><x-icon name="file-text" size="15" /> Export PDF</button>
+                        <button class="btn-export excel"><x-icon name="table" size="15" /> Export Excel</button>
                     </div>
                 </div>
             
                 <!-- 1. METRIC CARDS (4 Kolom) -->
                 <div class="grid-4">
                     <div class="kpi-card">
-                        <span class="icon">📦</span>
+                        <span class="icon"><x-icon name="box" size="22" /></span>
                         <div class="data">
                             <p>Total Inventaris</p>
                             <h3>{{ $totalSKU }} SKU / {{ $totalUnit }} Unit</h3>
                         </div>
                     </div>
                     <div class="kpi-card">
-                        <span class="icon">🔄</span>
+                        <span class="icon"><x-icon name="refresh" size="22" /></span>
                         <div class="data">
                             <p>Distribusi Stok</p>
                             <h3>{{ $stokTersedia }} Ready / {{ $sedangDipinjam }} Out</h3>
                         </div>
                     </div>
                     <div class="kpi-card">
-                        <span class="icon">🛠️</span>
+                        <span class="icon"><x-icon name="wrench" size="22" /></span>
                         <div class="data">
                             <p>Kondisi Fisik</p>
                             <h3 style="font-size: 14px;">B: {{ $kondisiBaik }} | R: {{ $kondisiRusak }} | M: {{ $kondisiMtc }}</h3>
                         </div>
                     </div>
                     <div class="kpi-card">
-                        <span class="icon">⚠️</span>
+                        <span class="icon"><x-icon name="alert-triangle" size="22" /></span>
                         <div class="data">
                             <p>Status Transaksi</p>
                             <h3 style="font-size: 14px;">{{ $pendingApproval }} Pend | {{ $activeLoans }} Act | <span style="color:red;">{{ $overdueCount }} Over</span></h3>
@@ -102,7 +102,7 @@
                 <div class="grid-2">
                     <!-- Tabel Alert Stok & Perbaikan -->
                     <div class="table-widget">
-                        <h4 style="color: #dc2626;">🚨 Alert Stok & Kerusakan</h4>
+                        <h4 style="color: #dc2626; display:flex; align-items:center; gap:6px;"><x-icon name="alert-circle" size="18" /> Alert Stok &amp; Kerusakan</h4>
                         <table class="data-table">
                             <tr>
                                 <th>Nama Alat</th>
@@ -121,7 +121,7 @@
                 
                     <!-- Tabel Recent Activity -->
                     <div class="table-widget">
-                        <h4>🕒 Log Aktivitas Terbaru</h4>
+                        <h4 style="display:flex; align-items:center; gap:6px;"><x-icon name="clock" size="18" /> Log Aktivitas Terbaru</h4>
                         <table class="data-table">
                             <tr>
                                 <th>Waktu</th>
@@ -144,21 +144,11 @@
                 </div>
             </div>
         
+            @include('partials.footer')
+        
         </main>
 
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>SIJALAT</h2>
-                <p>Dashboard</p>
-            </div>
-            <div class="sidebar-menu">
-                <a href="{{ route('dashboard') }}">Dashboard</a>
-                <a href="{{ route('approval.index') }}">Approval</a>
-                <a href="{{ route('admin.alat.index') }}">Manage Data</a>
-                <a href="{{ route('admin.analisis') }}">Analisis</a>
-                <a>Guide</a>
-            </div>
-        </aside>
+        @include('partials.sidebar-admin')
 
         <script src="{{ asset('js/univ.js') }}"></script>
         <script src="{{ asset('js/manage.js') }}"></script>

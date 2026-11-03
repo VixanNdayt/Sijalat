@@ -60,8 +60,14 @@ class DashboardController extends Controller
 
     $pelanggaran = (clone $query)->whereIn('status', ['terlambat', 'ditolak'])->count();
 
+    $daftarPelanggaran = (clone $query)
+        ->whereIn('status', ['terlambat', 'ditolak'])
+        ->latest()
+        ->take(5)
+        ->get();
+
     $riwayat = $query->latest()->paginate(5);
     // Jika yang login adalah Siswa, arahkan ke dashboard siswa seperti biasa
-    return view('siswa.dashboard', compact('menunggu', 'sedangDipinjam', 'dikembalikan', 'pelanggaran','riwayat', 'pinjamanAktif', 'terbaru'));
+    return view('siswa.dashboard', compact('menunggu', 'sedangDipinjam', 'dikembalikan', 'pelanggaran','riwayat', 'pinjamanAktif', 'terbaru', 'daftarPelanggaran'));
     }
 }

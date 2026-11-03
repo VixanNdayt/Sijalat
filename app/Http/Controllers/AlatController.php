@@ -106,16 +106,16 @@ class AlatController extends Controller
         $alat->jumlah_stok = $totalQty;
 
         // Jika admin mengunggah foto baru, ganti yang lama
-        if ($request->hasFile('foto')) {
+        if ($request->hasFile('img')) {
             // Hapus foto lama jika ada (opsional)
-            if ($alat->foto && file_exists(public_path($alat->foto))) {
-                unlink(public_path($alat->foto));
+            if ($alat->img && file_exists(public_path($alat->img))) {
+                unlink(public_path($alat->img));
             }
-            
-            $file = $request->file('foto');
+
+            $file = $request->file('img');
             $namaFile = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('equipment'), $namaFile);
-            $alat->foto = 'equipment/' . $namaFile;
+            $alat->img = 'equipment/' . $namaFile;
         }
         $alat->save();
         return back()->with('success', 'Data alat berhasil diperbarui!');

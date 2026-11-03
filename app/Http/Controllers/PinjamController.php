@@ -23,7 +23,22 @@ class PinjamController extends Controller
     public function create()
     {
         $alats = Alat::where('jumlah_stok', '>', 0)->get();
-        return view('pinjam.create', compact('alats'));
+
+        // Pulihkan isi keranjang ketika validasi gagal (old input)
+        $oldCart = [];
+        $oldId = old('alat_id', []);
+        $oldQty = old('jumlah_minta', []);
+
+        if (is_array($oldId)) {
+            foreach ($oldId as $index => $id) {
+                $oldCart[] = [
+                    'id'  => (int) $id,
+                    'qty' => (int) ($oldQty[$index] ?? 1),
+                ];
+            }
+        }
+
+        return view('pinjam.create', compact('alats', 'oldCart'));
     }
 
     /**
@@ -45,6 +60,8 @@ class PinjamController extends Controller
         foreach ($request->alat_id as $index => $id_alat) {
             Pinjam::create([
                 'kode_pinjam'       => Pinjam::generateKodePinjam(),
+                'qr_ambil_token'    => Pinjam::generateQrToken(),
+                'qr_kembali_token'  => Pinjam::generateQrToken(),
                 'user_id'           => Auth::id(),
                 'alat_id'           => $id_alat,
                 'jumlah_minta'      => $request->jumlah_minta[$index],
@@ -90,7 +107,22 @@ class PinjamController extends Controller
      */
     public function destroy(Pinjam $pinjam)
     {
-        //
+        // Hanya pemilik request yang boleh menghapus
+        if ($pinjam->user_id !== Auth::id()) {
+            return redirect()->route('dashboard')
+                ->withErrors(['hapus' => 'Kamu tidak berhak menghapus pengajuan ini.']);
+        }
+
+        // Hanya pengajuan yang masih pending yang bisa dibatalkan
+        if ($pinjam->status !== 'pending') {
+            return redirect()->route('dashboard')
+                ->withErrors(['hapus' => 'Pengajuan ini sudah diproses dan tidak bisa dihapus.']);
+        }
+
+        $pinjam->delete();
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Pengajuan peminjaman berhasil dihapus.');
     }
     
 }

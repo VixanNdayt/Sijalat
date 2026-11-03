@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Alat;
 use App\Models\Pinjam;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class TransaksiController extends Controller
 {
     /**
-     * Tampilkan halaman bukti peminjaman / pengembalian dengan verifikasi QR meja lab
+     * Tampilkan halaman bukti peminjaman / pengembalian dengan verifikasi QR per transaksi
      */
     public function create()
     {
@@ -44,7 +41,7 @@ class TransaksiController extends Controller
     }
 
     /**
-     * API: Verifikasi QR Code Meja Lab atau Kode Peminjaman
+     * API: Verifikasi QR Code transaksi (dibuat khusus per peminjaman).
      */
     public function cariKode(Request $request)
     {
@@ -54,75 +51,114 @@ class TransaksiController extends Controller
         ]);
 
         $kode = trim($request->kode);
-        $aksi = $request->aksi;
+        $aksi = strtoupper($request->aksi);
 
-        // Kode QR Meja Lab yang sah
-        $kodeResmiMeja = ($aksi === 'AMBIL') ? 'SIJALAT-AMBIL-LAB' : 'SIJALAT-KEMBALI-LAB';
-
-        // 1. Cek apakah ini QR Code Meja Lab
-        if (strtoupper($kode) === $kodeResmiMeja) {
-            $user = Auth::user();
-            
-            // Ambil peminjaman aktif user yang sesuai aksi
-            $pinjam = Pinjam::with('alat')
-                ->where('user_id', $user->id)
-                ->when($aksi === 'AMBIL', function ($q) {
-                    $q->whereIn('status', ['disetuji']);
-                }, function ($q) {
-                    $q->where('status', 'dipinjam');
-                })
-                ->latest()
-                ->first();
-
+        // Format: SIJALAT-AMBIL-{id}-{token} / SIJALAT-KEMBALI-{id}-{token}
+        if (! preg_match('/^SIJALAT-(AMBIL|KEMBALI)-(\d+)-([A-Za-z0-9]+)$/', $kode, $cocok)) {
             return response()->json([
-                'success'       => true,
-                'tipe'          => 'MEJA_LAB',
-                'message'       => 'Verifikasi Meja Lab Berhasil! Lokasi terkonfirmasi.',
-                'pinjam_aktif'  => $pinjam ? [
-                    'id'          => $pinjam->id,
-                    'kode_pinjam' => $pinjam->kode_pinjam,
-                    'barang'      => $pinjam->alat->nama ?? '',
-                    'status'      => $pinjam->status,
-                ] : null,
-            ]);
+                'success' => false,
+                'message' => 'QR Code tidak dikenali. Pastikan Anda men-scan QR yang ditunjukkan guru.',
+            ], 422);
         }
 
-        // 2. Jika bukan QR Meja, cek apakah ini kode_pinjam perorangan (dukungan ganda)
-        $pinjam = Pinjam::with(['user', 'alat'])
-                    ->where('kode_pinjam', $kode)
-                    ->first();
+        $jenis = $cocok[1];
+        $pinjamId = (int) $cocok[2];
+        $token = $cocok[3];
 
-        if ($pinjam) {
+        if ($jenis !== $aksi) {
             return response()->json([
-                'success' => true,
-                'tipe'    => 'KODE_PINJAM',
-                'message' => 'Kode peminjaman terverifikasi.',
-                'data'    => [
-                    'id'          => $pinjam->id,
-                    'kode_pinjam' => $pinjam->kode_pinjam,
-                    'nama'        => $pinjam->user->name ?? '',
-                    'nis'         => $pinjam->user->nis ?? '',
-                    'barang'      => $pinjam->alat->nama ?? '',
-                    'status'      => $pinjam->status,
-                ],
-            ]);
+                'success' => false,
+                'message' => 'QR ini adalah QR ' . ($jenis === 'AMBIL' ? 'pengambilan' : 'pengembalian')
+                    . ', bukan QR ' . ($aksi === 'AMBIL' ? 'pengambilan' : 'pengembalian') . '.',
+            ], 422);
+        }
+
+        $pinjam = Pinjam::with('alat')
+            ->where('id', $pinjamId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $pinjam) {
+            return response()->json([
+                'success' => false,
+                'message' => 'QR Code ini bukan milik peminjaman Anda.',
+            ], 404);
+        }
+
+        $tokenTersimpan = $jenis === 'AMBIL' ? $pinjam->qr_ambil_token : $pinjam->qr_kembali_token;
+
+        if (empty($tokenTersimpan) || ! hash_equals($tokenTersimpan, $token)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'QR Code tidak valid atau sudah kedaluwarsa. Minta guru untuk menampilkan ulang QR-nya.',
+            ], 422);
+        }
+
+        $statusWajib = $jenis === 'AMBIL' ? 'disetuji' : 'dipinjam';
+
+        if ($pinjam->status !== $statusWajib) {
+            if ($jenis === 'AMBIL' && $pinjam->status === 'pending') {
+                $pesan = 'Peminjaman ini belum disetujui guru, QR pengambilan belum bisa dipakai.';
+            } elseif ($jenis === 'AMBIL') {
+                $pesan = 'Alat untuk peminjaman ini sudah diambil sebelumnya.';
+            } elseif ($pinjam->status === 'dikembalikan') {
+                $pesan = 'Peminjaman ini sudah selesai dan alat sudah dikembalikan.';
+            } else {
+                $pesan = 'Status peminjaman tidak sesuai untuk pengembalian.';
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $pesan,
+            ], 409);
         }
 
         return response()->json([
-            'success' => false,
-            'message' => 'QR Code tidak valid! Pastikan Anda men-scan QR Code yang tertempel di Meja Lab ' . ($aksi === 'AMBIL' ? 'Pengambilan' : 'Pengembalian') . '.',
-        ], 404);
+            'success' => true,
+            'tipe'    => 'QR_TRANSAKSI',
+            'message' => 'QR ' . ($jenis === 'AMBIL' ? 'pengambilan' : 'pengembalian')
+                . ' cocok dengan transaksi ' . ($pinjam->alat->nama ?? 'alat') . '.',
+            'data'    => [
+                'id'           => $pinjam->id,
+                'jenis'        => strtolower($jenis),
+                'kode_pinjam'  => $pinjam->kode_pinjam,
+                'barang'       => $pinjam->alat->nama ?? '',
+                'jumlah_minta' => $pinjam->jumlah_minta,
+                'status'       => $pinjam->status,
+                'token'        => $token,
+                'nama'         => Auth::user()->name ?? '',
+                'nis'          => Auth::user()->nis ?? '',
+                'kelas'        => Auth::user()->kelas ?? '',
+                'waktu_mulai'  => $pinjam->dipinjam_saat
+                    ? \Carbon\Carbon::parse($pinjam->dipinjam_saat)->format('H:i')
+                    : '',
+                'waktu_selesai' => $pinjam->dikembalikan_saat
+                    ? \Carbon\Carbon::parse($pinjam->dikembalikan_saat)->format('H:i')
+                    : '',
+                'tempat'       => $pinjam->ruangan ?? '',
+                'jadwal'       => trim(
+                    ($pinjam->dipinjam_saat
+                        ? \Carbon\Carbon::parse($pinjam->dipinjam_saat)->format('d M Y, H.i')
+                        : '')
+                    . ' - ' .
+                    ($pinjam->dikembalikan_saat
+                        ? \Carbon\Carbon::parse($pinjam->dikembalikan_saat)->format('d M Y, H.i')
+                        : '')
+                ),
+            ],
+        ]);
     }
 
     /**
-     * Proses transaksi pengambilan atau pengembalian alat
+     * Proses transaksi pengambilan atau pengembalian alat.
+     * Wajib menyertakan token QR yang sudah diverifikasi.
      */
     public function proses(Request $request)
     {
         $request->validate([
             'aksi'        => 'required|in:AMBIL,KEMBALI',
-            'pinjam_id'   => 'nullable|exists:pinjams,id',
-            'kode_pinjam' => 'nullable|string',
+            'pinjam_id'   => 'required|exists:pinjams,id',
+            'qr_token'    => 'required|string',
             'nis'         => 'required|string',
             'barang'      => 'required|string',
             'bukti_foto'  => 'required|image|mimes:jpeg,png,jpg|max:2048',
@@ -130,45 +166,27 @@ class TransaksiController extends Controller
         ]);
 
         $aksi = $request->aksi;
-        $pinjam = null;
 
-        // Cari berdasarkan pinjam_id yang dipilih di dropdown
-        if ($request->filled('pinjam_id')) {
-            $pinjam = Pinjam::with(['user', 'alat'])->find($request->pinjam_id);
+        $pinjam = Pinjam::with(['user', 'alat'])
+            ->where('id', $request->pinjam_id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $pinjam) {
+            return back()->with('error', 'Data peminjaman tidak ditemukan atau bukan milik Anda.')->withInput();
         }
 
-        // Jika tidak ada pinjam_id, cari berdasarkan kode_pinjam
-        if (!$pinjam && $request->filled('kode_pinjam')) {
-            $pinjam = Pinjam::with(['user', 'alat'])
-                        ->where('kode_pinjam', trim($request->kode_pinjam))
-                        ->first();
+        // Pastikan transaksi ini benar-benar sudah diverifikasi lewat QR yang sesuai
+        $tokenTersimpan = $aksi === 'AMBIL' ? $pinjam->qr_ambil_token : $pinjam->qr_kembali_token;
+
+        if (empty($tokenTersimpan) || ! hash_equals($tokenTersimpan, (string) $request->qr_token)) {
+            return back()->with('error', 'Verifikasi QR tidak valid. Scan ulang QR yang ditunjukkan guru.')->withInput();
         }
 
-        // Fallback: Cari berdasarkan NIS & nama barang
-        if (!$pinjam) {
-            $user = User::where('nis', $request->nis)->first();
-            if (!$user) {
-                return back()->with('error', 'Siswa dengan NIS tersebut tidak ditemukan!')->withInput();
-            }
+        $statusWajib = $aksi === 'AMBIL' ? 'disetuji' : 'dipinjam';
 
-            $alat = Alat::where('nama', 'LIKE', '%' . $request->barang . '%')->first();
-            if (!$alat) {
-                return back()->with('error', 'Data alat tidak ditemukan di katalog!')->withInput();
-            }
-
-            $pinjam = Pinjam::where('user_id', $user->id)
-                            ->where('alat_id', $alat->id)
-                            ->when($aksi === 'AMBIL', function ($q) {
-                                $q->whereIn('status', ['disetuji']);
-                            }, function ($q) {
-                                $q->where('status', 'dipinjam');
-                            })
-                            ->latest()
-                            ->first();
-        }
-
-        if (!$pinjam) {
-            return back()->with('error', "Tidak ada data peminjaman aktif untuk aksi $aksi pada siswa/alat ini.")->withInput();
+        if ($pinjam->status !== $statusWajib) {
+            return back()->with('error', 'Status peminjaman sudah berubah. Silakan muat ulang halaman.')->withInput();
         }
 
         // Upload Gambar Bukti

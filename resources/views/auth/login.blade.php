@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT')</title>
         <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 
@@ -13,10 +14,11 @@
             <section class="hero1">
                 <div>
                     <div class="logo">
+                        <img src="{{ asset('svg/logo-sijalat.svg') }}" alt="Logo SIJALAT">
                         <h3>SIJALAT</h3>
                     </div>
                     <h2>Pinjam Alat dengan cepat</h2>
-                    <p>Lakukan peminjaman secara cepat dan efisien</p>
+                    <p>Sistem Peminjaman Alat SIJA &mdash; ajukan, ambil, dan kembalikan alat dalam satu tempat.</p>
                 </div>
                 <div>
 

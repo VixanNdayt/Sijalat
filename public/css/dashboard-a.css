@@ -1,8 +1,8 @@
-.admin-container { max-width: 1000px; margin: 0 auto; padding: 20px; font-family: sans-serif; }
+.admin-container { max-width: 1000px; margin: 0 auto; padding: 20px; font-family: sans-serif; width: 100%; }
 .header-teks h2 { margin: 0 0 5px 0; font-size: 20px; }
 .header-teks p { margin: 0 0 20px 0; color: #666; font-size: 13px; }
-.card-grid { display: flex; gap: 15px; margin-bottom: 20px; }
-.summary-card { flex: 1; background: white; padding: 20px; text-align: center; border-radius: 8px; border: 2px solid transparent; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.summary-card { background: white; padding: 20px; text-align: center; border-radius: 8px; border: 2px solid transparent; min-width: 0; }
 .summary-card h3 { margin: 10px 0 5px 0; font-size: 24px; }
 .summary-card p { margin: 0; font-size: 12px; }
 /* Warna Border Kotak[cite: 7] */
@@ -14,3 +14,56 @@
 .table-container { display: flex; flex-direction: column; gap: 10px; }
 .table-header, .table-row { display: grid; grid-template-columns: 0.5fr 2fr 1fr 1fr 2fr 2fr; padding: 15px; background: white; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; align-items: center; }
 .table-header { font-weight: bold; border: none; background: transparent; padding-bottom: 5px; }
+
+@media (max-width: 700px) {
+    .admin-container { padding: 14px; }
+    .header-teks p { margin-bottom: 14px; }
+
+    .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .summary-card { padding: 14px 10px; }
+    .summary-card h3 { font-size: 20px; }
+    .summary-card .icon { font-size: 22px; }
+
+    .info-banner { padding: 12px; }
+
+    /* Sembunyikan header tabel, ubah tiap baris jadi kartu berlabel */
+    .table-header { display: none; }
+
+    .table-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px;
+        font-size: 13px;
+    }
+
+    .table-row > span {
+        display: block;
+        position: relative;
+        padding-left: 74px;
+        width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .table-row > span::before {
+        position: absolute;
+        left: 0;
+        top: 1px;
+        width: 66px;
+        font-size: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+    .table-row > span:nth-child(1)::before { content: "No"; }
+    .table-row > span:nth-child(2)::before { content: "Nama"; }
+    .table-row > span:nth-child(3)::before { content: "NIS"; }
+    .table-row > span:nth-child(4)::before { content: "Kelas"; }
+    .table-row > span:nth-child(5)::before { content: "Item"; }
+    .table-row > span:nth-child(6)::before { content: "Waktu"; }
+}
+
+@media (max-width: 380px) {
+    .card-grid { grid-template-columns: 1fr; }
+}

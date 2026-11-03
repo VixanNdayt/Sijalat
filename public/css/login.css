@@ -1,8 +1,13 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     padding: 40px;
     margin: 0;
-    height: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
     justify-content: center;
     align-items: center;    
 }
@@ -11,7 +16,8 @@ body {
     flex-direction: row;
     justify-self: center;
     width: 90%;
-    height: 90vh;
+    min-height: 90vh;
+    height: auto;
     padding: 0;
     margin: 0 auto;
     background-color: #e4e4e4;
@@ -79,12 +85,126 @@ label {
 @media (max-width: 1000px) {
   .page {
     justify-content: center;
+    width: 100%;
+    max-width: 560px;
+    min-height: calc(100vh - 80px);
+    margin: 0 auto;
   }
 
   .login {
-    width: 90%;
+    width: 100%;
+    padding: 24px 20px;
   }
+
   .hero1 {
     display: none;
   }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 14px 12px;
+    align-items: stretch;
+  }
+
+  .page {
+    max-width: 100%;
+    min-height: calc(100vh - 28px);
+    border-radius: 14px;
+  }
+
+  .login {
+    padding: 18px 12px;
+    align-self: stretch;
+    border-radius: 14px;
+  }
+
+  .login h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .login-form {
+    width: 100%;
+    padding: 16px 14px;
+    border-radius: 12px;
+  }
+
+  .login-form h2 {
+    font-size: 17px;
+  }
+
+  input {
+    width: 100%;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  .form-group-reg-1 {
+    width: 100%;
+  }
+
+  .form-group-reg-1 input {
+    width: 100%;
+  }
+
+  /* Baris Nama + NIS pada halaman register jadi bertumpuk */
+  .form-group[style*="row"] {
+    flex-direction: column !important;
+    gap: 12px;
+  }
+
+  .form input[type="submit"] {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+
+  .alert-error ul {
+    padding-left: 18px;
+  }
+}
+/* ===== Animasi tombol login/register ===== */
+.form input[type="submit"] {
+    box-shadow: 0 4px 10px rgba(0, 78, 57, 0.25);
+    transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1),
+        box-shadow 0.22s ease, filter 0.2s ease;
+}
+
+.form input[type="submit"]:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+    box-shadow: 0 8px 18px rgba(0, 78, 57, 0.35);
+}
+
+.form input[type="submit"]:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 3px 6px rgba(0, 78, 57, 0.3);
+}
+
+.form input[type="submit"]:focus-visible {
+    outline: 3px solid rgba(0, 92, 67, 0.45);
+    outline-offset: 2px;
+}
+
+.login-form a {
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    text-underline-offset: 2px;
+}
+
+.login-form a:hover {
+    color: #004E39;
+    text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .form input[type="submit"],
+    .login-form a {
+        transition: none !important;
+    }
+
+    .form input[type="submit"]:hover,
+    .form input[type="submit"]:active {
+        transform: none;
+    }
 }

@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
         <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
@@ -10,7 +11,7 @@
 
         @stack('styles')
     </head>
-    <body>
+    <body class="page-pinjam">
         <div class="overlay" id="overlay"></div>
 
         <!-- Main Content -->
@@ -19,13 +20,12 @@
             <!-- navbar -->
             <nav class="navbar">
                 <a class="profile-edit" href="{{ route('profile.edit') }}">
-                    <img src="{{ asset('svg/user_icon.svg') }}">
+                    <img src="{{ asset('svg/user_icon.svg') }}" alt="">
                     <p>{{ auth()->user()->name }} </p>
                 </a>
                 
-                <h2>SIJALAT</h2>
-
-                <button class="toggle-btn" id="toggleBtn">☰</button>
+                @include('partials.brand')
+                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
             </nav>
 
             <header>
@@ -41,11 +41,11 @@
                         <p>Cari alat</p>
                         <div>
                             <input type="text" id="searchInput" placeholder="Cari alat...">
-                            <select id="filterKatgeori">
-                                <option>All</option>
+                            <select id="filterKategori">
+                                <option value="">All</option>
                                 <option value="laptop">Laptop</option>
                             </select>
-                            <button type="submit">Search</button>
+                            <button type="button">Search</button>
                         </div>
                     </div>
 
@@ -63,7 +63,7 @@
                                     <p>Qty : {{ $alat->jumlah_stok }} | Ready : {{ $alat->stok_tersedia ?? $alat->jumlah_stok }}</p>
 
                                     <!-- Tombol Tambahkan memanggil fungsi JavaScript -->
-                                    <button type="button" onclick="pilihBarang({{ $alat->id }}, '{{ $alat->nama }}')">
+                                    <button type="button" onclick="pilihBarang({{ $alat->id }}, @js($alat->nama))">
                                         Tambahkan
                                     </button>
                                 </div>
@@ -72,93 +72,127 @@
                     </div>
 
                 </div>
+
                 <div class="right-information">
-                    <a class="a-a" href="{{ route('pinjam.bukti') }}">
-                        <p>Masuk ke page pengambilan/pengembalian</p>
-                    </a>
-                    <div class="form-peminjaman">
-                        <h3>Form Peminjaman</h3>
-
-                        @if ($errors->any())
-                            <div style="background-color: #fee2e2; color: #dc2626; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px;">
-                                <ul style="margin: 0; padding-left: 20px;">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
+                    <!-- Ringkasan keranjang + tombol pembuka form (melayang di HP) -->
+                    <div class="keranjang-panel {{ $errors->any() || count($oldCart) ? 'is-open' : '' }}" id="keranjang-panel">
+                        <div class="keranjang-panel-head">
+                            <h3><x-icon name="cart" size="17" /> Keranjang</h3>
+                            <div class="keranjang-head-right">
+                                <span class="keranjang-count" id="keranjang-count">0</span>
+                                <button type="button" class="keranjang-toggle" id="btnToggleKeranjang"
+                                        aria-expanded="{{ $errors->any() || count($oldCart) ? 'true' : 'false' }}"
+                                        aria-controls="keranjang-detail" aria-label="Tampilkan rincian keranjang">
+                                    <x-icon name="chevron-down" size="18" />
+                                </button>
                             </div>
-                        @endif
+                        </div>
 
-                        <form action="{{ route('pinjam.store') }}" method="POST" class="form-main">
-                            @csrf
+                        <div class="keranjang-detail" id="keranjang-detail">
+                            <a class="a-a" href="{{ route('pinjam.bukti') }}">
+                                <x-icon name="qr-code" size="15" />
+                                <span>Scan QR pengambilan / pengembalian</span>
+                            </a>
 
-                            <input type="hidden" name="alat_id" id="alat_id_input">
-
-                            <div class="input">
-                                <label>Nama</label>
-                                <input type="text" value="{{ Auth::user()->name }}" readonly>
-                            </div>
-
-                            
-                            <div class="input">
-                                <label>NIS</label>
-                                <input type="text" value="{{ Auth::user()->nis }}" readonly>
+                            <div class="keranjang">
+                                <p id="keranjang-kosong" class="keranjang-kosong">Belum ada alat yang dipilih.</p>
+                                <div id="keranjang-summary"></div>
                             </div>
 
-                            <div class="input">
-                                <label>Keranjang Alat</label>
-                                <!-- Kotak pembungkus keranjang -->
-                                <div class="keranjang">
-                                    <p id="keranjang-kosong" class="keranjang-kosong" style="color: gray; font-size: 14px; font-style: italic;">Belum ada alat yang dipilih.</p>
-                                    <!-- Daftar barang akan otomatis disisipkan JavaScript di dalam div bawah ini -->
-                                    <div id="keranjang-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            @if ($errors->any())
+                                <div class="keranjang-error">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
                                 </div>
-                            </div>
+                            @endif
 
-                            <div class="input">
-                                <label>Waktu Ambil & kembalikan</label>
-                                <div class="two-form">
-                                    <input type="datetime-local" name="dipinjam_saat" required> -
-                                    <input type="datetime-local" name="dikembalikan_saat" required>
-                                </div>
-                            </div>
+                            <p class="keranjang-hint">Pilih alat di katalog, lalu isi form peminjaman.</p>
+                        </div>
 
-                            <div class="input">
-                                <label>Ruangan</label>
-                                <input type="text" name="ruangan" required>
-                            </div>
-
-
-                            <div class="input">
-                                <label>Keterangan</label>
-                                <textarea name="deskripsi_minta" rows="2" required></textarea>
-                            </div>
-
-                            <button type="submit" class="submit-btn">
-                                Submit
-                            </button>
-                        </form>
+                        <button type="button" class="btn-primary" id="btnBukaForm" onclick="bukaFormPeminjaman()" disabled>
+                            <x-icon name="file-text" size="16" /> Isi Form Peminjaman
+                        </button>
                     </div>
                 </div>
                 
             </div>
+            @include('partials.footer')
         </main>
 
+        <!-- ============================================ -->
+        <!-- MODAL FORM PEMINJAMAN                        -->
+        <!-- ============================================ -->
+        <div class="modal" id="modal-pinjam" role="dialog" aria-modal="true" aria-labelledby="judulFormPinjam">
+            <div class="modal-backdrop" data-modal-close></div>
+
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 id="judulFormPinjam">Form Peminjaman</h3>
+                    <button type="button" class="modal-close" data-modal-close aria-label="Tutup">
+                        <x-icon name="x" size="18" />
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form action="{{ route('pinjam.store') }}" method="POST" class="form-main" id="formPeminjaman">
+                        @csrf
+
+                        <div class="input">
+                            <label>Nama</label>
+                            <input type="text" value="{{ Auth::user()->name }}" readonly>
+                        </div>
+
+                        <div class="input">
+                            <label>NIS</label>
+                            <input type="text" value="{{ Auth::user()->nis }}" readonly>
+                        </div>
+
+                        <div class="input">
+                            <label>Keranjang Alat</label>
+                            <!-- Input asli (alat_id[] & jumlah_minta[]) tinggal di sini -->
+                            <div class="keranjang keranjang-modal">
+                                <p id="keranjang-modal-kosong" class="keranjang-kosong">Belum ada alat yang dipilih.</p>
+                                <div id="keranjang-container"></div>
+                            </div>
+                        </div>
+
+                        <div class="input">
+                            <label>Waktu Ambil &amp; kembalikan</label>
+                            <div class="two-form">
+                                <input type="datetime-local" name="dipinjam_saat" value="{{ old('dipinjam_saat') }}" required> -
+                                <input type="datetime-local" name="dikembalikan_saat" value="{{ old('dikembalikan_saat') }}" required>
+                            </div>
+                        </div>
+
+                        <div class="input">
+                            <label>Ruangan</label>
+                            <input type="text" name="ruangan" value="{{ old('ruangan') }}" required>
+                        </div>
+
+                        <div class="input">
+                            <label>Keterangan</label>
+                            <textarea name="deskripsi_minta" rows="2" required>{{ old('deskripsi_minta') }}</textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data untuk JavaScript -->
+        <script>
+            window.alatMap = @json($alats->pluck('nama', 'id'));
+            window.oldCart = @json($oldCart);
+        </script>
+
             <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>SIJALAT</h2>
-                <p>Dashboard</p>
-            </div>
-            <div class="sidebar-menu">
-                <a href="{{ route('dashboard') }}">Dashboard</a>
-                <a href="{{ route('pinjam.create') }}">Peminjaman</a>
-                <a href="{{ route('pinjam.bukti') }}">Pengambilan & Pengembalian</a>
-                <a>Riwayat</a>
-                <a>Report</a>
-                <a>Guide</a>
-            </div>
-        </aside>
+        @include('partials.sidebar-siswa')
 
         <script src="{{ asset('js/univ.js') }}"></script>
         <script src="{{ asset('js/pinjam.js') }}"></script>

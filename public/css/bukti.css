@@ -281,6 +281,33 @@ textarea:focus {
     flex: 1;
 }
 
+/* Keterangan jadwal yang terisi otomatis setelah scan QR */
+.auto-fill-hint {
+    display: block;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Petunjuk kecil di bawah input (mis. kelas belum diisi) */
+.field-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #92400e;
+}
+
+.field-hint a {
+    color: #004E39;
+    font-weight: bold;
+}
+
 /* Kotak Upload Foto Estetik */
 .upload-box {
     display: block;
@@ -444,19 +471,133 @@ input[type="file"] {
 }
 
 @media (max-width: 600px) {
+    .main-container {
+        margin: 16px auto;
+        padding: 0 12px 32px 12px;
+    }
+
     .page-top-bar {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 10px;
     }
+
+    .page-top-bar h2 {
+        font-size: 18px;
+    }
+
+    .btn-modal-qr {
+        width: 100%;
+        padding: 10px 14px;
+    }
+
+    .form-wrapper {
+        padding: 16px;
+    }
+
+    .qr-box {
+        padding: 12px;
+    }
+
     .qr-actions {
         flex-direction: column;
         align-items: stretch;
     }
+
+    .qr-input-group {
+        min-width: 0;
+    }
+
     .qr-or {
         text-align: center;
     }
+
     .row {
         flex-direction: column;
         gap: 0;
     }
+
+    .tab-container {
+        gap: 8px;
+    }
+
+    .tab-btn {
+        padding: 10px 6px;
+        font-size: 11px;
+    }
+
+    .modal-qr {
+        padding: 12px;
+    }
+
+    .modal-qr-content {
+        padding: 16px;
+    }
+
+    .qr-card-print {
+        width: 100%;
+        max-width: 240px;
+    }
+
+    input[type="text"],
+    input[type="time"],
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 400px) {
+    .tab-btn {
+        font-size: 10px;
+        letter-spacing: 0;
+    }
+
+    .qr-label {
+        font-size: 12px;
+    }
+}
+
+/* ---------------------------------------------------------------
+   Perataan ikon SVG pada halaman bukti
+   --------------------------------------------------------------- */
+.btn-modal-qr,
+.btn-scan,
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.btn-submit {
+    display: flex;
+}
+
+.qr-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.modal-qr-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 6px;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.modal-qr-close:hover {
+    background: #e5e7eb;
+    color: #111827;
 }

@@ -4,7 +4,9 @@ use App\Http\Controllers\AlatController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\PinjamController;
+use App\Http\Controllers\QrTransaksiController;
 use App\Http\Controllers\TransaksiController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,11 +22,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/pinjam/buat', [PinjamController::class, 'create'])->name('pinjam.create');
     Route::post('/pinjam', [PinjamController::class, 'store'])->name('pinjam.store');
+    Route::delete('/pinjam/{pinjam}', [PinjamController::class, 'destroy'])->name('pinjam.destroy');
 
     Route::get('/pinjam/bukti', [TransaksiController::class, 'create'])->name('pinjam.bukti');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/guide', [GuideController::class, 'index'])->name('guide');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -42,6 +47,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/admin/alat/{id}', [AlatController::class, 'destroy'])->name('admin.alat.destroy');
 
     Route::get('/admin/analisis', [App\Http\Controllers\AnalisisController::class, 'index'])->name('admin.analisis');
+
+    Route::get('/admin/qr', [QrTransaksiController::class, 'index'])->name('admin.qr.index');
+    Route::get('/admin/qr/{pinjam}/{jenis}', [QrTransaksiController::class, 'print'])->name('admin.qr.print');
 });
 
 require __DIR__.'/auth.php';

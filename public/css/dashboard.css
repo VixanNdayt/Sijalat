@@ -1,11 +1,12 @@
 .header-main {
     display: flex;
     width: 100%;
-    padding: 10px;
-    margin: 20px;
-    justify-content: space-evenly;
-    justify-self: center;
+    max-width: 1200px;
+    padding: 10px 20px;
+    margin: 20px auto;
+    justify-content: space-between;
     align-items: center;
+    gap: 16px;
 }
 
 .header-main a {
@@ -13,9 +14,13 @@
     border: none;
     border-radius: 30px;
     color: white;
-    padding: 8px;
+    padding: 8px 14px;
     text-decoration: none;
     font-size: smaller;
+    text-align: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: transform 0.2s;
 }
 
 .header-main a:hover {
@@ -27,10 +32,11 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    justify-self: center;
+    max-width: 1200px;
     gap: 20px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
+    padding: 0 20px;
 }
 
 .inner-information {
@@ -43,6 +49,7 @@
     border-radius: 12px;
     font-size: smaller;
     width: 200px;
+    min-width: 0;
     gap: 20px;
 }
 
@@ -53,9 +60,9 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    justify-self: center;
-    align-self: center;
-    margin-bottom: 20px;
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 0 20px;
 }
 
 .sedang-dipinjam {
@@ -75,6 +82,8 @@
 .text-sd {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    width: 100%;
 }
 
 .inner-text-sd {
@@ -82,13 +91,52 @@
     gap: 6px;
 }
 
+/* Tombol hapus / batalkan pengajuan (hanya untuk status pending) */
+.form-hapus-pinjam {
+    margin: 0 0 0 auto;
+    flex-shrink: 0;
+}
+
+.btn-hapus-pinjam {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.btn-hapus-pinjam:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.btn-hapus-pinjam:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.btn-hapus-pinjam .ic {
+    width: 16px;
+    height: 16px;
+}
+
 .riwayat {
     display: flex;
     width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
     justify-content: center;
-    justify-self: center;
     flex-wrap: wrap;
     gap: 1%;
+    margin: 0 auto;
 }
 
 .riwayat-peminjaman {
@@ -134,19 +182,196 @@
     border-radius: 15px;
 }
 
+/* Riwayat kosong & daftar pelanggaran */
+.rp-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 16px 12px;
+    border-radius: 10px;
+    border: 1px dashed #cbd5e1;
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    text-align: center;
+}
+
+.rp-empty .ic {
+    flex-shrink: 0;
+}
+
+.rp-pelanggaran-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.rp-pelanggaran-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    font-size: 12px;
+}
+
+.rp-pelanggaran-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.rp-pelanggaran-item strong {
+    font-size: 12px;
+    color: #1e293b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rp-pelanggaran-item small {
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.rp-badge {
+    flex-shrink: 0;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.rp-badge.ditolak {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.rp-badge.terlambat {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.rp-pelanggaran-list .rp-empty {
+    margin-top: 0;
+}
+
 @media (max-width: 768px) {
+    .header-main {
+        flex-direction: column;
+        align-items: stretch;
+        margin: 12px auto;
+        padding: 8px 14px;
+        gap: 10px;
+    }
+
+    .header-main a {
+        display: block;
+        padding: 10px 14px;
+    }
+
+    .information-box {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 0 14px;
+    }
+
+    .inner-information {
+        width: 100%;
+        gap: 8px;
+        padding: 14px 16px;
+    }
+
+    .sedang-pinjam-outer {
+        padding: 0 14px;
+    }
+
+    .sedang-dipinjam {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .inner-text-sd {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 2px;
+        font-size: 0;
+    }
+
+    .inner-text-sd p {
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .sedang-dipinjam {
+        flex-wrap: wrap;
+    }
+
+    .btn-hapus-pinjam {
+        padding: 7px 10px;
+    }
+
     .riwayat {
         flex-direction: column;
         align-items: center;
-        gap: 20px;
+        gap: 16px;
+        padding: 0 14px;
     }
 
     .riwayat-peminjaman {
-        width: 90%;
-        justify-self: center;
+        width: 100%;
     }
 
     .riwayat-pelanggaran {
-        width: 90%;
+        width: 100%;
     }
+
+    /* Ubah tabel riwayat menjadi kartu bertumpuk di HP */
+    .rp-a {
+        display: none;
+    }
+
+    .rp-c1 {
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px;
+        margin-top: 10px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .rp-c {
+        width: 100%;
+        display: block;
+        position: relative;
+        padding: 4px 0 4px 78px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-c::before {
+        position: absolute;
+        left: 0;
+        top: 4px;
+        width: 70px;
+        font-size: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+    .rp-c:nth-child(1)::before { content: "Kode"; }
+    .rp-c:nth-child(2)::before { content: "Alat"; }
+    .rp-c:nth-child(3)::before { content: "Pinjam"; }
+    .rp-c:nth-child(4)::before { content: "Kembali"; }
+    .rp-c:nth-child(5)::before { content: "Kondisi"; }
 }

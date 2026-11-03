@@ -27,7 +27,7 @@ class ApprovalController extends Controller
 
         if ($request->aksi === 'setuju') {
             $pinjam->status = 'disetuji';
-            $pesan = 'Peminjaman berhasil disetujui! Siswa sekarang bisa mengambil barang fisik.';
+            $pesan = 'Peminjaman disetujui! Buka halaman QR Transaksi untuk menampilkan QR pengambilan ke siswa.';
             
             // Catatan: Stok alat TIDAK dikurangi di sini. 
             // Stok baru berkurang saat siswa benar-benar scan/ambil barang secara fisik di TransaksiController.
@@ -39,6 +39,6 @@ class ApprovalController extends Controller
 
         $pinjam->save();
 
-        return back()->with('success');
+        return back()->with('success', $pesan);
     }
 }

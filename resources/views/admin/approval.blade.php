@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
         <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
@@ -23,21 +24,21 @@
                     <p>{{ auth()->user()->name }} </p>
                 </a>
                 
-                <h2>SIJALAT</h2>
-
-                <button class="toggle-btn" id="toggleBtn">☰</button>
+                @include('partials.brand')
+                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
             </nav>
 
             <div class="admin-container">
                 <div class="header-teks">
                     <h2>Daftar Persetujuan (Pending)</h2>
-                    <p>Berikan persetujuan untuk siswa yang mengajukan peminjaman alat lab.</p>
+                    <p>Berikan persetujuan untuk siswa yang mengajukan peminjaman alat.</p>
                 </div>
             
                 <!-- Notifikasi Sukses -->
                 @if(session('success'))
                     <div class="alert-success">
                         {{ session('success') }}
+                        <a href="{{ route('admin.qr.index') }}" style="font-weight:bold; color:#065f46; margin-left:6px;">Lihat QR transaksi &rarr;</a>
                     </div>
                 @endif
                 
@@ -57,7 +58,7 @@
                         <span>{{ $index + 1 }}</span>
                         <span>
                             <strong>{{ $trx->user->name }}</strong><br>
-                            <small style="color: #666;">NIS: {{ $trx->user->nis }}</small>
+                            <small style="color: #666;">NIS: {{ $trx->user->nis }} &middot; Kelas: {{ $trx->user->kelas ?: '-' }}</small>
                         </span>
                         <span>{{ $trx->alat->nama }}</span>
                         <span>{{ $trx->jumlah_minta }} unit</span>
@@ -69,39 +70,29 @@
                             <form action="{{ route('approval.proses', $trx->id) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="aksi" value="setuju">
-                                <button type="submit" class="btn-approve" onclick="return confirm('Setujui peminjaman ini?')">✔️ Setuju</button>
+                                <button type="submit" class="btn-approve" onclick="return confirm('Setujui peminjaman ini?')"><x-icon name="check" size="15" /> Setuju</button>
                             </form>
                         
                             <!-- Tombol Tolak -->
                             <form action="{{ route('approval.proses', $trx->id) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="aksi" value="tolak">
-                                <button type="submit" class="btn-reject" onclick="return confirm('Tolak peminjaman ini?')">✖️ Tolak</button>
+                                <button type="submit" class="btn-reject" onclick="return confirm('Tolak peminjaman ini?')"><x-icon name="x" size="15" /> Tolak</button>
                             </form>
                         </div>
                     </div>
                     @empty
                     <div style="padding: 20px; text-align: center; color: #666; background: white; border-radius: 8px;">
-                        🎉 Tidak ada antrean peminjaman saat ini.
+                        <x-icon name="inbox" size="26" />
+                        <p style="margin:8px 0 0;">Tidak ada antrean peminjaman saat ini.</p>
                     </div>
                     @endforelse
                 </div>
             </div>
+            @include('partials.footer')
         </main>
 
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>SIJALAT</h2>
-                <p>Dashboard</p>
-            </div>
-            <div class="sidebar-menu">
-                <a href="{{ route('dashboard') }}">Dashboard</a>
-                <a href="{{ route('approval.index') }}">Approval</a>
-                <a href="{{ route('admin.alat.index') }}">Manage Data</a>
-                <a href="{{ route('admin.analisis') }}">Analisis</a>
-                <a>Guide</a>
-            </div>
-        </aside>
+        @include('partials.sidebar-admin')
 
         <script src="{{ asset('js/univ.js') }}"></script>
     </body>
