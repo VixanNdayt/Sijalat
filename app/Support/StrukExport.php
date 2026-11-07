@@ -38,40 +38,42 @@ class StrukExport
         $right = self::LEBAR - self::MARGIN;
 
         // Aksen atas
-        $pdf->fillColor(0.0, 0.36, 0.26);
+        $pdf->fillColor(...PdfBrand::GREEN);
         $pdf->rect(0, 0, self::LEBAR, 5, true);
 
-        // Kepala struk
+        // Logo dan kepala struk
+        PdfBrand::mark($pdf, $center - 12, 12, 24, false);
+
         $pdf->setFont(true, 15);
         $pdf->fillColor(0.02, 0.29, 0.20);
-        $pdf->textCenter($center, 28, 'SIJALAT');
+        $pdf->textCenter($center, 52, 'SIJALAT');
 
         $pdf->setFont(false, 6.4);
         $pdf->fillColor(0.38, 0.44, 0.50);
-        $pdf->textCenter($center, 38, 'SISTEM PEMINJAMAN ALAT SIJA');
-        $pdf->textCenter($center, 47, 'SMK NEGERI 2 DEPOK');
+        $pdf->textCenter($center, 62, 'SISTEM PEMINJAMAN ALAT SIJA');
+        $pdf->textCenter($center, 71, 'SMK NEGERI 2 DEPOK');
 
-        self::dashed($pdf, 56);
+        self::dashed($pdf, 80);
 
         $pdf->setFont(true, 9);
         $pdf->fillColor(0.06, 0.10, 0.16);
-        $pdf->textCenter($center, 70, 'STRUK TRANSAKSI');
+        $pdf->textCenter($center, 94, 'STRUK TRANSAKSI');
 
         $pdf->setFont(true, 7.2);
         $pdf->fillColor(0.02, 0.37, 0.27);
-        $pdf->textCenter($center, 81, $pinjam->kode_pinjam ?: 'SJL-' . $pinjam->id);
+        $pdf->textCenter($center, 105, $pinjam->kode_pinjam ?: 'SJL-' . $pinjam->id);
 
         $pdf->setFont(false, 6.2);
         $pdf->fillColor(0.45, 0.50, 0.55);
         $pdf->textCenter(
             $center,
-            90,
+            114,
             'Dicetak ' . Carbon::now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d/m/Y H.i') . ' WIB'
         );
 
-        self::dashed($pdf, 99);
+        self::dashed($pdf, 123);
 
-        $pdf->moveTo(113);
+        $pdf->moveTo(137);
 
         // Peminjam
         self::section($pdf, 'Peminjam');

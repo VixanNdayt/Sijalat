@@ -107,8 +107,21 @@ header {
     position: absolute;
     width: 1px;
     height: 1px;
+    min-height: 0;
+    padding: 0;
+    border: 0;
     opacity: 0;
     pointer-events: none;
+}
+
+/* Kalahkan aturan responsif .search-div select agar select asli tetap 1px. */
+.search-div select.filter-select-native {
+    flex: 0 0 1px;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    padding: 0;
+    border: 0;
 }
 
 .search-div .filter-select-trigger {
@@ -223,12 +236,14 @@ header {
     width: 100%;
     margin-top: 16px;
     align-items: stretch;
+    grid-auto-rows: 1fr;
 }
 
 .item-box {
     display: flex;
     flex-direction: column;
     min-width: 0;
+    height: 100%;
     padding: 14px;
     background-color: #ffffff;
     border: 1px solid #dbe7e1;
@@ -289,7 +304,10 @@ header {
 }
 
 .item-name {
+    display: -webkit-box;
     margin: 0;
+    min-height: calc(2 * 1.35em);
+    overflow: hidden;
     color: #17352b;
     font-family: inherit;
     font-size: 16px;
@@ -297,15 +315,22 @@ header {
     line-height: 1.35;
     letter-spacing: -0.01em;
     overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }
 
 .item-desc {
+    display: -webkit-box;
     margin: 0;
+    min-height: calc(3 * 1.55em);
+    overflow: hidden;
     color: #5b6b64;
     font-family: inherit;
     font-size: 13px;
     line-height: 1.55;
     overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
 }
 
 .item-stats {

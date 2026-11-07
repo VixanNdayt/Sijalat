@@ -839,3 +839,74 @@ button[type="button"] {
         max-width: 100%;
     }
 }
+
+/* ---------- Avatar pengguna ---------- */
+
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #0b6b4f;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    max-width: none;
+}
+
+.user-avatar-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-avatar-preview {
+    width: 72px;
+    height: 72px;
+    font-size: 26px;
+    box-shadow: 0 4px 14px rgba(0, 78, 57, 0.22);
+}
+
+/* ---------- Input unggah foto ---------- */
+
+input[type="file"] {
+    display: block;
+    width: 100%;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+input[type="file"]::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-radius: 0.375rem;
+    background-color: #047857;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #065f46;
+}

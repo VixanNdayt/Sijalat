@@ -17,46 +17,17 @@ class LaporanExport
         $width = $pdf->pageWidth;
         $margin = $pdf->margin;
 
-        // --- Header ---
-        $pdf->fillColor(0.0, 0.36, 0.26);
-        $pdf->rect(0, 0, $width, 92, true);
-
-        $pdf->fillColor(0.06, 0.72, 0.51);
-        $pdf->rect(0, 92, $width, 4, true);
-
-        // Logo sederhana
-        $pdf->fillColor(1, 1, 1);
-        $pdf->rect($margin, 26, 26, 26, true);
-        $pdf->fillColor(0.0, 0.36, 0.26);
-        $pdf->rect($margin + 5, 31, 6, 6, true);
-        $pdf->rect($margin + 15, 31, 6, 6, true);
-        $pdf->rect($margin + 5, 41, 16, 4, true);
-
-        $pdf->setFont(true, 21);
-        $pdf->fillColor(1, 1, 1);
-        $pdf->text($margin + 36, 46, 'SIJALAT');
-
-        $pdf->setFont(false, 9);
-        $pdf->fillColor(0.80, 0.93, 0.88);
-        $pdf->text($margin + 36, 60, 'Sistem Peminjaman Alat SIJA');
-
-        $pdf->setFont(true, 9.5);
-        $pdf->fillColor(1, 1, 1);
-        $pdf->textRight($width - $margin, 42, 'LAPORAN ANALISIS');
-
-        $pdf->setFont(false, 8.5);
-        $pdf->fillColor(0.80, 0.93, 0.88);
-        $pdf->textRight($width - $margin, 57, 'SMK Negeri 2 Depok');
+        PdfBrand::header($pdf, 'LAPORAN ANALISIS', 'SMK Negeri 2 Depok');
 
         // --- Judul ---
-        $pdf->moveTo(122);
+        $pdf->moveTo(126);
 
-        $pdf->setFont(true, 16);
-        $pdf->fillColor(0.06, 0.10, 0.16);
+        $pdf->setFont(true, 17);
+        $pdf->fillColor(...PdfBrand::INK);
         $pdf->text($margin, $pdf->cursor(), 'Laporan Analisis & Inventaris');
 
         $pdf->setFont(false, 8.5);
-        $pdf->fillColor(0.42, 0.47, 0.55);
+        $pdf->fillColor(...PdfBrand::MUTED);
         $pdf->text(
             $margin,
             $pdf->cursor() + 17,
@@ -64,11 +35,11 @@ class LaporanExport
             . '   |   Periode data: ' . self::periodeText($periode)
         );
 
-        $pdf->strokeColor(0.86, 0.89, 0.93);
+        $pdf->strokeColor(...PdfBrand::LINE);
         $pdf->lineWidth(0.6);
         $pdf->line($margin, $pdf->cursor() + 25, $width - $margin, $pdf->cursor() + 25);
 
-        $pdf->moveTo(162);
+        $pdf->moveTo(168);
 
         // --- Ringkasan ---
         self::sectionTitle($pdf, 'Ringkasan Inventaris');
@@ -322,32 +293,42 @@ class LaporanExport
 
     private static function sectionTitle(SimplePdf $pdf, string $title): void
     {
-        $pdf->ensure(80);
+        if ($pdf->ensure(80)) {
+            PdfBrand::continuation($pdf);
+        }
 
         $y = $pdf->cursor();
 
-        $pdf->fillColor(0.91, 0.96, 0.93);
-        $pdf->rect($pdf->margin, $y, $pdf->contentWidth(), 20, true);
+        $pdf->fillColor(...PdfBrand::GREEN_SOFT);
+        $pdf->roundedRect($pdf->margin, $y, $pdf->contentWidth(), 22, 6, true);
 
-        $pdf->fillColor(0.02, 0.37, 0.27);
-        $pdf->rect($pdf->margin, $y, 3.5, 20, true);
+        $pdf->fillColor(...PdfBrand::GREEN);
+        $pdf->roundedRect($pdf->margin, $y, 4, 22, 2, true);
 
         $pdf->setFont(true, 10);
-        $pdf->fillColor(0.02, 0.37, 0.27);
-        $pdf->text($pdf->margin + 12, $y + 14, $title);
+        $pdf->fillColor(...PdfBrand::GREEN);
+        $pdf->text($pdf->margin + 13, $y + 14.5, $title);
 
-        $pdf->moveTo($y + 30);
+        $pdf->moveTo($y + 32);
     }
 
     private static function kpiGrid(SimplePdf $pdf, array $items): void
     {
         $gap = 12.0;
         $boxWidth = ($pdf->contentWidth() - $gap) / 2;
-        $boxHeight = 44.0;
+        $boxHeight = 48.0;
 
-        $pdf->ensure((2 * $boxHeight) + $gap + 8);
+        if ($pdf->ensure((2 * $boxHeight) + $gap + 8)) {
+            PdfBrand::continuation($pdf);
+        }
 
         $startY = $pdf->cursor();
+        $accents = [
+            [0.02, 0.55, 0.40],
+            [0.15, 0.45, 0.86],
+            [0.85, 0.55, 0.12],
+            [0.55, 0.36, 0.84],
+        ];
 
         foreach ($items as $index => $item) {
             $column = $index % 2;
@@ -355,24 +336,28 @@ class LaporanExport
 
             $x = $pdf->margin + ($column * ($boxWidth + $gap));
             $y = $startY + ($row * ($boxHeight + $gap));
+            $accent = $accents[$index % count($accents)];
 
-            $pdf->fillColor(0.96, 0.98, 0.99);
-            $pdf->strokeColor(0.86, 0.89, 0.93);
+            $pdf->fillColor(0.98, 0.99, 0.99);
+            $pdf->strokeColor(...PdfBrand::LINE);
             $pdf->lineWidth(0.5);
-            $pdf->rect($x, $y, $boxWidth, $boxHeight, true, true);
+            $pdf->roundedRect($x, $y, $boxWidth, $boxHeight, 7, true, true);
 
-            $pdf->setFont(true, 7.5);
-            $pdf->fillColor(0.40, 0.45, 0.52);
-            $pdf->text($x + 12, $y + 16, strtoupper($item[0]));
+            $pdf->fillColor($accent[0], $accent[1], $accent[2]);
+            $pdf->roundedRect($x + 9, $y + 11, 3, $boxHeight - 22, 1.5, true);
+
+            $pdf->setFont(true, 7.3);
+            $pdf->fillColor(...PdfBrand::MUTED);
+            $pdf->text($x + 20, $y + 16, strtoupper($item[0]));
 
             $pdf->setFont(true, 11);
-            $pdf->fillColor(0.06, 0.10, 0.16);
+            $pdf->fillColor(...PdfBrand::INK);
 
-            if ($pdf->widthOf($item[1]) > $boxWidth - 24) {
-                $pdf->setFont(true, 9.5);
+            if ($pdf->widthOf($item[1]) > $boxWidth - 32) {
+                $pdf->setFont(true, 9.2);
             }
 
-            $pdf->text($x + 12, $y + 33, $item[1]);
+            $pdf->text($x + 20, $y + 34, $item[1]);
         }
 
         $pdf->moveTo($startY + (2 * $boxHeight) + $gap + 12);
@@ -387,7 +372,9 @@ class LaporanExport
         $rowHeight = 18.0;
         $headerHeight = 20.0;
 
-        $pdf->ensure($headerHeight + $rowHeight + 6);
+        if ($pdf->ensure($headerHeight + $rowHeight + 6)) {
+            PdfBrand::continuation($pdf);
+        }
 
         self::tableHeader($pdf, $headers, $widths);
 
@@ -395,12 +382,12 @@ class LaporanExport
             $y = $pdf->cursor();
             $fullWidth = $pdf->contentWidth();
 
-            $pdf->strokeColor(0.85, 0.88, 0.92);
+            $pdf->strokeColor(...PdfBrand::LINE);
             $pdf->lineWidth(0.5);
             $pdf->rect($pdf->margin, $y, $fullWidth, $rowHeight, false, true);
 
             $pdf->setFont(false, 8.5);
-            $pdf->fillColor(0.42, 0.47, 0.55);
+            $pdf->fillColor(...PdfBrand::MUTED);
             $pdf->text($pdf->margin + 8, $y + 12, 'Tidak ada data');
 
             $pdf->moveTo($y + $rowHeight + 10);
@@ -408,7 +395,7 @@ class LaporanExport
             return;
         }
 
-        foreach ($rows as $row) {
+        foreach ($rows as $rowIndex => $row) {
             $pdf->setFont(false, 8.5);
 
             $lines = [];
@@ -421,40 +408,42 @@ class LaporanExport
                 $maxLines = max($maxLines, count($wrapped));
             }
 
-            $height = max($rowHeight, 7 + ($maxLines * 10.5));
+            $height = max($rowHeight, 12 + ($maxLines * 10.5));
 
             if ($pdf->need($height)) {
                 $pdf->addPage();
+                PdfBrand::continuation($pdf);
                 self::tableHeader($pdf, $headers, $widths);
             }
 
             $y = $pdf->cursor();
             $x = $pdf->margin;
 
+            if ($rowIndex % 2 === 1) {
+                $pdf->fillColor(0.97, 0.985, 0.98);
+                $pdf->rect($pdf->margin, $y, $pdf->contentWidth(), $height, true);
+            }
+
             foreach (array_values($row) as $index => $value) {
                 $cellWidth = $widths[$index] ?? 80;
 
-                $pdf->strokeColor(0.85, 0.88, 0.92);
+                $pdf->strokeColor(...PdfBrand::LINE);
                 $pdf->lineWidth(0.5);
                 $pdf->rect($x, $y, $cellWidth, $height, false, true);
 
                 $pdf->setFont(false, 8.5);
                 $pdf->fillColor(0.18, 0.23, 0.30);
 
-                $textX = $x + 5;
-
-                if (($align[$index] ?? 'left') === 'center') {
-                    $firstLine = $lines[$index][0] ?? '';
-                    $textX = $x + (($cellWidth - $pdf->widthOf($firstLine)) / 2);
-                }
-
-                $textY = $y + 12;
+                $textY = $y + (($height - (count($lines[$index]) * 10.5)) / 2) + 8.2;
 
                 foreach ($lines[$index] as $line) {
-                    $drawX = $textX;
+                    $drawX = $x + 5;
+                    $alignMode = $align[$index] ?? 'left';
 
-                    if (($align[$index] ?? 'left') === 'left') {
-                        $drawX = $x + 5;
+                    if ($alignMode === 'center') {
+                        $drawX = $x + (($cellWidth - $pdf->widthOf($line)) / 2);
+                    } elseif ($alignMode === 'right') {
+                        $drawX = $x + $cellWidth - $pdf->widthOf($line) - 5;
                     }
 
                     $pdf->text($drawX, $textY, $line);
@@ -478,7 +467,7 @@ class LaporanExport
         foreach ($headers as $index => $header) {
             $cellWidth = $widths[$index] ?? 80;
 
-            $pdf->fillColor(0.0, 0.36, 0.26);
+            $pdf->fillColor(...PdfBrand::GREEN);
             $pdf->rect($x, $y, $cellWidth, 20, true);
 
             $pdf->setFont(true, 8.5);
@@ -490,7 +479,10 @@ class LaporanExport
             $x += $cellWidth;
         }
 
-        $pdf->moveTo($y + 20);
+        $pdf->fillColor(...PdfBrand::MINT);
+        $pdf->rect($pdf->margin, $y + 20, $pdf->contentWidth(), 1.6, true);
+
+        $pdf->moveTo($y + 21.6);
     }
 
     private static function periodeText(array $periode): string

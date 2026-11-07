@@ -27,6 +27,12 @@
                 Semua data akun akan dihapus permanen. Masukkan password untuk mengonfirmasi.
             </p>
 
+            @if ($errors->userDeletion->has('akun'))
+                <div class="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {{ $errors->userDeletion->first('akun') }}
+                </div>
+            @endif
+
             <div class="mt-6">
                 <x-input-label for="password" value="Password" class="sr-only" />
 

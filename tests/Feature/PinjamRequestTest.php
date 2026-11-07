@@ -52,6 +52,36 @@ class PinjamRequestTest extends TestCase
         $this->assertDatabaseCount('pinjams', 0);
     }
 
+    public function test_tanggal_tidak_valid_ditolak_tanpa_error_server(): void
+    {
+        $siswa = User::factory()->create();
+        $alat = $this->buatAlat();
+
+        $payload = $this->payload($alat);
+        $payload['dipinjam_saat'] = 'bukan-tanggal';
+
+        $this->actingAs($siswa)
+            ->post(route('pinjam.store'), $payload)
+            ->assertSessionHasErrors('dipinjam_saat');
+
+        $this->assertDatabaseCount('pinjams', 0);
+    }
+
+    public function test_tanggal_berbentuk_array_ditolak_tanpa_error_server(): void
+    {
+        $siswa = User::factory()->create();
+        $alat = $this->buatAlat();
+
+        $payload = $this->payload($alat);
+        $payload['dipinjam_saat'] = ['2026-11-09 09:00:00'];
+
+        $this->actingAs($siswa)
+            ->post(route('pinjam.store'), $payload)
+            ->assertSessionHasErrors('dipinjam_saat');
+
+        $this->assertDatabaseCount('pinjams', 0);
+    }
+
     public function test_pengajuan_yang_valid_membuat_transaksi_pending(): void
     {
         $siswa = User::factory()->create();

@@ -37,7 +37,9 @@ class PinjamController extends Controller
      */
     public function create()
     {
-        $alats = Alat::where('jumlah_stok', '>', 0)->get();
+        // Tampilkan semua alat, termasuk yang stoknya habis, agar siswa tetap
+        // bisa melihat ketersediaan dan status "Habis" pada card.
+        $alats = Alat::orderBy('nama')->get();
 
         // Daftar jenis alat untuk filter, diambil dari data yang benar-benar ada.
         $jenisAlats = $alats
@@ -126,13 +128,24 @@ class PinjamController extends Controller
             }
 
             // --- 2. Waktu peminjaman hanya di dalam jam sekolah (Senin-Jumat) ---
-            $waktu = [
-                'dipinjam_saat'     => $request->filled('dipinjam_saat') ? Carbon::parse($request->dipinjam_saat) : null,
-                'dikembalikan_saat' => $request->filled('dikembalikan_saat') ? Carbon::parse($request->dikembalikan_saat) : null,
-            ];
+            foreach (['dipinjam_saat', 'dikembalikan_saat'] as $field) {
+                // Lewati field yang sudah gagal di validasi dasar (termasuk input
+                // berbentuk array) agar tidak memicu error saat di-parse.
+                if ($validator->errors()->has($field)) {
+                    continue;
+                }
 
-            foreach ($waktu as $field => $saat) {
-                if (! $saat) {
+                $nilai = $request->input($field);
+
+                if (! is_string($nilai) || trim($nilai) === '') {
+                    continue;
+                }
+
+                try {
+                    $saat = Carbon::parse($nilai);
+                } catch (\Throwable $e) {
+                    $validator->errors()->add($field, 'Format tanggal dan jam tidak valid.');
+
                     continue;
                 }
 

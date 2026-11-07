@@ -20,46 +20,17 @@ class RiwayatExport
         $width = $pdf->pageWidth;
         $margin = $pdf->margin;
 
-        // --- Header ---
-        $pdf->fillColor(0.0, 0.36, 0.26);
-        $pdf->rect(0, 0, $width, 92, true);
-
-        $pdf->fillColor(0.06, 0.72, 0.51);
-        $pdf->rect(0, 92, $width, 4, true);
-
-        // Logo sederhana
-        $pdf->fillColor(1, 1, 1);
-        $pdf->rect($margin, 26, 26, 26, true);
-        $pdf->fillColor(0.0, 0.36, 0.26);
-        $pdf->rect($margin + 5, 31, 6, 6, true);
-        $pdf->rect($margin + 15, 31, 6, 6, true);
-        $pdf->rect($margin + 5, 41, 16, 4, true);
-
-        $pdf->setFont(true, 21);
-        $pdf->fillColor(1, 1, 1);
-        $pdf->text($margin + 36, 46, 'SIJALAT');
-
-        $pdf->setFont(false, 9);
-        $pdf->fillColor(0.80, 0.93, 0.88);
-        $pdf->text($margin + 36, 60, 'Sistem Peminjaman Alat SIJA');
-
-        $pdf->setFont(true, 9.5);
-        $pdf->fillColor(1, 1, 1);
-        $pdf->textRight($width - $margin, 42, 'BUKTI RIWAYAT');
-
-        $pdf->setFont(false, 8.5);
-        $pdf->fillColor(0.80, 0.93, 0.88);
-        $pdf->textRight($width - $margin, 57, 'SMK Negeri 2 Depok');
+        PdfBrand::header($pdf, 'BUKTI RIWAYAT', 'SMK Negeri 2 Depok');
 
         // --- Judul ---
-        $pdf->moveTo(122);
+        $pdf->moveTo(126);
 
-        $pdf->setFont(true, 16);
-        $pdf->fillColor(0.06, 0.10, 0.16);
+        $pdf->setFont(true, 17);
+        $pdf->fillColor(...PdfBrand::INK);
         $pdf->text($margin, $pdf->cursor(), 'Rincian Peminjaman Alat');
 
         $pdf->setFont(false, 8.5);
-        $pdf->fillColor(0.42, 0.47, 0.55);
+        $pdf->fillColor(...PdfBrand::MUTED);
         $pdf->text(
             $margin,
             $pdf->cursor() + 17,
@@ -67,11 +38,11 @@ class RiwayatExport
             . '   |   Dicetak: ' . Carbon::now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y, H.i') . ' WIB'
         );
 
-        $pdf->strokeColor(0.86, 0.89, 0.93);
+        $pdf->strokeColor(...PdfBrand::LINE);
         $pdf->lineWidth(0.6);
         $pdf->line($margin, $pdf->cursor() + 25, $width - $margin, $pdf->cursor() + 25);
 
-        $pdf->moveTo(152);
+        $pdf->moveTo(158);
 
         // --- Informasi Peminjam ---
         self::sectionTitle($pdf, 'Informasi Peminjam');
@@ -134,31 +105,35 @@ class RiwayatExport
 
     private static function sectionTitle(SimplePdf $pdf, string $title): void
     {
-        $pdf->ensure(56);
+        if ($pdf->ensure(56)) {
+            PdfBrand::continuation($pdf, 'BUKTI RIWAYAT');
+        }
 
         $y = $pdf->cursor();
 
-        $pdf->fillColor(0.91, 0.96, 0.93);
-        $pdf->rect($pdf->margin, $y, $pdf->contentWidth(), 20, true);
+        $pdf->fillColor(...PdfBrand::GREEN_SOFT);
+        $pdf->roundedRect($pdf->margin, $y, $pdf->contentWidth(), 22, 6, true);
 
-        $pdf->fillColor(0.02, 0.37, 0.27);
-        $pdf->rect($pdf->margin, $y, 3.5, 20, true);
+        $pdf->fillColor(...PdfBrand::GREEN);
+        $pdf->roundedRect($pdf->margin, $y, 4, 22, 2, true);
 
         $pdf->setFont(true, 10.5);
-        $pdf->fillColor(0.02, 0.37, 0.27);
-        $pdf->text($pdf->margin + 12, $y + 14, $title);
+        $pdf->fillColor(...PdfBrand::GREEN);
+        $pdf->text($pdf->margin + 13, $y + 14.5, $title);
 
-        $pdf->moveTo($y + 28);
+        $pdf->moveTo($y + 30);
     }
 
     private static function infoGrid(SimplePdf $pdf, array $items): void
     {
         $gap = 9.0;
         $boxWidth = ($pdf->contentWidth() - $gap) / 2;
-        $boxHeight = 36.0;
+        $boxHeight = 38.0;
         $rows = (int) ceil(count($items) / 2);
 
-        $pdf->ensure(($rows * $boxHeight) + (($rows - 1) * $gap) + 6);
+        if ($pdf->ensure(($rows * $boxHeight) + (($rows - 1) * $gap) + 6)) {
+            PdfBrand::continuation($pdf, 'BUKTI RIWAYAT');
+        }
 
         $startY = $pdf->cursor();
 
@@ -169,27 +144,30 @@ class RiwayatExport
             $x = $pdf->margin + ($column * ($boxWidth + $gap));
             $y = $startY + ($row * ($boxHeight + $gap));
 
-            $pdf->fillColor(0.96, 0.98, 0.99);
-            $pdf->strokeColor(0.86, 0.89, 0.93);
+            $pdf->fillColor(0.97, 0.985, 0.98);
+            $pdf->strokeColor(...PdfBrand::LINE);
             $pdf->lineWidth(0.5);
-            $pdf->rect($x, $y, $boxWidth, $boxHeight, true, true);
+            $pdf->roundedRect($x, $y, $boxWidth, $boxHeight, 6, true, true);
 
-            $pdf->setFont(true, 7.5);
-            $pdf->fillColor(0.40, 0.45, 0.52);
-            $pdf->text($x + 11, $y + 13, strtoupper($label));
+            $pdf->fillColor(...PdfBrand::GREEN);
+            $pdf->roundedRect($x + 11, $y + 11, 3, $boxHeight - 22, 1.5, true);
+
+            $pdf->setFont(true, 7.3);
+            $pdf->fillColor(...PdfBrand::MUTED);
+            $pdf->text($x + 20, $y + 14, strtoupper($label));
 
             $value = (string) ($value === '' || $value === null ? '-' : $value);
             $pdf->setFont(false, 10);
-            $pdf->fillColor(0.06, 0.10, 0.16);
+            $pdf->fillColor(...PdfBrand::INK);
 
-            if ($pdf->widthOf($value) > $boxWidth - 22) {
+            if ($pdf->widthOf($value) > $boxWidth - 32) {
                 $pdf->setFont(false, 8.5);
             }
 
-            $lines = $pdf->wrap($value, $boxWidth - 22);
+            $lines = $pdf->wrap($value, $boxWidth - 32);
 
             foreach (array_slice($lines, 0, 2) as $offset => $line) {
-                $pdf->text($x + 11, $y + 25 + ($offset * 9.5), $line);
+                $pdf->text($x + 20, $y + 27 + ($offset * 9.5), $line);
             }
         }
 

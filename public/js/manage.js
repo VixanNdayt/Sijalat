@@ -62,6 +62,7 @@
         nama: document.getElementById('inputNama'),
         code: document.getElementById('inputCode'),
         deskripsi: document.getElementById('inputDeskripsi'),
+        jenis: document.getElementById('inputJenis'),
         baik: document.getElementById('inputBaik'),
         cek: document.getElementById('inputCek'),
         rusak: document.getElementById('inputRusak'),
@@ -108,6 +109,8 @@
         fields.nama.value = alat.nama || '';
         fields.code.value = alat.code || '';
         fields.deskripsi.value = alat.description || alat.deskripsi || '';
+        fields.jenis.value = alat.jenis || '';
+        fields.jenis.dispatchEvent(new Event('change', { bubbles: true }));
         fields.baik.value = alat.kondisi_baik != null ? alat.kondisi_baik : 0;
         fields.cek.value = alat.kondisi_pengecekan != null ? alat.kondisi_pengecekan : 0;
         fields.rusak.value = alat.kondisi_rusak != null ? alat.kondisi_rusak : 0;

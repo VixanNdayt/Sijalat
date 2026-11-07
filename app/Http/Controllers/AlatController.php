@@ -6,16 +6,32 @@ use App\Models\Alat;
 use App\Models\Pinjam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AlatController extends Controller
 {
+    /**
+     * Kategori jenis alat. Harus sama dengan nilai enum pada kolom alats.jenis
+     * agar penyimpanan tidak melanggar constraint database.
+     */
+    public const JENIS_LABEL = [
+        'alat_jaringan' => 'Alat Jaringan',
+        'laptop'        => 'Laptop',
+        'switch'        => 'Switch',
+        'bagian_pc'     => 'Bagian PC',
+        'router'        => 'Router',
+        'IoT'           => 'IoT',
+    ];
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $alats = Alat::orderBy('created_at', 'desc')->get();
-        return view('admin.alat', compact('alats'));
+        $jenisOptions = self::JENIS_LABEL;
+
+        return view('admin.alat', compact('alats', 'jenisOptions'));
     }
 
     /**
@@ -39,6 +55,7 @@ class AlatController extends Controller
             'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
             'kondisi_maintenance' => 'required|integer|min:0',
+            'jenis'               => ['required', 'string', Rule::in(array_keys(self::JENIS_LABEL))],
             'img'                => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -60,6 +77,7 @@ class AlatController extends Controller
             'jumlah_stok'         => $totalQty, 
             'img'                => $pathFoto,
             'code'                => $request->code,
+            'jenis'              => $request->jenis,
         ]);
 
         return back()->with('success', 'Alat berhasil ditambahkan!');
@@ -96,6 +114,7 @@ class AlatController extends Controller
             'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
             'kondisi_maintenance' => 'required|integer|min:0',
+            'jenis'               => ['required', 'string', Rule::in(array_keys(self::JENIS_LABEL))],
             'img'                => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -117,6 +136,7 @@ class AlatController extends Controller
         $alat->kondisi_pengecekan = $request->kondisi_pengecekan;
         $alat->kondisi_rusak = $request->kondisi_rusak;
         $alat->kondisi_maintenance = $request->kondisi_maintenance;
+        $alat->jenis = $request->jenis;
         $alat->jumlah_stok = $totalQty;
 
         // Jika admin mengunggah foto baru, ganti yang lama
@@ -140,6 +160,15 @@ class AlatController extends Controller
     {
         try {
             $alat = Alat::findOrFail($id);
+
+            // Jangan pernah hapus alat yang sudah punya riwayat peminjaman.
+            // Foreign key lama memakai ON DELETE CASCADE sehingga tanpa cek ini
+            // seluruh riwayat siswa bisa ikut terhapus.
+            if ($alat->pinjams()->exists()) {
+                return back()->withErrors([
+                    'hapus' => 'Gagal menghapus! Alat ini masih memiliki riwayat peminjaman yang harus dipertahankan.',
+                ]);
+            }
 
             // 1. Cek dan hapus file fisik gambar dari folder public/equipment
             // Pastikan kita memanggil kolom 'img', bukan 'foto'

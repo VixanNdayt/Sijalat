@@ -23,4 +23,12 @@
         </a>
         <a href="{{ route('guide') }}">Guide</a>
     </div>
+
+    <form method="POST" action="{{ route('logout') }}" class="sidebar-logout">
+        @csrf
+        <button type="submit">
+            <x-icon name="log-out" size="16" />
+            <span>Logout</span>
+        </button>
+    </form>
 </aside>

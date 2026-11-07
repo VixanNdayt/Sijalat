@@ -22,6 +22,7 @@ class SimplePdf
     private array $fill = [0.0, 0.0, 0.0];
     private array $stroke = [0.0, 0.0, 0.0];
     private float $lineWidth = 0.6;
+    private int $lineCap = 0;
 
     private string $footerLeft = '';
     private bool $pageNumbers = true;
@@ -119,6 +120,14 @@ class SimplePdf
         $this->lineWidth = $width;
     }
 
+    /**
+     * 0 = ujung datar, 1 = ujung membulat, 2 = ujung menonjol.
+     */
+    public function lineCap(int $cap): void
+    {
+        $this->lineCap = max(0, min(2, $cap));
+    }
+
     public function text(float $x, float $y, string $text): void
     {
         $font = $this->bold ? 'F2' : 'F1';
@@ -148,13 +157,133 @@ class SimplePdf
     public function line(float $x1, float $y1, float $x2, float $y2): void
     {
         $this->buffer .= $this->strokeCommand();
-        $this->buffer .= sprintf("%s w\n", $this->n($this->lineWidth));
+        $this->buffer .= sprintf("%s w\n%d J\n", $this->n($this->lineWidth), $this->lineCap);
         $this->buffer .= sprintf(
             "%s %s m %s %s l S\n",
             $this->n($x1),
             $this->n($this->pageHeight - $y1),
             $this->n($x2),
             $this->n($this->pageHeight - $y2)
+        );
+    }
+
+    /**
+     * Kotak dengan sudut membulat. Koordinat memakai acuan atas seperti rect().
+     */
+    public function roundedRect(
+        float $x,
+        float $y,
+        float $width,
+        float $height,
+        float $radius,
+        bool $fill = false,
+        bool $stroke = false
+    ): void {
+        $radius = max(0.0, min($radius, min($width, $height) / 2));
+
+        if ($radius <= 0.01) {
+            $this->rect($x, $y, $width, $height, $fill, $stroke);
+
+            return;
+        }
+
+        $k = 0.5522847498;
+        $c = $radius * $k;
+
+        $left = $x;
+        $right = $x + $width;
+        $bottom = $this->pageHeight - $y - $height;
+        $top = $this->pageHeight - $y;
+
+        if ($fill) {
+            $this->buffer .= $this->fillCommand();
+        }
+
+        if ($stroke) {
+            $this->buffer .= $this->strokeCommand();
+            $this->buffer .= sprintf("%s w\n%d J\n", $this->n($this->lineWidth), $this->lineCap);
+        }
+
+        $operator = $fill && $stroke ? 'B' : ($fill ? 'f' : 'S');
+
+        $this->buffer .= sprintf(
+            "%s %s m\n"
+            . "%s %s l\n"
+            . "%s %s %s %s %s %s c\n"
+            . "%s %s l\n"
+            . "%s %s %s %s %s %s c\n"
+            . "%s %s l\n"
+            . "%s %s %s %s %s %s c\n"
+            . "%s %s l\n"
+            . "%s %s %s %s %s %s c\n"
+            . "h %s\n",
+            $this->n($left + $radius), $this->n($bottom),
+            $this->n($right - $radius), $this->n($bottom),
+            $this->n($right - $radius + $c), $this->n($bottom),
+            $this->n($right), $this->n($bottom + $radius - $c),
+            $this->n($right), $this->n($bottom + $radius),
+            $this->n($right), $this->n($top - $radius),
+            $this->n($right), $this->n($top - $radius + $c),
+            $this->n($right - $radius + $c), $this->n($top),
+            $this->n($right - $radius), $this->n($top),
+            $this->n($left + $radius), $this->n($top),
+            $this->n($left + $radius - $c), $this->n($top),
+            $this->n($left), $this->n($top - $radius + $c),
+            $this->n($left), $this->n($top - $radius),
+            $this->n($left), $this->n($bottom + $radius),
+            $this->n($left), $this->n($bottom + $radius - $c),
+            $this->n($left + $radius - $c), $this->n($bottom),
+            $this->n($left + $radius), $this->n($bottom),
+            $operator
+        );
+    }
+
+    /**
+     * Lingkaran memakai empat kurva Bezier. Koordinat pusat memakai acuan atas.
+     */
+    public function circle(float $centerX, float $centerY, float $radius, bool $fill = false, bool $stroke = false): void
+    {
+        if ($radius <= 0.01) {
+            return;
+        }
+
+        $k = 0.5522847498;
+        $c = $radius * $k;
+        $x = $centerX;
+        $y = $this->pageHeight - $centerY;
+
+        if ($fill) {
+            $this->buffer .= $this->fillCommand();
+        }
+
+        if ($stroke) {
+            $this->buffer .= $this->strokeCommand();
+            $this->buffer .= sprintf("%s w\n%d J\n", $this->n($this->lineWidth), $this->lineCap);
+        }
+
+        $operator = $fill && $stroke ? 'B' : ($fill ? 'f' : 'S');
+
+        $this->buffer .= sprintf(
+            "%s %s m\n"
+            . "%s %s %s %s %s %s c\n"
+            . "%s %s %s %s %s %s c\n"
+            . "%s %s %s %s %s %s c\n"
+            . "%s %s %s %s %s %s c\n"
+            . "h %s\n",
+            $this->n($x + $radius), $this->n($y),
+            $this->n($x + $radius), $this->n($y + $c),
+            $this->n($x + $c), $this->n($y + $radius),
+            $this->n($x), $this->n($y + $radius),
+            $this->n($x - $c), $this->n($y + $radius),
+            $this->n($x - $radius), $this->n($y + $c),
+            $this->n($x - $radius), $this->n($y),
+            $this->n($x - $radius), $this->n($y - $c),
+            $this->n($x - $c), $this->n($y - $radius),
+            $this->n($x), $this->n($y - $radius),
+            $this->n($x + $c), $this->n($y - $radius),
+            $this->n($x + $radius), $this->n($y - $c),
+            $this->n($x + $radius), $this->n($y),
+            $operator
         );
     }
 

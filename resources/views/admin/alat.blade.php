@@ -20,7 +20,7 @@
             <!-- navbar -->
             <nav class="navbar">
                 <a class="profile-edit" href="{{ route('profile.edit') }}">
-                    <img src="{{ asset('svg/user_icon.svg') }}" alt="">
+                    <x-user-avatar :user="auth()->user()" />
                     <p>{{ auth()->user()->name }} </p>
                 </a>
                 
@@ -180,6 +180,17 @@
                             <label for="inputDeskripsi">Deskripsi</label>
                             <textarea name="description" id="inputDeskripsi" rows="3" required>{{ old('description') }}</textarea>
                         </div>
+
+                        <div class="input-group">
+                            <label for="inputJenis">Jenis Alat</label>
+                            <select name="jenis" id="inputJenis" required data-custom-select>
+                                <option value="" disabled {{ old('jenis') ? '' : 'selected' }}>Pilih jenis alat</option>
+                                @foreach ($jenisOptions as $value => $label)
+                                    <option value="{{ $value }}" @selected(old('jenis') === $value)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <small class="form-hint">Dipakai sebagai filter kategori di halaman peminjaman.</small>
+                        </div>
                     
                         <!-- Input 4 Kondisi Sejajar -->
                         <label class="kondisi-label">Rincian Qty (Kondisi)</label>
@@ -222,5 +233,6 @@
 
         <script src="{{ asset('js/univ.js') }}"></script>
         <script src="{{ asset('js/manage.js') }}"></script>
+        <script src="{{ asset('js/custom-select.js') }}?v=2"></script>
     </body>
 </html>

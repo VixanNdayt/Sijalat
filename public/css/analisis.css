@@ -6,6 +6,28 @@
 
 .kontrol-filter { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .date-picker, .btn-export { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; cursor: pointer; }
+
+select.date-picker {
+    min-height: 40px;
+    padding: 8px 36px 8px 12px;
+    border-color: #d7e2dc;
+    border-radius: 9px;
+    background-color: #ffffff;
+    background-position: right 11px center;
+    color: #17352b;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(23, 53, 43, 0.04);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+select.date-picker:hover:not(:disabled) {
+    border-color: #b9d7ca;
+}
+
+select.date-picker:focus {
+    border-color: #007a58;
+    box-shadow: 0 0 0 3px rgba(0, 122, 88, 0.12);
+}
 .btn-export { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; line-height: 1.2; }
 .btn-export:hover { filter: brightness(0.94); }
 .btn-export.pdf { background: #ef4444; color: white; border: none; font-weight: bold; }

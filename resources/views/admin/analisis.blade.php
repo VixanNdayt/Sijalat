@@ -20,7 +20,7 @@
             <!-- navbar -->
             <nav class="navbar">
                 <a class="profile-edit" href="{{ route('profile.edit') }}">
-                    <img src="{{ asset('svg/user_icon.svg') }}">
+                    <x-user-avatar :user="auth()->user()" />
                     <p>{{ auth()->user()->name }} </p>
                 </a>
                 
@@ -52,7 +52,7 @@
                         @endif
                     </div>
                     <div class="kontrol-filter">
-                        <select id="filterPeriode" class="date-picker" aria-label="Pilih periode laporan">
+                        <select id="filterPeriode" class="date-picker" aria-label="Pilih periode laporan" data-custom-select>
                             <option value="semua" @selected($periode === 'semua')>Semua Data</option>
                             <option value="harian" @selected($periode === 'harian')>Harian</option>
                             <option value="mingguan" @selected($periode === 'mingguan')>Mingguan</option>
@@ -183,6 +183,7 @@
 
         <script src="{{ asset('js/univ.js') }}"></script>
         <script src="{{ asset('js/manage.js') }}"></script>
+        <script src="{{ asset('js/custom-select.js') }}?v=2"></script>
         <script>
             // Data dari Controller
             const topLabels = @json($topItems->pluck('nama'));

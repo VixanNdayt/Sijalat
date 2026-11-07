@@ -20,7 +20,7 @@
             <!-- navbar -->
             <nav class="navbar">
                 <a class="profile-edit" href="{{ route('profile.edit') }}">
-                    <img src="{{ asset('svg/user_icon.svg') }}" alt="">
+                    <x-user-avatar :user="auth()->user()" />
                     <p>{{ auth()->user()->name }} </p>
                 </a>
                 
@@ -99,7 +99,13 @@
                     <!-- Item selection -->
                     <div class="item-sec">
                         @foreach ($alats as $alat)
-                            @php($ready = $alat->stok_tersedia ?? $alat->jumlah_stok)
+                            @php
+                                $ready = (int) $alat->jumlah_stok;
+                                $totalFisik = (int) $alat->kondisi_baik
+                                    + (int) $alat->kondisi_pengecekan
+                                    + (int) $alat->kondisi_rusak
+                                    + (int) $alat->kondisi_maintenance;
+                            @endphp
                             <article class="item-box" data-nama="{{ strtolower($alat->nama) }}" data-kategori="{{ strtolower($alat->jenis) }}">
                                 <div class="img-item">
                                     <img src="{{ asset($alat->img) }}" alt="{{ $alat->nama }}" loading="lazy">
@@ -109,13 +115,13 @@
                                 </div>
 
                                 <div class="item-box-des">
-                                    <h4 class="item-name">{{ $alat->nama }}</h4>
-                                    <p class="item-desc">{{ $alat->description }}</p>
+                                    <h4 class="item-name" title="{{ $alat->nama }}">{{ $alat->nama }}</h4>
+                                    <p class="item-desc" title="{{ $alat->description }}">{{ $alat->description }}</p>
 
                                     <div class="item-stats">
                                         <div class="item-stat">
                                             <span class="item-stat-label">Stok</span>
-                                            <span class="item-stat-value">{{ $alat->jumlah_stok }}</span>
+                                            <span class="item-stat-value">{{ $totalFisik }}</span>
                                         </div>
                                         <div class="item-stat">
                                             <span class="item-stat-label">Tersedia</span>
@@ -128,8 +134,10 @@
                                         type="button"
                                         class="btn-primary item-add"
                                         onclick="pilihBarang({{ $alat->id }}, @js($alat->nama))"
+                                        @disabled($ready <= 0)
                                     >
-                                        <x-icon name="plus" size="15" /> Tambahkan
+                                        <x-icon :name="$ready > 0 ? 'plus' : 'box'" size="15" />
+                                        {{ $ready > 0 ? 'Tambahkan' : 'Stok Habis' }}
                                     </button>
                                 </div>
                             </article>

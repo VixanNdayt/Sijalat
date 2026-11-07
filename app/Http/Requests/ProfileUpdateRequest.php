@@ -51,6 +51,8 @@ class ProfileUpdateRequest extends FormRequest
                     }
                 },
             ],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_photo' => ['nullable', 'boolean'],
         ];
     }
 }

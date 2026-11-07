@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['name', 'email', 'password', 'nis', 'kelas'])]
 #[Hidden(['password', 'remember_token'])]
@@ -69,5 +70,38 @@ class User extends Authenticatable
     public function hasCompletedProfile(): bool
     {
         return filled($this->nis) && filled($this->kelas);
+    }
+
+    /**
+     * URL foto profil, atau null jika pengguna belum mengunggah foto.
+     */
+    public function profilePhotoUrl(): ?string
+    {
+        if (blank($this->profile_photo_path)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->profile_photo_path);
+    }
+
+    /**
+     * Inisial nama untuk avatar cadangan.
+     */
+    public function initials(): string
+    {
+        $name = trim((string) $this->name);
+
+        if ($name === '') {
+            return 'U';
+        }
+
+        $parts = preg_split('/\s+/u', $name) ?: [];
+        $initials = mb_substr($parts[0], 0, 1);
+
+        if (count($parts) > 1) {
+            $initials .= mb_substr($parts[count($parts) - 1], 0, 1);
+        }
+
+        return mb_strtoupper($initials);
     }
 }

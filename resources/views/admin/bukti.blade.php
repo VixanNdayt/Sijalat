@@ -17,7 +17,7 @@
         <main class="main-content">
             <nav class="navbar">
                 <a class="profile-edit" href="{{ route('profile.edit') }}">
-                    <img src="{{ asset('svg/user_icon.svg') }}" alt="">
+                    <x-user-avatar :user="auth()->user()" />
                     <p>{{ auth()->user()->name }}</p>
                 </a>
 
