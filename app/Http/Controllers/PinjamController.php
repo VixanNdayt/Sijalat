@@ -4,11 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Alat;
 use App\Models\Pinjam;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class PinjamController extends Controller
 {
+    /**
+     * Jam operasional peminjaman sesuai jadwal sekolah.
+     * Senin 08.00-16.30, Selasa-Kamis 07.00-16.35, Jumat 08.00-14.45.
+     */
+    private const JAM_SEKOLAH = [
+        1 => ['08:00', '16:30'],
+        2 => ['07:00', '16:35'],
+        3 => ['07:00', '16:35'],
+        4 => ['07:00', '16:35'],
+        5 => ['08:00', '14:45'],
+    ];
+
     /**
      * Display a listing of the resource.
      */
@@ -24,6 +38,23 @@ class PinjamController extends Controller
     {
         $alats = Alat::where('jumlah_stok', '>', 0)->get();
 
+        // Daftar jenis alat untuk filter, diambil dari data yang benar-benar ada.
+        $jenisAlats = $alats
+            ->pluck('jenis')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->map(function ($jenis) {
+                $label = ucwords(str_replace('_', ' ', $jenis));
+                $label = str_replace(['Pc', 'Iot'], ['PC', 'IoT'], $label);
+
+                return [
+                    'value' => strtolower($jenis),
+                    'label' => $label,
+                ];
+            });
+
         // Pulihkan isi keranjang ketika validasi gagal (old input)
         $oldCart = [];
         $oldId = old('alat_id', []);
@@ -38,7 +69,7 @@ class PinjamController extends Controller
             }
         }
 
-        return view('pinjam.create', compact('alats', 'oldCart'));
+        return view('pinjam.create', compact('alats', 'oldCart', 'jenisAlats'));
     }
 
     /**
@@ -46,7 +77,7 @@ class PinjamController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'alat_id'           => 'required|array',
             'alat_id.*'         => 'required|exists:alats,id',
             'jumlah_minta'      => 'required|array',
@@ -56,6 +87,71 @@ class PinjamController extends Controller
             'dikembalikan_saat' => 'required|date|after_or_equal:dipinjam_saat',
             'deskripsi_minta'   => 'required|string|max:255',
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            // --- 1. Jumlah yang diminta tidak boleh melebihi stok tersedia ---
+            $diminta = [];
+
+            foreach ((array) $request->alat_id as $index => $id) {
+                $id = (int) $id;
+                $diminta[$id] = ($diminta[$id] ?? 0) + (int) ($request->jumlah_minta[$index] ?? 0);
+            }
+
+            $daftarAlat = Alat::whereIn('id', array_keys($diminta))->get()->keyBy('id');
+
+            foreach ($diminta as $id => $jumlah) {
+                $alat = $daftarAlat->get($id);
+
+                if (! $alat) {
+                    continue;
+                }
+
+                if ($jumlah > $alat->jumlah_stok) {
+                    $validator->errors()->add(
+                        'jumlah_minta',
+                        "Jumlah {$alat->nama} melebihi stok tersedia ({$alat->jumlah_stok})."
+                    );
+                }
+            }
+
+            // --- 2. Waktu peminjaman hanya di dalam jam sekolah (Senin-Jumat) ---
+            $waktu = [
+                'dipinjam_saat'     => $request->filled('dipinjam_saat') ? Carbon::parse($request->dipinjam_saat) : null,
+                'dikembalikan_saat' => $request->filled('dikembalikan_saat') ? Carbon::parse($request->dikembalikan_saat) : null,
+            ];
+
+            foreach ($waktu as $field => $saat) {
+                if (! $saat) {
+                    continue;
+                }
+
+                $aturan = self::JAM_SEKOLAH[$saat->dayOfWeekIso] ?? null;
+
+                if (! $aturan) {
+                    $pesan = 'Peminjaman hanya dapat dilakukan pada hari Senin sampai Jumat.';
+                } else {
+                    $jam = $saat->format('H:i');
+
+                    if ($jam >= $aturan[0] && $jam <= $aturan[1]) {
+                        continue;
+                    }
+
+                    $pesan = 'Jam peminjaman harus di antara '
+                        . str_replace(':', '.', $aturan[0]) . ' - '
+                        . str_replace(':', '.', $aturan[1])
+                        . ' sesuai jam sekolah.';
+                }
+
+                // Hindari pesan yang sama muncul dua kali (waktu ambil & kembali).
+                if (! in_array($pesan, $validator->errors()->all(), true)) {
+                    $validator->errors()->add($field, $pesan);
+                }
+            }
+        });
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
 
         foreach ($request->alat_id as $index => $id_alat) {
             Pinjam::create([

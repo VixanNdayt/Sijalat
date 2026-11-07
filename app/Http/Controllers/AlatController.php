@@ -35,6 +35,7 @@ class AlatController extends Controller
             'description'         => 'required|string',
             'code'                => 'required|string|unique:alats,code',
             'kondisi_baik'        => 'required|integer|min:0',
+            'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
             'kondisi_maintenance' => 'required|integer|min:0',
             'img'                => 'required|image|mimes:jpeg,png,jpg|max:2048',
@@ -46,12 +47,13 @@ class AlatController extends Controller
         $pathFoto = 'equipment/' . $namaFile;
         
         // Hitung total Qty secara otomatis
-        $totalQty = $request->kondisi_baik + $request->kondisi_rusak + $request->kondisi_maintenance;
+        $totalQty = $request->kondisi_baik + $request->kondisi_pengecekan + $request->kondisi_rusak + $request->kondisi_maintenance;
 
         Alat::create([
             'nama'                => $request->nama,
             'description'         => $request->description,
             'kondisi_baik'        => $request->kondisi_baik,
+            'kondisi_pengecekan'  => $request->kondisi_pengecekan,
             'kondisi_rusak'       => $request->kondisi_rusak,
             'kondisi_maintenance' => $request->kondisi_maintenance,
             'jumlah_stok'         => $totalQty, 
@@ -90,17 +92,19 @@ class AlatController extends Controller
             'description'         => 'required|string',
             'kondisi_baik'        => 'required|integer|min:0',
             'code'                => 'required|string|unique:alats,code,' . $alat->code . ',code',
+            'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
             'kondisi_maintenance' => 'required|integer|min:0',
             'img'                => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $totalQty = $request->kondisi_baik + $request->kondisi_rusak + $request->kondisi_maintenance;
+        $totalQty = $request->kondisi_baik + $request->kondisi_pengecekan + $request->kondisi_rusak + $request->kondisi_maintenance;
 
         $alat->nama = $request->nama;
         $alat->description = $request->description;
         $alat->code = $request->code;
         $alat->kondisi_baik = $request->kondisi_baik;
+        $alat->kondisi_pengecekan = $request->kondisi_pengecekan;
         $alat->kondisi_rusak = $request->kondisi_rusak;
         $alat->kondisi_maintenance = $request->kondisi_maintenance;
         $alat->jumlah_stok = $totalQty;

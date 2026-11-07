@@ -16,18 +16,33 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_new_users_can_register(): void
+    public function test_new_users_can_register_with_school_email(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
             'nis' => '123456',
             'kelas' => 'XI SIJA A',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'email' => 'test@student.stembayo.sch.id',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('verification.notice', absolute: false));
+    }
+
+    public function test_users_can_not_register_with_non_school_email(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'nis' => '654321',
+            'kelas' => 'XI SIJA A',
+            'email' => 'test@example.com',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertGuest();
     }
 }

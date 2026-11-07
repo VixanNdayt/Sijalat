@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            Perbarui nama, kelas, dan email akun Anda. Kelas dipakai untuk mengisi form pengambilan alat secara otomatis.
+            Perbarui nama, NIS, kelas, dan email akun Anda. Kelas dipakai untuk mengisi form pengambilan alat secara otomatis.
         </p>
     </header>
 
@@ -24,6 +24,12 @@
         </div>
 
         <div>
+            <x-input-label for="nis" :value="__('NIS')" />
+            <x-text-input id="nis" name="nis" type="text" inputmode="numeric" class="mt-1 block w-full" :value="old('nis', $user->nis)" :required="$user->isStudent()" autocomplete="off" />
+            <x-input-error class="mt-2" :messages="$errors->get('nis')" />
+        </div>
+
+        <div>
             <x-input-label for="kelas" :value="__('Kelas')" />
             <x-text-input id="kelas" name="kelas" type="text" class="mt-1 block w-full" :value="old('kelas', $user->kelas)" placeholder="Contoh: XI SIJA A" autocomplete="off" />
             <x-input-error class="mt-2" :messages="$errors->get('kelas')" />
@@ -31,7 +37,18 @@
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
+            <x-text-input
+                id="email"
+                name="email"
+                type="email"
+                class="mt-1 block w-full"
+                :value="old('email', $user->email)"
+                required
+                autocomplete="username"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+                Jika diubah, email siswa harus memakai domain &#64;{{ config('auth.student_email_domain') }}.
+            </p>
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())

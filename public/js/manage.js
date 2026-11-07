@@ -23,6 +23,7 @@
         code: document.getElementById('inputCode'),
         deskripsi: document.getElementById('inputDeskripsi'),
         baik: document.getElementById('inputBaik'),
+        cek: document.getElementById('inputCek'),
         rusak: document.getElementById('inputRusak'),
         mtc: document.getElementById('inputMtc')
     };
@@ -68,6 +69,7 @@
         fields.code.value = alat.code || '';
         fields.deskripsi.value = alat.description || alat.deskripsi || '';
         fields.baik.value = alat.kondisi_baik != null ? alat.kondisi_baik : 0;
+        fields.cek.value = alat.kondisi_pengecekan != null ? alat.kondisi_pengecekan : 0;
         fields.rusak.value = alat.kondisi_rusak != null ? alat.kondisi_rusak : 0;
         fields.mtc.value = alat.kondisi_maintenance != null ? alat.kondisi_maintenance : 0;
 

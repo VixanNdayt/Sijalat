@@ -57,10 +57,10 @@
                     <div class="table-row">
                         <span>{{ $index + 1 }}</span>
                         <span>
-                            <strong>{{ $trx->user->name }}</strong><br>
-                            <small style="color: #666;">NIS: {{ $trx->user->nis }} &middot; Kelas: {{ $trx->user->kelas ?: '-' }}</small>
+                            <strong>{{ $trx->user?->name ?? 'Pengguna tidak tersedia' }}</strong><br>
+                            <small style="color: #666;">NIS: {{ $trx->user?->nis ?? '-' }} &middot; Kelas: {{ $trx->user?->kelas ?: '-' }}</small>
                         </span>
-                        <span>{{ $trx->alat->nama }}</span>
+                        <span>{{ $trx->alat?->nama ?? 'Alat tidak tersedia' }}</span>
                         <span>{{ $trx->jumlah_minta }} unit</span>
                         <span>{{ $trx->deskripsi_minta }}</span>
                         <span>{{ \Carbon\Carbon::parse($trx->dipinjam_saat)->format('d M Y, H:i') }}</span>

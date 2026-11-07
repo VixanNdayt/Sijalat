@@ -35,7 +35,7 @@
                 </div>
                 <div>
                     <span>Kelas</span>
-                    <span>{{ $pinjam->user->kelas ?: '-' }}</span>
+                    <span>{{ $pinjam->user?->kelas ?: '-' }}</span>
                 </div>
                 <div>
                     <span>Alat</span>
@@ -59,7 +59,7 @@
                 </div>
                 <div>
                     <span>Status</span>
-                    <span>{{ $jenis === 'ambil' ? ($pinjam->status === 'disetuji' ? 'Disetujui' : ucfirst($pinjam->status)) : ucfirst($pinjam->status) }}</span>
+                    <span>{{ $pinjam->status_label }}</span>
                 </div>
             </div>
 

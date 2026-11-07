@@ -5,11 +5,21 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     display: flex;
     min-height: 100vh;
     background-color: aliceblue;
     overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
 }
 
 .main-content {
@@ -200,6 +210,10 @@ body {
 }
 
 .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     padding: 12px;
     background-color: #12211d;
     text-decoration: none;
@@ -208,6 +222,21 @@ body {
     color: white;
     font-weight: 400;
     transition: all 0.3s ease;
+}
+
+.sidebar-menu a .menu-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 19px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #34d399;
+    color: #03301f;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
 }
 
 .sidebar-menu a:hover {

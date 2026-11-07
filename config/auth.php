@@ -6,6 +6,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Domain Email Siswa
+    |--------------------------------------------------------------------------
+    |
+    | Domain email sekolah yang diizinkan untuk pendaftaran siswa baru.
+    |
+    */
+
+    'student_email_domain' => env('STUDENT_EMAIL_DOMAIN', 'student.stembayo.sch.id'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Defaults
     |--------------------------------------------------------------------------
     |

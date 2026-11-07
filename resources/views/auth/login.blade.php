@@ -4,30 +4,39 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
-        <title>@yield('title', 'SIJALAT')</title>
+        <title>Login &middot; SIJALAT</title>
         <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 
         @stack('styles')
     </head>
     <body>
-         <main class="page">
+        <main class="page">
             <section class="hero1">
                 <div>
                     <div class="logo">
                         <img src="{{ asset('svg/logo-sijalat.svg') }}" alt="Logo SIJALAT">
                         <h3>SIJALAT</h3>
                     </div>
-                    <h2>Pinjam Alat dengan cepat</h2>
+                    <h2>Pinjam alat dengan cepat</h2>
                     <p>Sistem Peminjaman Alat SIJA &mdash; ajukan, ambil, dan kembalikan alat dalam satu tempat.</p>
                 </div>
-                <div>
-
-                </div>
+                <div></div>
             </section>
+
             <section class="login">
-                <h1>LOGIN TO SIJALAT</h1>
+                <h1>Login ke SIJALAT</h1>
+
                 <div class="login-form">
-                    <h2>Welcome back to SIJALAT</h2>
+                    <h2>Selamat datang kembali</h2>
+
+                    @if (session('status'))
+                        <div class="alert-success">{{ session('status') }}</div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert-error">{{ session('error') }}</div>
+                    @endif
+
                     @if ($errors->any())
                         <div class="alert-error">
                             <ul>
@@ -37,37 +46,61 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{ route('login') }}" method="POST" class="form">
 
+                    <form action="{{ route('login') }}" method="POST" class="form">
                         @csrf
 
-                        <div>
-                            <div class="form-group" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px;">
-                                <label for="email">Email:</label>
-                                <input type="email" id="email" name="email" placeholder="Masukkan email" required>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                placeholder="Masukkan email"
+                                required
+                                autofocus
+                                autocomplete="username"
+                            >
 
-                                <!-- error email -->
-                                @error('email')
-                                    <span class="error-text">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="password">Password:</label>
-                                <input type="password" id="password" name="password" placeholder="Masukkan password" required>
-
-                                <!-- error password -->
-                                @error('password')
-                                    <span class="error-text">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <p style="font-size: 12px;">Belum punya akun? <a href="{{ route('register') }}">Sign up</a></p>
+                            @error('email')
+                                <span class="error-text">{{ $message }}</span>
+                            @enderror
                         </div>
-                        <br>
-                        <input type="submit" value="Login" style="background-color: #004E39; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; text-align: center; margin-bottom: 20px;">
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Masukkan password"
+                                required
+                                autocomplete="current-password"
+                            >
+
+                            @error('password')
+                                <span class="error-text">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-options">
+                            <label class="remember-row" for="remember">
+                                <input type="checkbox" id="remember" name="remember" value="1">
+                                <span>Ingat saya</span>
+                            </label>
+
+                            <a class="small-link" href="{{ route('password.request') }}">Lupa password?</a>
+                        </div>
+
+                        <input type="submit" value="Masuk">
                     </form>
+
+                    <p class="form-footer">
+                        Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a>
+                    </p>
                 </div>
             </section>
         </main>
-
     </body>
 </html>

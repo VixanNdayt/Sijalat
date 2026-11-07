@@ -1,4 +1,8 @@
 <!-- Sidebar guru/admin -->
+@php
+    $unreadChat = \App\Models\Message::unreadCountFor(auth()->user());
+@endphp
+
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <a class="sidebar-brand" href="{{ route('dashboard') }}">
@@ -13,6 +17,12 @@
         <a href="{{ route('admin.qr.index') }}">QR Transaksi</a>
         <a href="{{ route('admin.alat.index') }}">Manage Data</a>
         <a href="{{ route('admin.analisis') }}">Analisis</a>
+        <a class="{{ request()->routeIs('admin.chat.*') ? 'active' : '' }}" href="{{ route('admin.chat.index') }}">
+            Chat Siswa
+            @if ($unreadChat > 0)
+                <span class="menu-badge">{{ $unreadChat > 99 ? '99+' : $unreadChat }}</span>
+            @endif
+        </a>
         <a href="{{ route('guide') }}">Guide</a>
     </div>
 </aside>

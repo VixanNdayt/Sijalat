@@ -38,42 +38,57 @@
                     <p>Analisis setiap laporan dan data yang terjadi dalam kurun waktu</p>
                 </div>
             
-                <!-- 4 Kotak Ringkasan Data[cite: 7] -->
+                <!-- 4 Kotak Ringkasan Data -->
                 <div class="card-grid">
-                    <div class="summary-card border-blue">
-                        <div class="icon"><x-icon name="trending-up" size="22" /></div>
-                        <h3>{{ $totalMasuk }} Masuk</h3>
-                        <p>Total Data</p>
+                    <div class="summary-card tone-blue">
+                        <span class="icon"><x-icon name="trending-up" size="20" /></span>
+                        <div class="summary-body">
+                            <p class="summary-value">{{ $totalMasuk }}</p>
+                            <p class="summary-label">Total data masuk</p>
+                        </div>
                     </div>
-                    <div class="summary-card border-green">
-                        <div class="icon"><x-icon name="check-circle" size="22" /></div>
-                        <h3>{{ $totalApproved }} Approved</h3>
-                        <p>Total approved</p>
+
+                    <div class="summary-card tone-green">
+                        <span class="icon"><x-icon name="check-circle" size="20" /></span>
+                        <div class="summary-body">
+                            <p class="summary-value">{{ $totalApproved }}</p>
+                            <p class="summary-label">Disetujui</p>
+                        </div>
                     </div>
-                    <div class="summary-card border-yellow">
-                        <div class="icon"><x-icon name="clock" size="22" /></div>
-                        <h3>{{ $totalPending }} pending</h3>
-                        <p>Total pending</p>
+
+                    <div class="summary-card tone-amber">
+                        <span class="icon"><x-icon name="clock" size="20" /></span>
+                        <div class="summary-body">
+                            <p class="summary-value">{{ $totalPending }}</p>
+                            <p class="summary-label">Menunggu persetujuan</p>
+                        </div>
                     </div>
-                    <div class="summary-card border-red">
-                        <div class="icon"><x-icon name="clipboard" size="22" /></div>
-                        <h3>{{ $totalCatatan }} catatan</h3>
-                        <p>Total Notes</p>
+
+                    <div class="summary-card tone-red">
+                        <span class="icon"><x-icon name="clipboard" size="20" /></span>
+                        <div class="summary-body">
+                            <p class="summary-value">{{ $totalCatatan }}</p>
+                            <p class="summary-label">Catatan pelanggaran</p>
+                        </div>
                     </div>
                 </div>
             
-                <!-- Banner Informasi[cite: 7] -->
+                <!-- Banner Informasi -->
                 <div class="info-banner">
-                    <p><strong>!</strong> Data yang ditampilkan merupakan data selama 1 bulan, untuk hasil data mingguan bisa download di page unduh analisis.</p>
+                    <p><strong>!</strong> Data yang ditampilkan merupakan data selama 1 bulan. Untuk hasil data mingguan, unduh melalui halaman analisis.</p>
                 </div>
             
                 <!-- Area Chart (Grafik) -->
-                <div class="chart-area" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd;">
-                    <h3 style="margin-top:0;">Grafik Alat Sering Dipinjam</h3>
-                    <canvas id="barangChart" height="80"></canvas>
+                <div class="chart-area">
+                    <h3>Grafik Alat Sering Dipinjam</h3>
+                    @if ($chartLabels->isEmpty())
+                        <p class="chart-empty">Belum ada data peminjaman pada periode ini.</p>
+                    @else
+                        <canvas id="barangChart" height="80"></canvas>
+                    @endif
                 </div>
             
-                <!-- Tabel Data Peminjaman[cite: 7] -->
+                <!-- Tabel Data Peminjaman -->
                 <div class="table-container">
                     <div class="table-header">
                         <span>No</span>
@@ -84,16 +99,18 @@
                         <span>Waktu</span>
                     </div>
 
-                    @foreach($transaksis as $index => $trx)
-                    <div class="table-row">
-                        <span>{{ $index + 1 }}</span>
-                        <span>{{ $trx->user->name }}</span>
-                        <span>{{ $trx->user->nis }}</span>
-                        <span>{{ $trx->user->kelas ?? '-' }}</span>
-                        <span>{{ $trx->alat->nama }}</span>
-                        <span>{{ \Carbon\Carbon::parse($trx->created_at)->format('D, d-m-Y H:i') }}</span>
-                    </div>
-                    @endforeach
+                    @forelse($transaksis as $index => $trx)
+                        <div class="table-row">
+                            <span>{{ $index + 1 }}</span>
+                            <span>{{ $trx->user?->name ?? 'Pengguna tidak tersedia' }}</span>
+                            <span>{{ $trx->user?->nis ?? '-' }}</span>
+                            <span>{{ $trx->user?->kelas ?? '-' }}</span>
+                            <span>{{ $trx->alat?->nama ?? 'Alat tidak tersedia' }}</span>
+                            <span>{{ $trx->created_at ? \Carbon\Carbon::parse($trx->created_at)->format('D, d-m-Y H:i') : '-' }}</span>
+                        </div>
+                    @empty
+                        <div class="table-empty">Belum ada data peminjaman.</div>
+                    @endforelse
                 </div>
             </div>
             @include('partials.footer')

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Rules\SchoolEmail;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
 
 class AuthController extends Controller
 {
@@ -18,28 +21,31 @@ class AuthController extends Controller
     // Memproses data pendaftaran dari form
     public function register(Request $request)
     {
-        // 1. Validasi input
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'nis'      => 'required|numeric|unique:users,nis',
-            'kelas'    => 'required|string|max:50',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
+            'name' => 'required|string|max:255',
+            'nis' => 'required|numeric|unique:users,nis',
+            'kelas' => 'required|string|max:50',
+            'email' => ['required', 'lowercase', 'email', 'unique:users,email', new SchoolEmail],
+            'password' => ['required', Rules\Password::defaults(), 'confirmed'],
         ]);
 
-        // 2. Simpan data siswa ke MySQL
         $user = User::create([
-            'name'     => $validated['name'],
-            'nis'      => $validated['nis'],
-            'kelas'    => $validated['kelas'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'nis' => $validated['nis'],
+            'kelas' => $validated['kelas'],
+            'email' => $validated['email'],
+            'role_user' => 'siswa',
             'password' => Hash::make($validated['password']),
         ]);
 
-        // 3. Otomatis loginkan siswa setelah daftar
+        event(new Registered($user));
+
         Auth::login($user);
 
-        // 4. Arahkan ke dashboard
-        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat!');
+        $request->session()->regenerate();
+
+        return redirect()
+            ->route('verification.notice')
+            ->with('status', 'Akun berhasil dibuat. Cek email sekolahmu untuk verifikasi.');
     }
 }

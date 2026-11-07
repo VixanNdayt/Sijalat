@@ -69,6 +69,7 @@
                                 <span class="badge code">Kode: {{ $alat->code }}</span>
                                 <span class="badge total">Total: {{ $alat->jumlah_stok }}</span>
                                 <span class="badge baik">Baik: {{ $alat->kondisi_baik }}</span>
+                                <span class="badge cek">Cek: {{ $alat->kondisi_pengecekan }}</span>
                                 <span class="badge rusak">Rusak: {{ $alat->kondisi_rusak }}</span>
                                 <span class="badge mtc">Mtc: {{ $alat->kondisi_maintenance }}</span>
                             </div>
@@ -151,12 +152,16 @@
                             <textarea name="description" id="inputDeskripsi" rows="3" required>{{ old('description') }}</textarea>
                         </div>
                     
-                        <!-- Input 3 Kondisi Sejajar -->
+                        <!-- Input 4 Kondisi Sejajar -->
                         <label>Rincian Qty (Kondisi)</label>
                         <div class="row-kondisi">
                             <div class="col-kondisi">
                                 <span style="font-size:12px; color:#16a34a;">Baik</span>
                                 <input type="number" name="kondisi_baik" id="inputBaik" value="{{ old('kondisi_baik', 0) }}" min="0" required>
+                            </div>
+                            <div class="col-kondisi">
+                                <span style="font-size:12px; color:#0369a1;">Pengecekan</span>
+                                <input type="number" name="kondisi_pengecekan" id="inputCek" value="{{ old('kondisi_pengecekan', 0) }}" min="0" required>
                             </div>
                             <div class="col-kondisi">
                                 <span style="font-size:12px; color:#dc2626;">Rusak</span>
@@ -167,7 +172,7 @@
                                 <input type="number" name="kondisi_maintenance" id="inputMtc" value="{{ old('kondisi_maintenance', 0) }}" min="0" required>
                             </div>
                         </div>
-                        <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Total Qty akan dihitung otomatis.</p>
+                        <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Total Qty akan dihitung otomatis dari seluruh kondisi.</p>
                     
                         <div class="input-group">
                             <label for="inputFoto">Foto Alat</label>

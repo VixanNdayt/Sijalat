@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['code', 'nama', 'jumlah_stok', 'img', 'description', 'jenis', 'kondisi_baik', 'kondisi_rusak', 'kondisi_maintenance'])]
+#[Fillable(['code', 'nama', 'jumlah_stok', 'img', 'description', 'jenis', 'kondisi_baik', 'kondisi_pengecekan', 'kondisi_rusak', 'kondisi_maintenance'])]
 
 class Alat extends Model
 {
@@ -22,6 +22,7 @@ class Alat extends Model
         'description',
         'jenis',
         'kondisi_baik',
+        'kondisi_pengecekan',
         'kondisi_rusak',
         'kondisi_maintenance',
     ];

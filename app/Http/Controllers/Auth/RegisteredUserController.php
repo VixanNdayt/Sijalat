@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\SchoolEmail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,8 +35,11 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'nis' => ['required', 'numeric', 'unique:users,nis'],
             'kelas' => ['required', 'string', 'max:50'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class, new SchoolEmail],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'nis.unique' => 'NIS sudah dipakai akun lain.',
+            'email.unique' => 'Email ini sudah terdaftar.',
         ]);
 
         $user = User::create([
@@ -43,6 +47,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'nis' => $request->nis,
             'kelas' => $request->kelas,
+            'role_user' => 'siswa',
             'password' => Hash::make($request->password),
         ]);
 
@@ -50,6 +55,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        $request->session()->regenerate();
+
+        return redirect()
+            ->route('verification.notice')
+            ->with('status', 'Akun berhasil dibuat. Cek email sekolahmu untuk verifikasi.');
     }
 }

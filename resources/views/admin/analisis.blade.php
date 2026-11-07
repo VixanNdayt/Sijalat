@@ -31,16 +31,41 @@
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
             <div class="analisis-container">
+                @php
+                    $tanggalLabel = $periode === 'semua' ? null : $periodeLabel;
+                    $filterParams = array_filter(
+                        ['periode' => $periode, 'tanggal' => $tanggal],
+                        fn ($nilai) => $nilai !== null && $nilai !== ''
+                    );
+                @endphp
                 <!-- HEADER & KONTROL -->
                 <div class="header-action">
                     <div>
                         <h2>Dashboard Analisis & Laporan</h2>
                         <p>Pantau metrik inventaris dan aktivitas lab secara real-time.</p>
+                        @if ($periode !== 'semua')
+                            <p class="filter-note">
+                                Periode: {{ $periodeLabel }}
+                                ({{ $mulai->format('d/m/Y') }} - {{ $selesai->format('d/m/Y') }}).
+                                <a href="{{ route('admin.analisis') }}">Tampilkan semua data</a>
+                            </p>
+                        @endif
                     </div>
                     <div class="kontrol-filter">
-                        <input type="date" class="date-picker">
-                        <button class="btn-export pdf"><x-icon name="file-text" size="15" /> Export PDF</button>
-                        <button class="btn-export excel"><x-icon name="table" size="15" /> Export Excel</button>
+                        <select id="filterPeriode" class="date-picker" aria-label="Pilih periode laporan">
+                            <option value="semua" @selected($periode === 'semua')>Semua Data</option>
+                            <option value="harian" @selected($periode === 'harian')>Harian</option>
+                            <option value="mingguan" @selected($periode === 'mingguan')>Mingguan</option>
+                            <option value="bulanan" @selected($periode === 'bulanan')>Bulanan</option>
+                            <option value="semester" @selected($periode === 'semester')>Satu Semester</option>
+                        </select>
+                        <input type="date" class="date-picker" id="filterTanggal" value="{{ $tanggal }}" aria-label="Tanggal acuan periode" @disabled($periode === 'semua')>
+                        <a class="btn-export pdf" href="{{ route('admin.analisis.pdf', $filterParams) }}">
+                            <x-icon name="file-text" size="15" /> Export PDF
+                        </a>
+                        <a class="btn-export excel" href="{{ route('admin.analisis.excel', $filterParams) }}">
+                            <x-icon name="table" size="15" /> Export Excel
+                        </a>
                     </div>
                 </div>
             
@@ -64,7 +89,7 @@
                         <span class="icon"><x-icon name="wrench" size="22" /></span>
                         <div class="data">
                             <p>Kondisi Fisik</p>
-                            <h3 style="font-size: 14px;">B: {{ $kondisiBaik }} | R: {{ $kondisiRusak }} | M: {{ $kondisiMtc }}</h3>
+                            <h3 style="font-size: 13px;">B: {{ $kondisiBaik }} | C: {{ $kondisiPengecekan }} | R: {{ $kondisiRusak }} | M: {{ $kondisiMtc }}</h3>
                         </div>
                     </div>
                     <div class="kpi-card">
@@ -79,11 +104,11 @@
                 <!-- 2. GRAFIK VISUALISASI (2 Kolom) -->
                 <div class="grid-2">
                     <div class="chart-box">
-                        <h4>Tren Peminjaman (7 Hari Terakhir)</h4>
+                        <h4>Tren Peminjaman ({{ $tanggalLabel ?: '7 Hari Terakhir' }})</h4>
                         <canvas id="trendChart" height="100"></canvas>
                     </div>
                     <div class="chart-box">
-                        <h4>Top 5 Barang Sering Dipinjam</h4>
+                        <h4>Top 5 Barang Sering Dipinjam{{ $tanggalLabel ? ' - '.$tanggalLabel : '' }}</h4>
                         <canvas id="topItemChart" height="100"></canvas>
                     </div>
                 </div>
@@ -107,13 +132,15 @@
                             <tr>
                                 <th>Nama Alat</th>
                                 <th>Stok / Baik</th>
-                                <th>Rusak / Mtc</th>
+                                <th>Cek / Rusak</th>
+                                <th>Mtc</th>
                             </tr>
                             @foreach($stockAlerts as $alert)
                             <tr>
                                 <td>{{ $alert->nama }}</td>
                                 <td>{{ $alert->jumlah_stok }} / {{ $alert->kondisi_baik }}</td>
-                                <td style="color:red;">{{ $alert->kondisi_rusak }} / {{ $alert->kondisi_maintenance }}</td>
+                                <td><span style="color:#0369a1;">{{ $alert->kondisi_pengecekan }}</span> / <span style="color:#dc2626;">{{ $alert->kondisi_rusak }}</span></td>
+                                <td>{{ $alert->kondisi_maintenance }}</td>
                             </tr>
                             @endforeach
                         </table>
@@ -121,7 +148,7 @@
                 
                     <!-- Tabel Recent Activity -->
                     <div class="table-widget">
-                        <h4 style="display:flex; align-items:center; gap:6px;"><x-icon name="clock" size="18" /> Log Aktivitas Terbaru</h4>
+                        <h4 style="display:flex; align-items:center; gap:6px;"><x-icon name="clock" size="18" /> Log Aktivitas {{ $tanggalLabel ? $tanggalLabel : 'Terbaru' }}</h4>
                         <table class="data-table">
                             <tr>
                                 <th>Waktu</th>
@@ -129,16 +156,20 @@
                                 <th>Barang</th>
                                 <th>Status</th>
                             </tr>
-                            @foreach($recentActivities as $recent)
+                            @forelse($recentActivities as $recent)
                             <tr>
                                 <td>{{ \Carbon\Carbon::parse($recent->created_at)->format('d/m, H:i') }}</td>
-                                <td>{{ $recent->user->name }}</td>
-                                <td>{{ $recent->alat->nama }}</td>
+                                <td>{{ optional($recent->user)->name ?? '-' }}</td>
+                                <td>{{ optional($recent->alat)->nama ?? '-' }}</td>
                                 <td>
-                                    <span class="badge {{ $recent->status }}">{{ strtoupper($recent->status) }}</span>
+                                    <span class="badge {{ $recent->status }}">{{ $recent->status_label }}</span>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="table-empty">Tidak ada aktivitas pada periode ini.</td>
+                            </tr>
+                            @endforelse
                         </table>
                     </div>
                 </div>
@@ -157,7 +188,7 @@
             const topLabels = @json($topItems->pluck('nama'));
             const topData = @json($topItems->pluck('total_pinjam'));
             
-            const trendLabels = @json($trenHarian->pluck('date'));
+            const trendLabels = @json($trenHarian->pluck('label'));
             const trendData = @json($trenHarian->pluck('total'));
 
             // 1. Line Chart (Tren Peminjaman)
@@ -194,10 +225,10 @@
             new Chart(document.getElementById('kondisiChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['Baik', 'Rusak / Perlu Service', 'Maintenance'],
+                    labels: ['Baik', 'Butuh Pengecekan', 'Rusak / Perlu Service', 'Maintenance'],
                     datasets: [{
-                        data: [{{ $kondisiBaik }}, {{ $kondisiRusak }}, {{ $kondisiMtc }}],
-                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
+                        data: [{{ $kondisiBaik }}, {{ $kondisiPengecekan }}, {{ $kondisiRusak }}, {{ $kondisiMtc }}],
+                        backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b']
                     }]
                 }
             });
@@ -213,6 +244,39 @@
                     }]
                 }
             });
+
+            // Filter periode & tanggal acuan
+            const filterPeriode = document.getElementById('filterPeriode');
+            const filterTanggal = document.getElementById('filterTanggal');
+
+            function terapkanFilter() {
+                const url = new URL(window.location.href);
+                const periode = filterPeriode ? filterPeriode.value : 'semua';
+
+                url.searchParams.set('periode', periode);
+
+                if (periode === 'semua') {
+                    url.searchParams.delete('tanggal');
+                } else if (filterTanggal && filterTanggal.value) {
+                    url.searchParams.set('tanggal', filterTanggal.value);
+                }
+
+                window.location.href = url.toString();
+            }
+
+            if (filterPeriode) {
+                filterPeriode.addEventListener('change', function () {
+                    if (filterTanggal) {
+                        filterTanggal.disabled = this.value === 'semua';
+                    }
+
+                    terapkanFilter();
+                });
+            }
+
+            if (filterTanggal) {
+                filterTanggal.addEventListener('change', terapkanFilter);
+            }
         </script>
     </body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="UTF-8">
@@ -59,7 +59,7 @@
                                     <small>NIS {{ $pinjam->user->nis ?? '-' }} &middot; {{ $pinjam->kode_pinjam }}</small>
                                 </div>
                                 <span class="qr-status {{ $pinjam->status }}">
-                                    {{ $pinjam->status === 'disetuji' ? 'Disetujui' : ucfirst($pinjam->status) }}
+                                    {{ $pinjam->status_label }}
                                 </span>
                             </div>
 
@@ -70,7 +70,7 @@
                                 </div>
                                 <div>
                                     <span>Kelas</span>
-                                    <span>{{ $pinjam->user->kelas ?: '-' }}</span>
+                                    <span>{{ $pinjam->user?->kelas ?: '-' }}</span>
                                 </div>
                                 <div>
                                     <span>Jumlah</span>

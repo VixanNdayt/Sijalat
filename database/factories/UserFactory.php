@@ -26,9 +26,12 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'nis' => fake()->unique()->numerify('########'),
+            'kelas' => 'XI SIJA A',
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'role_user' => 'siswa',
             'remember_token' => Str::random(10),
         ];
     }
@@ -40,6 +43,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an administrator.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_user' => 'admin',
         ]);
     }
 }

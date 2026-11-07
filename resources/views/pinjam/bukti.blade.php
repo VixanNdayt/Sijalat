@@ -225,8 +225,38 @@
                         </div>
                     
                         <div class="input-group">
+                            <label>Kondisi Alat Saat Dikembalikan</label>
+                            <div class="kondisi-opsi">
+                                <label class="kondisi-pilihan">
+                                    <input type="radio" name="kondisi_kembali" value="baik" {{ old('kondisi_kembali', 'baik') === 'baik' ? 'checked' : '' }}>
+                                    <span>
+                                        <strong>Baik</strong>
+                                        <small>Siap dipakai lagi</small>
+                                    </span>
+                                </label>
+                                <label class="kondisi-pilihan">
+                                    <input type="radio" name="kondisi_kembali" value="pengecekan" {{ old('kondisi_kembali') === 'pengecekan' ? 'checked' : '' }}>
+                                    <span>
+                                        <strong>Butuh Pengecekan</strong>
+                                        <small>Perlu dicek guru/admin</small>
+                                    </span>
+                                </label>
+                                <label class="kondisi-pilihan">
+                                    <input type="radio" name="kondisi_kembali" value="rusak" {{ old('kondisi_kembali') === 'rusak' ? 'checked' : '' }}>
+                                    <span>
+                                        <strong>Rusak</strong>
+                                        <small>Tidak bisa dipakai</small>
+                                    </span>
+                                </label>
+                            </div>
+                            @error('kondisi_kembali')
+                                <small class="field-hint">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    
+                        <div class="input-group">
                             <label>Catatan Akhir Pengembalian</label>
-                            <textarea name="catatan" id="catatan_kembali" rows="3" placeholder="Kondisi alat saat diserahkan kembali di meja lab...">{{ old('catatan') }}</textarea>
+                            <textarea name="catatan_kembali" id="catatan_kembali" rows="3" placeholder="Ceritakan kondisi alat saat diserahkan kembali, misalnya ada bagian yang longgar atau tidak berfungsi...">{{ old('catatan_kembali') }}</textarea>
                         </div>
                     
                         <!-- Upload Foto Bukti Pengembalian -->

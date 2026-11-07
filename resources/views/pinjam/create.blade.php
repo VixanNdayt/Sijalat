@@ -41,33 +41,98 @@
                         <p>Cari alat</p>
                         <div>
                             <input type="text" id="searchInput" placeholder="Cari alat...">
-                            <select id="filterKategori">
-                                <option value="">All</option>
-                                <option value="laptop">Laptop</option>
-                            </select>
-                            <button type="button">Search</button>
+
+                            <div class="filter-select" id="filterSelect">
+                                <button
+                                    type="button"
+                                    class="filter-select-trigger"
+                                    id="filterKategoriTrigger"
+                                    aria-haspopup="listbox"
+                                    aria-expanded="false"
+                                    aria-controls="filterKategoriMenu"
+                                >
+                                    <span id="filterKategoriLabel">Semua Jenis</span>
+                                    <x-icon name="chevron-down" size="16" />
+                                </button>
+
+                                <ul
+                                    class="filter-select-menu"
+                                    id="filterKategoriMenu"
+                                    role="listbox"
+                                    aria-label="Filter jenis alat"
+                                    hidden
+                                >
+                                    <li
+                                        class="filter-select-option is-selected"
+                                        role="option"
+                                        data-value=""
+                                        aria-selected="true"
+                                        tabindex="-1"
+                                    >
+                                        Semua Jenis
+                                    </li>
+                                    @foreach ($jenisAlats as $jenis)
+                                        <li
+                                            class="filter-select-option"
+                                            role="option"
+                                            data-value="{{ $jenis['value'] }}"
+                                            aria-selected="false"
+                                            tabindex="-1"
+                                        >
+                                            {{ $jenis['label'] }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+
+                                <select id="filterKategori" class="filter-select-native" aria-hidden="true" tabindex="-1">
+                                    <option value="">Semua Jenis</option>
+                                    @foreach ($jenisAlats as $jenis)
+                                        <option value="{{ $jenis['value'] }}">{{ $jenis['label'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <button type="button" id="btnSearch">Search</button>
                         </div>
                     </div>
 
                     <!-- Item selection -->
                     <div class="item-sec">
                         @foreach ($alats as $alat)
-                            <div class="item-box" data-nama="{{ strtolower($alat->nama) }}" data-kategori="{{ strtolower($alat->jenis) }}">
+                            @php($ready = $alat->stok_tersedia ?? $alat->jumlah_stok)
+                            <article class="item-box" data-nama="{{ strtolower($alat->nama) }}" data-kategori="{{ strtolower($alat->jenis) }}">
                                 <div class="img-item">
-                                    <img src="{{ asset($alat->img) }}" alt="foto">
+                                    <img src="{{ asset($alat->img) }}" alt="{{ $alat->nama }}" loading="lazy">
+                                    <span class="item-status {{ $ready > 0 ? 'is-ready' : 'is-empty' }}">
+                                        {{ $ready > 0 ? 'Tersedia' : 'Habis' }}
+                                    </span>
                                 </div>
 
                                 <div class="item-box-des">
-                                    <h4>{{ $alat->nama }}</h4>
-                                    <p>Deskripsi :<br>{{ $alat->description }}</p>
-                                    <p>Qty : {{ $alat->jumlah_stok }} | Ready : {{ $alat->stok_tersedia ?? $alat->jumlah_stok }}</p>
+                                    <h4 class="item-name">{{ $alat->nama }}</h4>
+                                    <p class="item-desc">{{ $alat->description }}</p>
+
+                                    <div class="item-stats">
+                                        <div class="item-stat">
+                                            <span class="item-stat-label">Stok</span>
+                                            <span class="item-stat-value">{{ $alat->jumlah_stok }}</span>
+                                        </div>
+                                        <div class="item-stat">
+                                            <span class="item-stat-label">Tersedia</span>
+                                            <span class="item-stat-value">{{ $ready }}</span>
+                                        </div>
+                                    </div>
 
                                     <!-- Tombol Tambahkan memanggil fungsi JavaScript -->
-                                    <button type="button" onclick="pilihBarang({{ $alat->id }}, @js($alat->nama))">
-                                        Tambahkan
+                                    <button
+                                        type="button"
+                                        class="btn-primary item-add"
+                                        onclick="pilihBarang({{ $alat->id }}, @js($alat->nama))"
+                                    >
+                                        <x-icon name="plus" size="15" /> Tambahkan
                                     </button>
                                 </div>
-                            </div>
+                            </article>
                         @endforeach
                     </div>
 
@@ -160,11 +225,14 @@
                         </div>
 
                         <div class="input">
-                            <label>Waktu Ambil &amp; kembalikan</label>
+                            <label>Waktu Ambil &amp; Kembalikan</label>
                             <div class="two-form">
                                 <input type="datetime-local" name="dipinjam_saat" value="{{ old('dipinjam_saat') }}" required> -
                                 <input type="datetime-local" name="dikembalikan_saat" value="{{ old('dikembalikan_saat') }}" required>
                             </div>
+                            <p class="form-hint">
+                                Hanya jam sekolah: Senin 08.00&ndash;16.30, Selasa&ndash;Kamis 07.00&ndash;16.35, Jumat 08.00&ndash;14.45.
+                            </p>
                         </div>
 
                         <div class="input">
@@ -188,6 +256,7 @@
         <!-- Data untuk JavaScript -->
         <script>
             window.alatMap = @json($alats->pluck('nama', 'id'));
+            window.stokMap = @json($alats->pluck('jumlah_stok', 'id'));
             window.oldCart = @json($oldCart);
         </script>
 

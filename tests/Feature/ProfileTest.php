@@ -29,7 +29,9 @@ class ProfileTest extends TestCase
             ->actingAs($user)
             ->patch('/profile', [
                 'name' => 'Test User',
-                'email' => 'test@example.com',
+                'nis' => $user->nis,
+                'kelas' => $user->kelas,
+                'email' => 'test@student.stembayo.sch.id',
             ]);
 
         $response
@@ -39,8 +41,25 @@ class ProfileTest extends TestCase
         $user->refresh();
 
         $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('test@student.stembayo.sch.id', $user->email);
         $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_student_can_not_change_email_to_non_school_domain(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->patch('/profile', [
+                'name' => 'Test User',
+                'nis' => $user->nis,
+                'kelas' => $user->kelas,
+                'email' => 'test@example.com',
+            ]);
+
+        $response->assertSessionHasErrors('email');
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
@@ -51,6 +70,8 @@ class ProfileTest extends TestCase
             ->actingAs($user)
             ->patch('/profile', [
                 'name' => 'Test User',
+                'nis' => $user->nis,
+                'kelas' => $user->kelas,
                 'email' => $user->email,
             ]);
 

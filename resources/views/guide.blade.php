@@ -43,6 +43,9 @@
                             <a class="guide-btn ghost" href="{{ route('admin.qr.index') }}">
                                 <x-icon name="qr-code" size="16" /> QR Transaksi
                             </a>
+                            <a class="guide-btn ghost" href="{{ route('admin.chat.index') }}">
+                                <x-icon name="message-circle" size="16" /> Chat Siswa
+                            </a>
                         </div>
                     @else
                         <h1>Cara meminjam alat lewat SIJALAT</h1>
@@ -56,6 +59,9 @@
                             </a>
                             <a class="guide-btn ghost" href="{{ route('pinjam.bukti') }}">
                                 <x-icon name="qr-code" size="16" /> Scan QR
+                            </a>
+                            <a class="guide-btn ghost" href="{{ route('chat.index') }}">
+                                <x-icon name="message-circle" size="16" /> Chat Admin
                             </a>
                         </div>
                     @endif
@@ -114,6 +120,18 @@
                                     </p>
                                 </div>
                             </article>
+
+                            <article class="guide-step">
+                                <span class="guide-step-num">5</span>
+                                <div>
+                                    <h3>Balas chat siswa</h3>
+                                    <p>
+                                        Buka menu <strong>Chat Siswa</strong> untuk membaca pertanyaan siswa.
+                                        Angka pada menu menunjukkan pesan yang belum dibaca. Pilih nama siswa,
+                                        lalu tulis balasan pada kolom chat.
+                                    </p>
+                                </div>
+                            </article>
                         @else
                             <article class="guide-step">
                                 <span class="guide-step-num">1</span>
@@ -161,6 +179,18 @@
                                         Saat mengembalikan, buka tab Pengembalian dan scan
                                         <strong>QR Pengembalian</strong> dari guru. Upload foto kondisi alat,
                                         lalu submit. Status peminjaman akan selesai.
+                                    </p>
+                                </div>
+                            </article>
+
+                            <article class="guide-step">
+                                <span class="guide-step-num">5</span>
+                                <div>
+                                    <h3>Tanya admin lewat chat</h3>
+                                    <p>
+                                        Gunakan menu <strong>Chat Admin</strong> untuk bertanya tentang jadwal,
+                                        pengembalian, atau kondisi alat. Balasan admin akan muncul otomatis
+                                        dan jumlah pesan baru tampil pada menu.
                                     </p>
                                 </div>
                             </article>
