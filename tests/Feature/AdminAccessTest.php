@@ -31,4 +31,17 @@ class AdminAccessTest extends TestCase
             ->get('/admin/alat')
             ->assertOk();
     }
+
+    public function test_parameter_filter_berbentuk_array_tidak_menyebabkan_error(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get('/admin/analisis?periode[]=harian')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/qr?cari[]=router')
+            ->assertOk();
+    }
 }

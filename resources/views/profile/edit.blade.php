@@ -28,12 +28,6 @@
 
                     <dl class="mt-4 space-y-3 text-sm">
                         <div class="flex items-start justify-between gap-4">
-                            <dt class="text-gray-500">Status email</dt>
-                            <dd class="font-medium {{ $user->hasVerifiedEmail() ? 'text-green-700' : 'text-amber-700' }}">
-                                {{ $user->hasVerifiedEmail() ? 'Terverifikasi' : 'Belum terverifikasi' }}
-                            </dd>
-                        </div>
-                        <div class="flex items-start justify-between gap-4">
                             <dt class="text-gray-500">Login terakhir</dt>
                             <dd class="font-medium text-gray-900">
                                 {{ $user->last_login_at?->copy()->locale('id')->timezone('Asia/Jakarta')->translatedFormat('d F Y, H:i') ?? '-' }}

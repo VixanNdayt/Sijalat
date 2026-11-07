@@ -66,7 +66,8 @@ class AnalisisController extends Controller
      */
     private function periodeFilter(Request $request): array
     {
-        $periode = (string) $request->input('periode', 'semua');
+        $periode = $request->input('periode', 'semua');
+        $periode = is_string($periode) ? $periode : 'semua';
 
         if (! in_array($periode, self::PERIODE, true)) {
             $periode = 'semua';
@@ -156,15 +157,17 @@ class AnalisisController extends Controller
     {
         // 1. METRIC CARDS (Total & Kondisi)
         $totalSKU = Alat::count();
-        $totalUnit = Alat::sum('jumlah_stok');
-
         $kondisiBaik = Alat::sum('kondisi_baik');
         $kondisiPengecekan = Alat::sum('kondisi_pengecekan');
         $kondisiRusak = Alat::sum('kondisi_rusak');
         $kondisiMtc = Alat::sum('kondisi_maintenance');
 
+        // Total unit fisik dihitung dari seluruh kondisi. Stok tersedia memakai
+        // jumlah_stok yang sudah dikurangi unit yang sedang dipinjam.
+        $totalUnit = $kondisiBaik + $kondisiPengecekan + $kondisiRusak + $kondisiMtc;
+
         // Status Peminjaman (kondisi saat ini)
-        $stokTersedia = $kondisiBaik;
+        $stokTersedia = Alat::sum('jumlah_stok');
         $sedangDipinjam = Pinjam::where('status', 'dipinjam')->sum('jumlah_minta');
 
         $pendingApproval = Pinjam::where('status', 'pending')->count();

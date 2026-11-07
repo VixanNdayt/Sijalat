@@ -85,7 +85,7 @@
                             <div class="stok-ringkas">
                                 <div class="stok-total">
                                     <strong>{{ $alat->jumlah_stok }}</strong>
-                                    <span>unit total</span>
+                                    <span>unit tersedia</span>
                                 </div>
 
                                 <div class="kondisi-grid">
@@ -201,7 +201,7 @@
                                 <input type="number" name="kondisi_maintenance" id="inputMtc" value="{{ old('kondisi_maintenance', 0) }}" min="0" inputmode="numeric" required>
                             </div>
                         </div>
-                        <p class="form-hint">Total Qty akan dihitung otomatis dari seluruh kondisi.</p>
+                        <p class="form-hint">Stok tersedia dihitung dari total kondisi dikurangi unit yang sedang dipinjam.</p>
                     
                         <div class="input-group">
                             <label for="inputFoto">Foto Alat</label>

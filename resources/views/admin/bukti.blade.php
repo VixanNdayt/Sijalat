@@ -237,7 +237,7 @@
                             <footer class="bukti-card-foot">
                                 <span><x-icon name="clock" size="13" /> Diperbarui {{ $pinjam->updated_at?->format('d M Y, H.i') }}</span>
                                 <span class="proof-count">
-                                    {{ ($pinjam->bukti_ambil ? 1 : 0) + ($pinjam->bukti_kembali ? 1 : 0) }} bukti
+                                    {{ ($pinjam->file_ambil ? 1 : 0) + ($pinjam->file_kembali ? 1 : 0) }} bukti tersedia
                                 </span>
                             </footer>
                         </article>

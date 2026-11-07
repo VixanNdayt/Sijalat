@@ -13,12 +13,15 @@ class BuktiController extends Controller
      */
     public function index(Request $request)
     {
-        $jenis = (string) $request->query('jenis', 'semua');
+        $jenis = $request->query('jenis', 'semua');
+        $jenis = is_string($jenis) ? $jenis : 'semua';
+
         if (! in_array($jenis, ['semua', 'ambil', 'kembali'], true)) {
             $jenis = 'semua';
         }
 
-        $cari = trim((string) $request->query('cari', ''));
+        $cari = $request->query('cari', '');
+        $cari = is_string($cari) ? trim($cari) : '';
 
         $dasar = Pinjam::query()->where(function ($query) {
             $query->whereNotNull('bukti_ambil')

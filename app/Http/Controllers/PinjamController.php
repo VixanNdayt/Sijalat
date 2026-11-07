@@ -7,6 +7,7 @@ use App\Models\Pinjam;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PinjamController extends Controller
@@ -91,10 +92,20 @@ class PinjamController extends Controller
         $validator->after(function ($validator) use ($request) {
             // --- 1. Jumlah yang diminta tidak boleh melebihi stok tersedia ---
             $diminta = [];
+            $jumlahMinta = (array) $request->jumlah_minta;
 
             foreach ((array) $request->alat_id as $index => $id) {
+                if (! array_key_exists($index, $jumlahMinta) || (int) $jumlahMinta[$index] < 1) {
+                    $validator->errors()->add(
+                        'jumlah_minta',
+                        'Jumlah alat tidak valid. Muat ulang halaman lalu coba lagi.'
+                    );
+
+                    continue;
+                }
+
                 $id = (int) $id;
-                $diminta[$id] = ($diminta[$id] ?? 0) + (int) ($request->jumlah_minta[$index] ?? 0);
+                $diminta[$id] = ($diminta[$id] ?? 0) + (int) $jumlahMinta[$index];
             }
 
             $daftarAlat = Alat::whereIn('id', array_keys($diminta))->get()->keyBy('id');
@@ -153,21 +164,25 @@ class PinjamController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        foreach ($request->alat_id as $index => $id_alat) {
-            Pinjam::create([
-                'kode_pinjam'       => Pinjam::generateKodePinjam(),
-                'qr_ambil_token'    => Pinjam::generateQrToken(),
-                'qr_kembali_token'  => Pinjam::generateQrToken(),
-                'user_id'           => Auth::id(),
-                'alat_id'           => $id_alat,
-                'jumlah_minta'      => $request->jumlah_minta[$index],
-                'dipinjam_saat'     => $request->dipinjam_saat,
-                'ruangan'           => $request->ruangan,
-                'dikembalikan_saat' => $request->dikembalikan_saat,
-                'deskripsi_minta'   => $request->deskripsi_minta,
-                'status'            => 'pending',
-            ]);
-        }
+        DB::transaction(function () use ($request) {
+            $jumlahMinta = (array) $request->jumlah_minta;
+
+            foreach ((array) $request->alat_id as $index => $id_alat) {
+                Pinjam::create([
+                    'kode_pinjam'       => Pinjam::generateKodePinjam(),
+                    'qr_ambil_token'    => Pinjam::generateQrToken(),
+                    'qr_kembali_token'  => Pinjam::generateQrToken(),
+                    'user_id'           => Auth::id(),
+                    'alat_id'           => $id_alat,
+                    'jumlah_minta'      => (int) $jumlahMinta[$index],
+                    'dipinjam_saat'     => $request->dipinjam_saat,
+                    'ruangan'           => $request->ruangan,
+                    'dikembalikan_saat' => $request->dikembalikan_saat,
+                    'deskripsi_minta'   => $request->deskripsi_minta,
+                    'status'            => 'pending',
+                ]);
+            }
+        });
 
 
         return redirect()->route('dashboard')->with('success', 'Pengajuan peminjaman berhasil dibuat!');

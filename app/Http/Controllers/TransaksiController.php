@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use RuntimeException;
 
 class TransaksiController extends Controller
 {
@@ -267,7 +266,7 @@ class TransaksiController extends Controller
                     $alat->save();
                 }
             });
-        } catch (RuntimeException $e) {
+        } catch (\Throwable $e) {
             Storage::disk('public')->delete($pathFoto);
 
             if ($pesanError !== null) {

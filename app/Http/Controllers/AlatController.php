@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alat;
+use App\Models\Pinjam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -98,7 +99,16 @@ class AlatController extends Controller
             'img'                => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $totalQty = $request->kondisi_baik + $request->kondisi_pengecekan + $request->kondisi_rusak + $request->kondisi_maintenance;
+        $totalFisik = $request->kondisi_baik + $request->kondisi_pengecekan + $request->kondisi_rusak + $request->kondisi_maintenance;
+
+        // Stok tersedia adalah total unit fisik dikurangi unit yang masih dipinjam,
+        // supaya edit data alat tidak mengembalikan stok yang sedang di luar.
+        $dipinjam = (int) Pinjam::query()
+            ->where('alat_id', $alat->id)
+            ->where('status', 'dipinjam')
+            ->sum('jumlah_minta');
+
+        $totalQty = max(0, $totalFisik - $dipinjam);
 
         $alat->nama = $request->nama;
         $alat->description = $request->description;

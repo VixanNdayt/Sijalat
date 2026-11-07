@@ -165,4 +165,16 @@ class AdminBuktiTest extends TestCase
             ->assertSee('Siti Aminah')
             ->assertDontSee('Budi Santoso');
     }
+
+    public function test_parameter_pencarian_berbentuk_array_tidak_menyebabkan_error(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.bukti.index', [
+                'jenis' => ['ambil'],
+                'cari' => ['Budi'],
+            ]))
+            ->assertOk();
+    }
 }

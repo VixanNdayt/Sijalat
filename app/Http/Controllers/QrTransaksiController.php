@@ -23,7 +23,8 @@ class QrTransaksiController extends Controller
     {
         $this->pastikanAdmin();
 
-        $cari = trim((string) $request->query('cari'));
+        $cari = $request->query('cari');
+        $cari = is_string($cari) ? trim($cari) : '';
 
         $pinjams = Pinjam::with(['user', 'alat'])
             ->whereIn('status', ['disetuji', 'dipinjam'])

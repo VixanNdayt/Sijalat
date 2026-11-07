@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -28,7 +29,7 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('verification.notice', absolute: false));
+        $response->assertRedirect(route('dashboard', absolute: false));
     }
 
     public function test_users_can_not_register_with_non_school_email(): void
@@ -44,5 +45,29 @@ class RegistrationTest extends TestCase
 
         $response->assertSessionHasErrors('email');
         $this->assertGuest();
+    }
+
+    public function test_new_user_can_open_dashboard_without_email_verification(): void
+    {
+        $this->post('/register', [
+            'name' => 'Test User',
+            'nis' => '123457',
+            'kelas' => 'XI SIJA A',
+            'email' => 'test2@student.stembayo.sch.id',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
+        ]);
+
+        $this->assertAuthenticated();
+        $this->assertNull(auth()->user()->email_verified_at);
+
+        $this->get('/dashboard')->assertOk();
+    }
+
+    public function test_email_verification_routes_are_not_available(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get('/verify-email')->assertNotFound();
     }
 }

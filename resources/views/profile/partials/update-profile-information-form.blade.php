@@ -9,10 +9,6 @@
         </p>
     </header>
 
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
-
     <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
         @csrf
         @method('patch')
@@ -50,24 +46,6 @@
                 Jika diubah, email siswa harus memakai domain &#64;{{ config('auth.student_email_domain') }}.
             </p>
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
-
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        Alamat email Anda belum diverifikasi.
-
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Klik di sini untuk mengirim ulang email verifikasi.
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            Tautan verifikasi baru sudah dikirim ke email Anda.
-                        </p>
-                    @endif
-                </div>
-            @endif
         </div>
 
         <div class="flex items-center gap-4">

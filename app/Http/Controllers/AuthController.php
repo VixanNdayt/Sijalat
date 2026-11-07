@@ -45,7 +45,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()
-            ->route('verification.notice')
-            ->with('status', 'Akun berhasil dibuat. Cek email sekolahmu untuk verifikasi.');
+            ->route('dashboard')
+            ->with('success', 'Akun berhasil dibuat. Selamat datang di SIJALAT!');
     }
 }

@@ -68,7 +68,8 @@ class ChatController extends Controller
             abort(403);
         }
 
-        $request->merge(['body' => trim((string) $request->input('body'))]);
+        $body = $request->input('body');
+        $request->merge(['body' => is_string($body) ? trim($body) : '']);
 
         $data = $request->validate([
             'body' => 'required|string|max:2000',
@@ -168,7 +169,8 @@ class ChatController extends Controller
             abort(404);
         }
 
-        $request->merge(['body' => trim((string) $request->input('body'))]);
+        $body = $request->input('body');
+        $request->merge(['body' => is_string($body) ? trim($body) : '']);
 
         $data = $request->validate([
             'body' => 'required|string|max:2000',
