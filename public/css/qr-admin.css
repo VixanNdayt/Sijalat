@@ -226,7 +226,7 @@
     background: #fff;
     border-radius: 16px;
     border: 1px solid #e5e7eb;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
     padding: 24px;
     text-align: center;
 }

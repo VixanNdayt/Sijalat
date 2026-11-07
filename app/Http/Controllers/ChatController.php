@@ -25,10 +25,7 @@ class ChatController extends Controller
             ->orderBy('id')
             ->get();
 
-        Message::where('user_id', $user->id)
-            ->where('sender_id', '!=', $user->id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        Message::markRead($user, $user->id);
 
         return view('chat.siswa', compact('messages'));
     }
@@ -52,10 +49,7 @@ class ChatController extends Controller
             ->orderBy('id')
             ->get();
 
-        Message::where('user_id', $user->id)
-            ->where('sender_id', '!=', $user->id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        Message::markRead($user, $user->id);
 
         return response()->json([
             'messages' => $messages->map(fn (Message $message) => $this->payload($message, $user->id))->values(),
@@ -105,7 +99,7 @@ class ChatController extends Controller
         $this->pastikanAdmin($request);
 
         return view('chat.admin', [
-            'students' => $this->daftarSiswa(),
+            'students' => $this->daftarSiswa($request->user()),
             'active' => null,
             'messages' => collect(),
         ]);
@@ -127,13 +121,10 @@ class ChatController extends Controller
             ->orderBy('id')
             ->get();
 
-        Message::where('user_id', $user->id)
-            ->where('sender_id', $user->id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        Message::markRead($request->user(), $user->id);
 
         return view('chat.admin', [
-            'students' => $this->daftarSiswa(),
+            'students' => $this->daftarSiswa($request->user()),
             'active' => $user,
             'messages' => $messages,
         ]);
@@ -158,10 +149,7 @@ class ChatController extends Controller
             ->orderBy('id')
             ->get();
 
-        Message::where('user_id', $user->id)
-            ->where('sender_id', $user->id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        Message::markRead($request->user(), $user->id);
 
         return response()->json([
             'messages' => $messages->map(fn (Message $message) => $this->payload($message, $request->user()->id))->values(),
@@ -206,20 +194,28 @@ class ChatController extends Controller
     /**
      * Data siswa yang punya percakapan, diurutkan dari pesan terbaru.
      */
-    private function daftarSiswa()
+    private function daftarSiswa(User $reader)
     {
         $students = User::query()
             ->where('role_user', '!=', 'admin')
             ->whereHas('messages')
-            ->withCount(['messages as unread_count' => function ($query) {
+            ->withCount(['messages as unread_count' => function ($query) use ($reader) {
                 $query->whereColumn('messages.sender_id', 'users.id')
-                    ->whereNull('messages.read_at');
+                    ->whereRaw(
+                        'messages.id > COALESCE(('
+                        . 'SELECT last_read_message_id FROM conversation_reads '
+                        . 'WHERE conversation_reads.user_id = messages.user_id '
+                        . 'AND conversation_reads.reader_id = ?'
+                        . '), 0)',
+                        [$reader->id]
+                    );
             }])
             ->withMax('messages', 'id')
             ->orderByDesc('messages_max_id')
             ->get();
 
-        $lastMessages = Message::whereIn('id', $students->pluck('messages_max_id')->filter())
+        $lastMessages = Message::with('sender')
+            ->whereIn('id', $students->pluck('messages_max_id')->filter())
             ->get()
             ->keyBy('user_id');
 

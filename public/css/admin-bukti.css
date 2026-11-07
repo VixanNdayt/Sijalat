@@ -1,0 +1,1002 @@
+/* =========================================================
+   Bukti transaksi (admin)
+   ========================================================= */
+
+.bukti-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+}
+
+/* ---------------------------------------------------------
+   Header
+   --------------------------------------------------------- */
+.bukti-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.bukti-header h2 {
+    margin: 0;
+    color: #17352b;
+    font-size: 24px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.bukti-header p {
+    max-width: 72ch;
+    margin: 5px 0 0;
+    color: #5f6b66;
+    font-size: 13.5px;
+    line-height: 1.55;
+}
+
+/* ---------------------------------------------------------
+   Ringkasan
+   --------------------------------------------------------- */
+.bukti-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.bukti-stat {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 13px 14px;
+    background: #ffffff;
+    border: 1px solid #e2ebe6;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(23, 53, 43, 0.04);
+}
+
+.bukti-stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: #f1f8f5;
+    color: #047857;
+}
+
+.bukti-stat.is-transaksi .bukti-stat-icon {
+    background: #eef6ff;
+    color: #1d4ed8;
+}
+
+.bukti-stat.is-kembali .bukti-stat-icon {
+    background: #fff7ed;
+    color: #b45309;
+}
+
+.bukti-stat.is-lengkap .bukti-stat-icon {
+    background: #ecfdf5;
+    color: #15803d;
+}
+
+.bukti-stat div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.bukti-stat span {
+    color: #7a8a83;
+    font-size: 11.5px;
+    line-height: 1.3;
+}
+
+.bukti-stat strong {
+    color: #17352b;
+    font-size: 19px;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------
+   Toolbar: tab filter + pencarian
+   --------------------------------------------------------- */
+.bukti-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.bukti-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: #ffffff;
+    border: 1px solid #e2ebe6;
+    border-radius: 11px;
+}
+
+.bukti-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    color: #5f6b66;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.bukti-tab:hover {
+    background: #f1f8f5;
+    color: #005c43;
+}
+
+.bukti-tab.active {
+    background: #004e39;
+    color: #ffffff;
+}
+
+.tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #f1f5f3;
+    color: #5f6b66;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.bukti-tab.active .tab-count {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+.bukti-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 320px;
+    max-width: 430px;
+}
+
+.bukti-search-field {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.bukti-search-field > .ic {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    color: #7a8a83;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.bukti-search-field input {
+    width: 100%;
+    height: 40px;
+    padding: 0 36px 0 36px;
+    border: 1px solid #d7e2dc;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #17352b;
+    font-family: inherit;
+    font-size: 13px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bukti-search-field input::placeholder {
+    color: #94a3a0;
+}
+
+.bukti-search-field input:focus {
+    outline: none;
+    border-color: #007a58;
+    box-shadow: 0 0 0 3px rgba(0, 122, 88, 0.12);
+}
+
+.bukti-search-reset {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #f1f5f3;
+    color: #5f6b66;
+    text-decoration: none;
+    transform: translateY(-50%);
+}
+
+.bukti-search-reset:hover {
+    background: #e6efea;
+    color: #17352b;
+}
+
+.bukti-search-btn {
+    height: 40px;
+    padding: 0 15px;
+    border: none;
+    border-radius: 10px;
+    background: #004e39;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bukti-search-btn:hover {
+    background: #003d2d;
+    box-shadow: 0 3px 10px rgba(0, 78, 57, 0.16);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid #d7e2dc;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #005c43;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.btn-secondary:hover {
+    background: #f1f8f5;
+    border-color: #bcd8cc;
+}
+
+/* ---------------------------------------------------------
+   Grid kartu transaksi
+   --------------------------------------------------------- */
+.bukti-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+}
+
+.bukti-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e2ebe6;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(23, 53, 43, 0.04);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bukti-card:hover {
+    border-color: #bcd8cc;
+    box-shadow: 0 4px 12px rgba(23, 53, 43, 0.06);
+}
+
+.bukti-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 15px 16px 12px;
+    border-bottom: 1px solid #eef3f0;
+}
+
+.bukti-card-head h3 {
+    margin: 0;
+    color: #17352b;
+    font-size: 15.5px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+}
+
+.bukti-card-head p {
+    margin: 4px 0 0;
+    color: #7a8a83;
+    font-size: 11.5px;
+    line-height: 1.45;
+}
+
+.status-pill {
+    flex-shrink: 0;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.status-pill.dipinjam {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+
+.status-pill.dikembalikan {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #047857;
+}
+
+.status-pill.disetuji {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+}
+
+.status-pill.pending {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+.status-pill.ditolak {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b42318;
+}
+
+.status-pill.terlambat {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+}
+
+/* ---------------------------------------------------------
+   Detail transaksi
+   --------------------------------------------------------- */
+.bukti-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    padding: 12px 16px;
+}
+
+.bukti-meta div {
+    min-width: 0;
+}
+
+.bukti-meta dt {
+    color: #7a8a83;
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.bukti-meta dd {
+    margin: 2px 0 0;
+    color: #17352b;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.bukti-meta dd.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+}
+
+/* ---------------------------------------------------------
+   Bukti foto
+   --------------------------------------------------------- */
+.bukti-proofs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0 16px 14px;
+}
+
+.proof-block {
+    min-width: 0;
+}
+
+.proof-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.proof-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #17352b;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.proof-label .ic {
+    color: #047857;
+}
+
+.proof-time {
+    color: #7a8a83;
+    font-size: 10.5px;
+    white-space: nowrap;
+}
+
+.proof-thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e2ebe6;
+    border-radius: 10px;
+    background: #f4f7f5;
+    cursor: zoom-in;
+    transition: border-color 0.18s ease;
+}
+
+.proof-thumb:hover {
+    border-color: #9cc7b5;
+}
+
+.proof-thumb:focus-visible {
+    outline: 3px solid rgba(0, 92, 67, 0.35);
+    outline-offset: 2px;
+}
+
+.proof-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.proof-zoom {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 7px;
+    border-radius: 6px;
+    background: rgba(3, 21, 15, 0.72);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.proof-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    padding: 8px;
+    border: 1px dashed #d7e2dc;
+    border-radius: 10px;
+    background: #fbfdfc;
+    color: #94a3a0;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.proof-empty.is-missing {
+    border-color: #fde68a;
+    background: #fffbeb;
+    color: #b45309;
+}
+
+/* ---------------------------------------------------------
+   Catatan pengembalian
+   --------------------------------------------------------- */
+.bukti-return {
+    margin: 0 16px 14px;
+    padding: 10px 12px;
+    border: 1px solid #e2ebe6;
+    border-left: 3px solid #16a34a;
+    border-radius: 8px;
+    background: #fbfdfc;
+}
+
+.bukti-return.is-pengecekan {
+    border-left-color: #0284c7;
+}
+
+.bukti-return.is-rusak {
+    border-left-color: #dc2626;
+}
+
+.return-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.return-head > span:first-child {
+    color: #5f6b66;
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.condition-pill {
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.condition-pill.pengecekan {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.condition-pill.rusak {
+    background: #fef2f2;
+    color: #b42318;
+}
+
+.bukti-return p {
+    margin: 6px 0 0;
+    color: #5f6b66;
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------
+   Footer kartu
+   --------------------------------------------------------- */
+.bukti-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding: 10px 16px;
+    border-top: 1px solid #eef3f0;
+    background: #fcfefd;
+    color: #7a8a83;
+    font-size: 10.5px;
+}
+
+.bukti-card-foot span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+
+.proof-count {
+    color: #005c43;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   Keadaan kosong
+   --------------------------------------------------------- */
+.bukti-empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 48px 20px;
+    background: #ffffff;
+    border: 1px dashed #d7e2dc;
+    border-radius: 14px;
+    text-align: center;
+}
+
+.bukti-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #f1f8f5;
+    color: #7a8a83;
+}
+
+.bukti-empty h3 {
+    margin: 5px 0 0;
+    color: #17352b;
+    font-size: 15px;
+}
+
+.bukti-empty p {
+    max-width: 50ch;
+    margin: 0;
+    color: #5f6b66;
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+.bukti-empty .btn-secondary {
+    margin-top: 8px;
+}
+
+/* ---------------------------------------------------------
+   Paginasi
+   --------------------------------------------------------- */
+.bukti-summary {
+    margin: 18px 0 0;
+    color: #7a8a83;
+    font-size: 11.5px;
+    text-align: center;
+}
+
+.bukti-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #e2ebe6;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.18s ease, color 0.18s ease,
+        background-color 0.18s ease;
+}
+
+.page-link:hover {
+    border-color: #bcd8cc;
+    color: #005c43;
+}
+
+.page-link.active {
+    background: #004e39;
+    border-color: #004e39;
+    color: #ffffff;
+}
+
+.page-link.disabled {
+    color: #b0bdb7;
+    background: #fbfdfc;
+    pointer-events: none;
+}
+
+/* ---------------------------------------------------------
+   Lightbox pratinjau bukti
+   --------------------------------------------------------- */
+body.lightbox-open {
+    overflow: hidden;
+}
+
+.proof-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.proof-lightbox[hidden] {
+    display: none;
+}
+
+.proof-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 21, 15, 0.72);
+    backdrop-filter: blur(3px);
+}
+
+.proof-lightbox-dialog {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(920px, 100%);
+    max-height: 92vh;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    transform: translateY(10px) scale(0.99);
+    transition: transform 0.2s ease;
+}
+
+.proof-lightbox.open .proof-lightbox-dialog {
+    transform: translateY(0) scale(1);
+}
+
+.proof-lightbox-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eef3f0;
+}
+
+.proof-lightbox-kicker {
+    margin: 0 0 3px;
+    color: #7a8a83;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.proof-lightbox-head h3 {
+    margin: 0;
+    color: #17352b;
+    font-size: 15px;
+    line-height: 1.35;
+}
+
+.proof-lightbox-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border: 1px solid #e2ebe6;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #5f6b66;
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.proof-lightbox-close:hover {
+    background: #f1f8f5;
+    color: #17352b;
+}
+
+.proof-lightbox-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 0;
+    padding: 12px;
+    background: #f4f7f5;
+}
+
+.proof-lightbox-body img {
+    min-width: 0;
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.proof-lightbox-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #17352b;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    transition: background-color 0.18s ease;
+}
+
+.proof-lightbox-nav:hover {
+    background: #f1f8f5;
+}
+
+.proof-lightbox-nav.next .ic {
+    transform: rotate(180deg);
+}
+
+.proof-lightbox-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid #eef3f0;
+    color: #7a8a83;
+    font-size: 11.5px;
+}
+
+.proof-lightbox-foot a {
+    color: #005c43;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.proof-lightbox-foot a:hover {
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
+   Responsif
+   --------------------------------------------------------- */
+@media (max-width: 1000px) {
+    .bukti-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .bukti-container {
+        padding: 18px 16px 32px;
+    }
+
+    .bukti-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .bukti-toolbar {
+        align-items: stretch;
+    }
+
+    .bukti-tabs {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .bukti-search {
+        width: 100%;
+        max-width: none;
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .bukti-header h2 {
+        font-size: 21px;
+    }
+
+    .bukti-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 3px;
+        overflow: visible;
+    }
+
+    .bukti-tab {
+        justify-content: center;
+        min-width: 0;
+        padding: 7px 5px;
+        font-size: 11px;
+        gap: 4px;
+    }
+
+    .bukti-stats {
+        gap: 8px;
+    }
+
+    .bukti-stat {
+        padding: 11px 12px;
+    }
+
+    .bukti-stat-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .bukti-stat strong {
+        font-size: 17px;
+    }
+
+    .bukti-card-head {
+        padding: 13px 14px 11px;
+    }
+
+    .bukti-meta {
+        padding: 11px 14px;
+    }
+
+    .bukti-proofs {
+        gap: 8px;
+        padding: 0 14px 12px;
+    }
+
+    .proof-time {
+        display: none;
+    }
+
+    .bukti-return {
+        margin: 0 14px 12px;
+    }
+
+    .bukti-card-foot {
+        padding: 9px 14px;
+    }
+
+    .proof-thumb,
+    .proof-empty {
+        aspect-ratio: 1 / 1;
+    }
+
+    .proof-lightbox {
+        padding: 10px;
+    }
+
+    .proof-lightbox-head {
+        padding: 12px;
+    }
+
+    .proof-lightbox-body {
+        gap: 4px;
+        padding: 8px;
+    }
+
+    .proof-lightbox-nav {
+        width: 32px;
+        height: 32px;
+    }
+
+    .proof-lightbox-foot {
+        padding: 9px 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    .tab-count {
+        display: none;
+    }
+}

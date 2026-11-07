@@ -1,6 +1,46 @@
 (function () {
     'use strict';
 
+    /* ---------------------------------------------------------
+       Pencarian katalog alat (filter di sisi klien)
+       --------------------------------------------------------- */
+    const searchInput = document.getElementById('cariAlat');
+    const grid = document.getElementById('gridKatalog');
+    const countLabel = document.getElementById('alatCount');
+    const emptyResult = document.getElementById('katalogKosong');
+
+    if (searchInput && grid) {
+        const cards = Array.from(grid.querySelectorAll('.card-alat'));
+        const total = cards.length;
+
+        const applyFilter = function () {
+            const term = searchInput.value.trim().toLowerCase();
+            let visible = 0;
+
+            cards.forEach(function (card) {
+                const match = term === '' || (card.dataset.cari || '').includes(term);
+                card.hidden = !match;
+
+                if (match) {
+                    visible += 1;
+                }
+            });
+
+            if (emptyResult) {
+                emptyResult.hidden = visible > 0 || total === 0;
+            }
+
+            if (countLabel) {
+                countLabel.textContent = term === ''
+                    ? total + ' alat terdaftar'
+                    : visible + ' dari ' + total + ' alat';
+            }
+        };
+
+        searchInput.addEventListener('input', applyFilter);
+        applyFilter();
+    }
+
     const form = document.getElementById('formAlat');
 
     if (!form) {

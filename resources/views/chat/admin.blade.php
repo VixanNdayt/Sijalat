@@ -77,9 +77,18 @@
                                 @php
                                     $last = $student->last_message;
                                     $unread = (int) ($student->unread_count ?? 0);
-                                    $preview = $last
-                                        ? (((int) $last->sender_id === (int) $viewer->id ? 'Kamu: ' : '') . $last->body)
-                                        : 'Belum ada pesan';
+
+                                    if (! $last) {
+                                        $preview = 'Belum ada pesan';
+                                    } elseif ((int) $last->sender_id === (int) $viewer->id) {
+                                        $preview = 'Kamu: ' . $last->body;
+                                    } elseif ((int) $last->sender_id === (int) $last->user_id) {
+                                        $preview = $last->body;
+                                    } else {
+                                        // Balasan admin lain: tunjukkan namanya agar tidak
+                                        // dikira pesan dari siswa.
+                                        $preview = ($last->sender?->name ?? 'Admin') . ': ' . $last->body;
+                                    }
                                 @endphp
 
                                 <a class="chat-contact {{ $active && $active->id === $student->id ? 'active' : '' }}"

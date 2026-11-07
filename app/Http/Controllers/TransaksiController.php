@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alat;
 use App\Models\Pinjam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 class TransaksiController extends Controller
 {
@@ -47,7 +50,7 @@ class TransaksiController extends Controller
     public function cariKode(Request $request)
     {
         $request->validate([
-            'kode' => 'required|string',
+            'kode' => 'required|string|max:255',
             'aksi' => 'required|string|in:AMBIL,KEMBALI',
         ]);
 
@@ -192,64 +195,87 @@ class TransaksiController extends Controller
             return back()->with('error', 'Status peminjaman sudah berubah. Silakan muat ulang halaman.')->withInput();
         }
 
-        // Perubahan Status dan Stok Alat
-        $alat = $pinjam->alat;
-
-        // Jangan izinkan pengambilan jika stok fisik sudah tidak mencukupi
-        if ($aksi === 'AMBIL' && (! $alat || $alat->jumlah_stok < $pinjam->jumlah_minta)) {
-            return back()->with('error', 'Stok alat tidak mencukupi untuk pengambilan ini. Hubungi guru atau admin.')->withInput();
-        }
-
-        // Upload Gambar Bukti
+        // Upload bukti dilakukan sebelum transaksi database. Jika transaksi
+        // dibatalkan, file dihapus lagi agar tidak menumpuk.
         $pathFoto = $request->file('bukti_foto')->store('bukti_transaksi', 'public');
+        $pesanError = null;
 
-        DB::transaction(function () use ($aksi, $request, $pinjam, $alat, $pathFoto) {
-            if ($aksi === 'AMBIL') {
-                $pinjam->status      = 'dipinjam';
-                $pinjam->bukti_ambil = $pathFoto;
+        try {
+            DB::transaction(function () use ($aksi, $request, $pinjam, $pathFoto, $statusWajib, &$pesanError) {
+                // Kunci baris peminjaman dan alat agar dua scan yang masuk
+                // bersamaan tidak bisa memproses transaksi yang sama dua kali
+                // (mencegah stok berkurang/bertambah ganda).
+                $terkunci = Pinjam::whereKey($pinjam->id)->lockForUpdate()->first();
+                $alat = $terkunci && $terkunci->alat_id
+                    ? Alat::whereKey($terkunci->alat_id)->lockForUpdate()->first()
+                    : null;
 
-                if ($request->filled('catatan')) {
-                    $pinjam->catatan = $request->catatan;
+                if (! $terkunci || $terkunci->status !== $statusWajib) {
+                    $pesanError = 'Status peminjaman sudah berubah. Silakan muat ulang halaman.';
+
+                    throw new RuntimeException('transaksi-dibatalkan');
                 }
+
+                if ($aksi === 'AMBIL') {
+                    // Jangan izinkan pengambilan jika stok fisik sudah tidak mencukupi.
+                    if (! $alat || $alat->jumlah_stok < $terkunci->jumlah_minta) {
+                        $pesanError = 'Stok alat tidak mencukupi untuk pengambilan ini. Hubungi guru atau admin.';
+
+                        throw new RuntimeException('transaksi-dibatalkan');
+                    }
+
+                    $terkunci->status      = 'dipinjam';
+                    $terkunci->bukti_ambil = $pathFoto;
+
+                    if ($request->filled('catatan')) {
+                        $terkunci->catatan = $request->catatan;
+                    }
+
+                    $terkunci->save();
+
+                    $alat->decrement('jumlah_stok', $terkunci->jumlah_minta);
+
+                    return;
+                }
+
+                $kondisi = $request->input('kondisi_kembali', 'baik');
+                $jumlah = (int) $terkunci->jumlah_minta;
+
+                $terkunci->status              = 'dikembalikan';
+                $terkunci->bukti_kembali       = $pathFoto;
+                $terkunci->kondisi_kembali     = $kondisi;
+                $terkunci->dikembalikan_aktual = now();
+
+                if ($request->filled('catatan_kembali')) {
+                    $terkunci->catatan_kembali = $request->catatan_kembali;
+                }
+
+                $terkunci->save();
 
                 if ($alat) {
-                    $alat->decrement('jumlah_stok', $pinjam->jumlah_minta);
+                    $alat->increment('jumlah_stok', $jumlah);
+
+                    // Pindahkan qty dari kondisi baik ke kondisi yang dilaporkan siswa.
+                    if ($kondisi === 'pengecekan') {
+                        $alat->kondisi_baik = max(0, (int) $alat->kondisi_baik - $jumlah);
+                        $alat->kondisi_pengecekan = (int) $alat->kondisi_pengecekan + $jumlah;
+                    } elseif ($kondisi === 'rusak') {
+                        $alat->kondisi_baik = max(0, (int) $alat->kondisi_baik - $jumlah);
+                        $alat->kondisi_rusak = (int) $alat->kondisi_rusak + $jumlah;
+                    }
+
+                    $alat->save();
                 }
+            });
+        } catch (RuntimeException $e) {
+            Storage::disk('public')->delete($pathFoto);
 
-                $pinjam->save();
-
-                return;
+            if ($pesanError !== null) {
+                return back()->with('error', $pesanError)->withInput();
             }
 
-            $kondisi = $request->input('kondisi_kembali', 'baik');
-            $jumlah = (int) $pinjam->jumlah_minta;
-
-            $pinjam->status              = 'dikembalikan';
-            $pinjam->bukti_kembali       = $pathFoto;
-            $pinjam->kondisi_kembali     = $kondisi;
-            $pinjam->dikembalikan_aktual = now();
-
-            if ($request->filled('catatan_kembali')) {
-                $pinjam->catatan_kembali = $request->catatan_kembali;
-            }
-
-            if ($alat) {
-                $alat->increment('jumlah_stok', $jumlah);
-
-                // Pindahkan qty dari kondisi baik ke kondisi yang dilaporkan siswa.
-                if ($kondisi === 'pengecekan') {
-                    $alat->kondisi_baik = max(0, (int) $alat->kondisi_baik - $jumlah);
-                    $alat->kondisi_pengecekan = (int) $alat->kondisi_pengecekan + $jumlah;
-                } elseif ($kondisi === 'rusak') {
-                    $alat->kondisi_baik = max(0, (int) $alat->kondisi_baik - $jumlah);
-                    $alat->kondisi_rusak = (int) $alat->kondisi_rusak + $jumlah;
-                }
-
-                $alat->save();
-            }
-
-            $pinjam->save();
-        });
+            throw $e;
+        }
 
         $pesan = ($aksi === 'AMBIL') ? 'Pengambilan alat berhasil diverifikasi & dicatat!' : 'Pengembalian alat berhasil diselesaikan!';
         return redirect()->route('dashboard')->with('success', $pesan)->with('struk_id', $pinjam->id);

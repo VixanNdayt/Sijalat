@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'nis', 'kelas', 'role_user', 'last_login_at', 'last_login_ip'])]
+#[Fillable(['name', 'email', 'password', 'nis', 'kelas'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -32,15 +32,17 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
     
+    /**
+     * Hanya kolom profil yang boleh diisi lewat mass assignment.
+     * Role dan metadata login sengaja tidak termasuk agar tidak bisa
+     * dinaikkan hak aksesnya lewat input pengguna.
+     */
     protected $fillable = [
         'name',
         'nis',
         'kelas',
         'email',
         'password',
-        'role_user',
-        'last_login_at',
-        'last_login_ip',
     ];
     public function pinjam()
     {

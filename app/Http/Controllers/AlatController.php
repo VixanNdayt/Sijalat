@@ -31,9 +31,9 @@ class AlatController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama'                => 'required|string',
-            'description'         => 'required|string',
-            'code'                => 'required|string|unique:alats,code',
+            'nama'                => 'required|string|max:255',
+            'description'         => 'required|string|max:2000',
+            'code'                => 'required|string|max:50|unique:alats,code',
             'kondisi_baik'        => 'required|integer|min:0',
             'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
@@ -42,7 +42,7 @@ class AlatController extends Controller
         ]);
 
         $file = $request->file('img');
-        $namaFile = time() . '_' . $file->getClientOriginalName();
+        $namaFile = $file->hashName();
         $file->move(public_path('equipment'), $namaFile);
         $pathFoto = 'equipment/' . $namaFile;
         
@@ -88,10 +88,10 @@ class AlatController extends Controller
         $alat = Alat::findOrFail($id);
 
         $request->validate([
-            'nama'                => 'required|string',
-            'description'         => 'required|string',
+            'nama'                => 'required|string|max:255',
+            'description'         => 'required|string|max:2000',
             'kondisi_baik'        => 'required|integer|min:0',
-            'code'                => 'required|string|unique:alats,code,' . $alat->code . ',code',
+            'code'                => 'required|string|max:50|unique:alats,code,' . $alat->id . ',id',
             'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
             'kondisi_maintenance' => 'required|integer|min:0',
@@ -112,12 +112,10 @@ class AlatController extends Controller
         // Jika admin mengunggah foto baru, ganti yang lama
         if ($request->hasFile('img')) {
             // Hapus foto lama jika ada (opsional)
-            if ($alat->img && file_exists(public_path($alat->img))) {
-                unlink(public_path($alat->img));
-            }
+            $this->hapusFoto($alat->img);
 
             $file = $request->file('img');
-            $namaFile = time() . '_' . $file->getClientOriginalName();
+            $namaFile = $file->hashName();
             $file->move(public_path('equipment'), $namaFile);
             $alat->img = 'equipment/' . $namaFile;
         }
@@ -135,9 +133,7 @@ class AlatController extends Controller
 
             // 1. Cek dan hapus file fisik gambar dari folder public/equipment
             // Pastikan kita memanggil kolom 'img', bukan 'foto'
-            if ($alat->img && file_exists(public_path($alat->img))) {
-                unlink(public_path($alat->img));
-            }
+            $this->hapusFoto($alat->img);
 
             // 2. Hapus data alat dari database
             $alat->delete();
@@ -149,6 +145,30 @@ class AlatController extends Controller
             return back()->withErrors([
                 'hapus' => 'Gagal menghapus! Alat ini tidak bisa dihapus karena masih tercatat di dalam riwayat peminjaman siswa.'
             ]);
+        }
+    }
+
+    /**
+     * Hapus foto alat, tetapi hanya jika file benar-benar berada di folder equipment.
+     */
+    private function hapusFoto(?string $path): void
+    {
+        if (! $path) {
+            return;
+        }
+
+        $file = realpath(public_path($path));
+        $folder = realpath(public_path('equipment'));
+
+        if (! $file || ! $folder || ! is_file($file)) {
+            return;
+        }
+
+        $file = strtolower(str_replace('\\', '/', $file));
+        $folder = rtrim(strtolower(str_replace('\\', '/', $folder)), '/') . '/';
+
+        if (str_starts_with($file, $folder)) {
+            @unlink($file);
         }
     }
 }

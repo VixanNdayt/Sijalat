@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Pinjam;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class BuktiController extends Controller
+{
+    /**
+     * Daftar bukti pengambilan dan pengembalian untuk admin/guru.
+     */
+    public function index(Request $request)
+    {
+        $jenis = (string) $request->query('jenis', 'semua');
+        if (! in_array($jenis, ['semua', 'ambil', 'kembali'], true)) {
+            $jenis = 'semua';
+        }
+
+        $cari = trim((string) $request->query('cari', ''));
+
+        $dasar = Pinjam::query()->where(function ($query) {
+            $query->whereNotNull('bukti_ambil')
+                ->orWhereNotNull('bukti_kembali');
+        });
+
+        $statistik = (clone $dasar)
+            ->selectRaw(
+                'COUNT(*) as transaksi,
+                 SUM(bukti_ambil IS NOT NULL) as ambil,
+                 SUM(bukti_kembali IS NOT NULL) as kembali,
+                 SUM(bukti_ambil IS NOT NULL AND bukti_kembali IS NOT NULL) as lengkap'
+            )
+            ->first();
+
+        $ringkasan = [
+            'transaksi' => (int) ($statistik->transaksi ?? 0),
+            'ambil' => (int) ($statistik->ambil ?? 0),
+            'kembali' => (int) ($statistik->kembali ?? 0),
+            'lengkap' => (int) ($statistik->lengkap ?? 0),
+        ];
+
+        $query = (clone $dasar)->with(['user', 'alat']);
+
+        if ($jenis === 'ambil') {
+            $query->whereNotNull('bukti_ambil');
+        } elseif ($jenis === 'kembali') {
+            $query->whereNotNull('bukti_kembali');
+        }
+
+        if ($cari !== '') {
+            $suka = '%' . $cari . '%';
+
+            $query->where(function ($sub) use ($suka) {
+                $sub->where('kode_pinjam', 'like', $suka)
+                    ->orWhereHas('user', function ($user) use ($suka) {
+                        $user->where('name', 'like', $suka)
+                            ->orWhere('nis', 'like', $suka)
+                            ->orWhere('kelas', 'like', $suka);
+                    })
+                    ->orWhereHas('alat', function ($alat) use ($suka) {
+                        $alat->where('nama', 'like', $suka)
+                            ->orWhere('code', 'like', $suka);
+                    });
+            });
+        }
+
+        $pinjams = $query
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->paginate(12)
+            ->withQueryString();
+
+        // Tandai apakah file bukti benar-benar ada di disk. Path bisa saja
+        // tersimpan di database tetapi filenya sudah terhapus.
+        $pinjams->getCollection()->each(function (Pinjam $pinjam) {
+            $pinjam->setAttribute('file_ambil', $this->fileTersedia($pinjam->bukti_ambil));
+            $pinjam->setAttribute('file_kembali', $this->fileTersedia($pinjam->bukti_kembali));
+        });
+
+        return view('admin.bukti', compact('pinjams', 'jenis', 'cari', 'ringkasan'));
+    }
+
+    /**
+     * Sajikan file bukti hanya untuk admin yang sudah login.
+     */
+    public function foto(Pinjam $pinjam, string $jenis)
+    {
+        abort_unless(in_array($jenis, ['ambil', 'kembali'], true), 404);
+
+        $path = $jenis === 'ambil' ? $pinjam->bukti_ambil : $pinjam->bukti_kembali;
+
+        if (! $this->pathAman($path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->response($path, null, [
+            'Cache-Control' => 'private, max-age=300',
+        ]);
+    }
+
+    private function fileTersedia(?string $path): bool
+    {
+        return $this->pathAman($path);
+    }
+
+    private function pathAman(?string $path): bool
+    {
+        return is_string($path)
+            && $path !== ''
+            && str_starts_with($path, 'bukti_transaksi/')
+            && ! str_contains($path, '..')
+            && Storage::disk('public')->exists($path);
+    }
+}

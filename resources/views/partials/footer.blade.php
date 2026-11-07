@@ -14,6 +14,7 @@
             @if (auth()->check() && auth()->user()->isAdmin())
                 <a href="{{ route('approval.index') }}">Approval</a>
                 <a href="{{ route('admin.qr.index') }}">QR Transaksi</a>
+                <a href="{{ route('admin.bukti.index') }}">Bukti Transaksi</a>
                 <a href="{{ route('admin.alat.index') }}">Manage Data</a>
                 <a href="{{ route('admin.analisis') }}">Analisis</a>
             @else

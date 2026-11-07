@@ -10,11 +10,11 @@
 
 /* ---------- Hero ---------- */
 .guide-hero {
-    background: linear-gradient(135deg, #004E39 0%, #00674d 100%);
+    background: #0b4a3a;
     color: #ffffff;
-    border-radius: 18px;
+    border-radius: 14px;
     padding: 28px 26px;
-    box-shadow: 0 14px 34px rgba(0, 78, 57, 0.22);
+    box-shadow: 0 6px 18px rgba(0, 78, 57, 0.12);
 }
 
 .guide-badge {
@@ -68,7 +68,7 @@
 
 .guide-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
 }
 
 .guide-btn.ghost {

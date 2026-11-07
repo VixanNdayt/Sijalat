@@ -25,6 +25,12 @@ class ApprovalController extends Controller
 
         $pinjam = Pinjam::findOrFail($id);
 
+        if ($pinjam->status !== 'pending') {
+            return back()->withErrors([
+                'approval' => 'Pengajuan ini sudah diproses sebelumnya. Muat ulang halaman untuk melihat status terbaru.',
+            ]);
+        }
+
         if ($request->aksi === 'setuju') {
             $pinjam->status = 'disetuji';
             $pesan = 'Peminjaman disetujui! Buka halaman QR Transaksi untuk menampilkan QR pengambilan ke siswa.';

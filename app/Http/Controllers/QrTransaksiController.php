@@ -56,6 +56,16 @@ class QrTransaksiController extends Controller
 
         abort_unless(in_array($jenis, ['ambil', 'kembali'], true), 404);
 
+        // QR hanya boleh dibuat saat transisinya memang valid, agar tidak
+        // menghasilkan QR yang pasti ditolak saat dipindai.
+        $statusWajib = $jenis === 'ambil' ? 'disetuji' : 'dipinjam';
+
+        abort_unless(
+            $pinjam->status === $statusWajib,
+            409,
+            'Status peminjaman tidak sesuai untuk menampilkan QR ' . $jenis . '.'
+        );
+
         // Pastikan token tersedia (data lama)
         $pinjam->pastikanTokenQr();
         $pinjam->load(['user', 'alat']);

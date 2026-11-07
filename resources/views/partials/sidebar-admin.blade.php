@@ -15,6 +15,7 @@
         <a href="{{ route('dashboard') }}">Dashboard</a>
         <a href="{{ route('approval.index') }}">Approval</a>
         <a href="{{ route('admin.qr.index') }}">QR Transaksi</a>
+        <a class="{{ request()->routeIs('admin.bukti.*') ? 'active' : '' }}" href="{{ route('admin.bukti.index') }}">Bukti Transaksi</a>
         <a href="{{ route('admin.alat.index') }}">Manage Data</a>
         <a href="{{ route('admin.analisis') }}">Analisis</a>
         <a class="{{ request()->routeIs('admin.chat.*') ? 'active' : '' }}" href="{{ route('admin.chat.index') }}">

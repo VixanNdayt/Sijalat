@@ -47,7 +47,6 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'nis' => $request->nis,
             'kelas' => $request->kelas,
-            'role_user' => 'siswa',
             'password' => Hash::make($request->password),
         ]);
 

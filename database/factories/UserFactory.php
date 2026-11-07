@@ -31,7 +31,6 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'role_user' => 'siswa',
             'remember_token' => Str::random(10),
         ];
     }
@@ -51,8 +50,9 @@ class UserFactory extends Factory
      */
     public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'role_user' => 'admin',
-        ]);
+        // role_user tidak fillable, jadi diisi eksplisit setelah model dibuat.
+        return $this->afterMaking(function (User $user) {
+            $user->forceFill(['role_user' => 'admin']);
+        });
     }
 }
