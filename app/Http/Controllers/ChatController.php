@@ -27,7 +27,15 @@ class ChatController extends Controller
 
         Message::markRead($user, $user->id);
 
-        return view('chat.siswa', compact('messages'));
+        $topik = $request->query('topik', '');
+        $topik = is_string($topik) ? $topik : '';
+        $prefill = match ($topik) {
+            'perpanjangan' => 'Halo admin, saya ingin mengajukan perpanjangan durasi peminjaman alat. Berikut detail pinjaman saya: ',
+            'kerusakan' => 'Halo admin, saya ingin melaporkan kendala/kerusakan pada alat yang saya pinjam. Detail kendala: ',
+            default => '',
+        };
+
+        return view('chat.siswa', compact('messages', 'prefill'));
     }
 
     /**

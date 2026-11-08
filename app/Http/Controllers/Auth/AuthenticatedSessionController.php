@@ -28,8 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Setelah masuk, tampilkan homepage terlebih dahulu.
         return redirect()
-            ->intended(route('dashboard', absolute: false))
+            ->intended(route('home', absolute: false))
             ->with('success', 'Berhasil masuk. Selamat datang di SIJALAT!');
     }
 

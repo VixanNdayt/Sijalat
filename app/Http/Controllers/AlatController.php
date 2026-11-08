@@ -14,14 +14,7 @@ class AlatController extends Controller
      * Kategori jenis alat. Harus sama dengan nilai enum pada kolom alats.jenis
      * agar penyimpanan tidak melanggar constraint database.
      */
-    public const JENIS_LABEL = [
-        'alat_jaringan' => 'Alat Jaringan',
-        'laptop'        => 'Laptop',
-        'switch'        => 'Switch',
-        'bagian_pc'     => 'Bagian PC',
-        'router'        => 'Router',
-        'IoT'           => 'IoT',
-    ];
+    public const JENIS_LABEL = Alat::JENIS_LABEL;
 
     /**
      * Display a listing of the resource.
@@ -51,6 +44,7 @@ class AlatController extends Controller
             'nama'                => 'required|string|max:255',
             'description'         => 'required|string|max:2000',
             'code'                => 'required|string|max:50|unique:alats,code',
+            'lokasi'              => 'nullable|string|max:100',
             'kondisi_baik'        => 'required|integer|min:0',
             'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
@@ -77,6 +71,7 @@ class AlatController extends Controller
             'jumlah_stok'         => $totalQty, 
             'img'                => $pathFoto,
             'code'                => $request->code,
+            'lokasi'              => $request->lokasi,
             'jenis'              => $request->jenis,
         ]);
 
@@ -111,6 +106,7 @@ class AlatController extends Controller
             'description'         => 'required|string|max:2000',
             'kondisi_baik'        => 'required|integer|min:0',
             'code'                => 'required|string|max:50|unique:alats,code,' . $alat->id . ',id',
+            'lokasi'              => 'nullable|string|max:100',
             'kondisi_pengecekan'  => 'required|integer|min:0',
             'kondisi_rusak'       => 'required|integer|min:0',
             'kondisi_maintenance' => 'required|integer|min:0',
@@ -132,6 +128,7 @@ class AlatController extends Controller
         $alat->nama = $request->nama;
         $alat->description = $request->description;
         $alat->code = $request->code;
+        $alat->lokasi = $request->lokasi;
         $alat->kondisi_baik = $request->kondisi_baik;
         $alat->kondisi_pengecekan = $request->kondisi_pengecekan;
         $alat->kondisi_rusak = $request->kondisi_rusak;

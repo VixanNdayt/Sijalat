@@ -7,16 +7,15 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuideController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PinjamController;
 use App\Http\Controllers\QrTransaksiController;
 use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\TransaksiController;
 use Illuminate\Support\Facades\Route;
 
-// Halaman awal menampilkan form login.
-Route::get('/', function () {
-    return view('auth.login');
-});
+// Homepage publik dengan katalog alat dan pencarian.
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])

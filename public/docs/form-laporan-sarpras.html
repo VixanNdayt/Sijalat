@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Laporan Sarpras &middot; SIJALAT</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        @page {
+            size: A4;
+            margin: 16mm 15mm;
+        }
+
+        body {
+            margin: 0;
+            padding: 28px;
+            background: #eef3f0;
+            color: #14261f;
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .sheet {
+            max-width: 190mm;
+            margin: 0 auto;
+            padding: 26px 30px 30px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 18px 44px rgba(15, 44, 34, 0.12);
+        }
+
+        .letterhead {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 14px;
+            border-bottom: 3px double #0b5c44;
+        }
+
+        .letterhead .mark {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: #0b5c44;
+            color: #d9f7e8;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .letterhead .ident h1 {
+            margin: 0;
+            font-size: 15px;
+            letter-spacing: 0.02em;
+        }
+
+        .letterhead .ident h2 {
+            margin: 2px 0 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a635a;
+        }
+
+        .letterhead .ident p {
+            margin: 4px 0 0;
+            font-size: 10.5px;
+            color: #6a8079;
+        }
+
+        .doc-title {
+            margin: 22px 0 4px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .doc-sub {
+            margin: 0 0 20px;
+            text-align: center;
+            font-size: 10.5px;
+            color: #6a8079;
+        }
+
+        .field-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .field {
+            flex: 1 1 45%;
+            min-width: 200px;
+        }
+
+        .field-full { flex: 1 1 100%; }
+
+        .field label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #3c5a50;
+        }
+
+        .field .line {
+            min-height: 26px;
+            border-bottom: 1px solid #b9c9c2;
+        }
+
+        table {
+            width: 100%;
+            margin: 8px 0 18px;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 11px;
+        }
+
+        table th,
+        table td {
+            padding: 8px 9px;
+            border: 1px solid #b9c9c2;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        table thead th {
+            background: #eaf3ef;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #22513f;
+        }
+
+        table tbody tr:nth-child(even) td {
+            background: #f8fbfa;
+        }
+
+        .notes {
+            min-height: 78px;
+            padding: 9px 10px;
+            border: 1px solid #b9c9c2;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #40564f;
+        }
+
+        .checkline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+            margin: 6px 0 18px;
+            font-size: 11.5px;
+        }
+
+        .checkline span::before {
+            content: "\2610";
+            margin-right: 7px;
+            font-size: 14px;
+            vertical-align: -1px;
+            color: #22513f;
+        }
+
+        .signature {
+            display: flex;
+            justify-content: space-between;
+            gap: 32px;
+            margin-top: 30px;
+            padding-top: 8px;
+        }
+
+        .sign-block {
+            flex: 1;
+            text-align: center;
+        }
+
+        .sign-block .role {
+            font-size: 10.5px;
+            color: #4a635a;
+        }
+
+        .sign-block .space {
+            height: 62px;
+        }
+
+        .sign-block .name {
+            border-top: 1px solid #4a635a;
+            padding-top: 5px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .sign-block .nip {
+            font-size: 9.5px;
+            color: #6a8079;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            max-width: 190mm;
+            margin: 0 auto 16px;
+        }
+
+        .toolbar button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 0 18px;
+            border: 1px solid #0b5c44;
+            border-radius: 9px;
+            background: #0b5c44;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .toolbar button.ghost {
+            background: #ffffff;
+            color: #0b5c44;
+        }
+
+        .footnote {
+            margin-top: 18px;
+            padding-top: 10px;
+            border-top: 1px dashed #c7d5cf;
+            font-size: 9.5px;
+            color: #7b908a;
+            text-align: center;
+        }
+
+        @media print {
+            body { padding: 0; background: #ffffff; }
+            .toolbar { display: none; }
+            .sheet { box-shadow: none; border-radius: 0; padding: 0; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+
+            .sheet { padding: 18px 16px 22px; }
+
+            .letterhead { gap: 12px; }
+
+            .letterhead .mark { width: 46px; height: 46px; font-size: 11px; }
+
+            .letterhead .ident h1 { font-size: 12.5px; }
+
+            .letterhead .ident h2 { font-size: 10.5px; }
+
+            .letterhead .ident p { font-size: 9px; }
+
+            .field { min-width: 0; flex: 1 1 100%; }
+
+            table { font-size: 10px; }
+
+            table th, table td { padding: 6px 5px; overflow-wrap: anywhere; }
+
+            .signature { flex-direction: column; gap: 18px; }
+
+            .sign-block .space { height: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button type="button" class="ghost" onclick="window.print()">Cetak / Simpan PDF</button>
+        <button type="button" onclick="window.close()">Tutup</button>
+    </div>
+
+    <div class="sheet">
+        <header class="letterhead">
+            <div class="mark">SIJALAT</div>
+            <div class="ident">
+                <h1>SEKOLAH MENENGAH KEJURUAN NEGERI 2 YOGYAKARTA</h1>
+                <h2>Program Keahlian Sistem Informasi Jaringan dan Aplikasi</h2>
+                <p>Laboratorium SIJA &middot; Jl. AM. Sangaji 47, Jetis, Yogyakarta &middot; (0274) 513490</p>
+            </div>
+        </header>
+
+        <h1 class="doc-title">Form Laporan Sarana &amp; Prasarana</h1>
+        <p class="doc-sub">Laporan kerusakan / kendala alat laboratorium &mdash; SIJALAT</p>
+
+        <div class="field-row">
+            <div class="field">
+                <label>Nama Pelapor</label>
+                <div class="line"></div>
+            </div>
+            <div class="field">
+                <label>Kelas / Jabatan</label>
+                <div class="line"></div>
+            </div>
+            <div class="field">
+                <label>Tanggal Laporan</label>
+                <div class="line"></div>
+            </div>
+            <div class="field">
+                <label>Mata Pelajaran / Kegiatan</label>
+                <div class="line"></div>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="field field-full">
+                <label>Guru Pembimbing / Penanggung Jawab</label>
+                <div class="line"></div>
+            </div>
+        </div>
+
+        <p class="field-label" style="margin: 18px 0 6px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #3c5a50;">Rincian Alat</p>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 8%;">No</th>
+                    <th>Nama Alat</th>
+                    <th style="width: 22%;">Kode Inventaris</th>
+                    <th style="width: 12%;">Jumlah</th>
+                    <th style="width: 20%;">Kondisi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>2</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>3</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>4</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>5</td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+        </table>
+
+        <label class="field-label" style="font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #3c5a50;">Jenis Kendala</label>
+        <div class="checkline">
+            <span>Rusak fisik</span>
+            <span>Mati / tidak menyala</span>
+            <span>Fungsi tidak normal</span>
+            <span>Hilang</span>
+            <span>Lainnya</span>
+        </div>
+
+        <label class="field-label" style="font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #3c5a50;">Kronologi &amp; Keterangan Kerusakan</label>
+        <div class="notes"></div>
+
+        <label class="field-label" style="display: block; margin: 16px 0 6px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #3c5a50;">Tindak Lanjut yang Diharapkan</label>
+        <div class="checkline">
+            <span>Perbaikan</span>
+            <span>Penggantian</span>
+            <span>Pengecekan ulang</span>
+            <span>Peminjaman ulang</span>
+        </div>
+
+        <div class="signature">
+            <div class="sign-block">
+                <div class="role">Pelapor</div>
+                <div class="space"></div>
+                <div class="name">&nbsp;</div>
+                <div class="nip">&nbsp;</div>
+            </div>
+            <div class="sign-block">
+                <div class="role">Laboran / Toolman</div>
+                <div class="space"></div>
+                <div class="name">&nbsp;</div>
+                <div class="nip">&nbsp;</div>
+            </div>
+            <div class="sign-block">
+                <div class="role">Kepala Laboratorium</div>
+                <div class="space"></div>
+                <div class="name">&nbsp;</div>
+                <div class="nip">&nbsp;</div>
+            </div>
+        </div>
+
+        <p class="footnote">
+            Formulir ini dicetak dari SIJALAT &mdash; Sistem Informasi Peminjaman Alat &amp; Inventaris Jurusan.
+            Serahkan formulir yang telah diisi kepada Laboran/Toolman ruang alat.
+        </p>
+    </div>
+</body>
+</html>

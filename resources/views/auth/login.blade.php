@@ -24,6 +24,7 @@
             </section>
 
             <section class="login">
+                <a class="back-home" href="{{ route('home') }}">&larr; Kembali ke beranda</a>
                 <h1>Login ke SIJALAT</h1>
 
                 <div class="login-form">

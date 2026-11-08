@@ -45,7 +45,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()
-            ->route('dashboard')
+            ->route('home')
             ->with('success', 'Akun berhasil dibuat. Selamat datang di SIJALAT!');
     }
 }

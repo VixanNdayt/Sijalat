@@ -119,7 +119,7 @@
                                       maxlength="2000"
                                       placeholder="Tulis pesan untuk admin..."
                                       autocomplete="off"
-                                      required></textarea>
+                                      required>{{ $prefill ?? '' }}</textarea>
                         </div>
                         <button class="chat-send" type="submit" id="chatSend" title="Kirim pesan" aria-label="Kirim pesan">
                             <x-icon name="send" size="18" />

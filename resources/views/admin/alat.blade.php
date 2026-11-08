@@ -79,6 +79,7 @@
                         <div class="card-body">
                             <h3 title="{{ $alat->nama }}">{{ $alat->nama }}</h3>
                             <p class="code-line">Kode <span>{{ $alat->code }}</span></p>
+                            <p class="code-line">Lokasi <span>{{ $alat->lokasiLabel() }}</span></p>
                             <p class="deskripsi">{{ Str::limit($alat->description, 120) }}</p>
 
                             <!-- Rincian Kondisi -->
@@ -174,6 +175,12 @@
                         <div class="input-group">
                             <label for="inputNama">Nama Alat</label>
                             <input type="text" name="nama" id="inputNama" value="{{ old('nama') }}" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="inputLokasi">Lokasi Penyimpanan</label>
+                            <input type="text" name="lokasi" id="inputLokasi" placeholder="Contoh: Lab Jaringan - Rak A1" value="{{ old('lokasi') }}">
+                            <small class="form-hint">Tampil pada kartu katalog di beranda.</small>
                         </div>
                     
                         <div class="input-group">

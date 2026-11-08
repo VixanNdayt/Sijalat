@@ -61,6 +61,7 @@
     const fields = {
         nama: document.getElementById('inputNama'),
         code: document.getElementById('inputCode'),
+        lokasi: document.getElementById('inputLokasi'),
         deskripsi: document.getElementById('inputDeskripsi'),
         jenis: document.getElementById('inputJenis'),
         baik: document.getElementById('inputBaik'),
@@ -108,6 +109,9 @@
 
         fields.nama.value = alat.nama || '';
         fields.code.value = alat.code || '';
+        if (fields.lokasi) {
+            fields.lokasi.value = alat.lokasi || '';
+        }
         fields.deskripsi.value = alat.description || alat.deskripsi || '';
         fields.jenis.value = alat.jenis || '';
         fields.jenis.dispatchEvent(new Event('change', { bubbles: true }));

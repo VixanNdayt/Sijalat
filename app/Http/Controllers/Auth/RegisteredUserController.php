@@ -56,8 +56,9 @@ class RegisteredUserController extends Controller
 
         $request->session()->regenerate();
 
+        // Setelah mendaftar, langsung tampilkan homepage.
         return redirect()
-            ->route('dashboard')
+            ->route('home')
             ->with('success', 'Akun berhasil dibuat. Selamat datang di SIJALAT!');
     }
 }

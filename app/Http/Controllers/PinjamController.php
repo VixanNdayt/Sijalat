@@ -35,7 +35,7 @@ class PinjamController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         // Tampilkan semua alat, termasuk yang stoknya habis, agar siswa tetap
         // bisa melihat ketersediaan dan status "Habis" pada card.
@@ -69,6 +69,23 @@ class PinjamController extends Controller
                     'id'  => (int) $id,
                     'qty' => (int) ($oldQty[$index] ?? 1),
                 ];
+            }
+        }
+
+        // Keranjang dari homepage: format "id:qty,id:qty".
+        $cartQuery = $request->query('cart');
+
+        if (count($oldCart) === 0 && is_string($cartQuery) && $cartQuery !== '') {
+            $ids = $alats->pluck('id')->map(fn ($id) => (int) $id)->all();
+
+            foreach (explode(',', $cartQuery) as $pair) {
+                [$id, $qty] = array_pad(explode(':', $pair, 2), 2, 1);
+                $id = (int) $id;
+                $qty = max(1, (int) $qty);
+
+                if (in_array($id, $ids, true)) {
+                    $oldCart[] = ['id' => $id, 'qty' => $qty];
+                }
             }
         }
 
