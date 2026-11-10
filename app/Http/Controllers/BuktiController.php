@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Storage;
 class BuktiController extends Controller
 {
     /**
+     * Bukti baru disimpan di disk privat. File lama (sebelum perbaikan
+     * keamanan) masih tersimpan di disk publik, sehingga tetap dibaca
+     * sebagai fallback agar riwayat tidak hilang.
+     */
+    private const DISK_BUKTI = 'local';
+
+    private const DISK_BUKTI_LEGACY = 'public';
+
+    /**
      * Daftar bukti pengambilan dan pengembalian untuk admin/guru.
      */
     public function index(Request $request)
@@ -93,19 +102,20 @@ class BuktiController extends Controller
         abort_unless(in_array($jenis, ['ambil', 'kembali'], true), 404);
 
         $path = $jenis === 'ambil' ? $pinjam->bukti_ambil : $pinjam->bukti_kembali;
+        $disk = $this->diskBukti($path);
 
-        if (! $this->pathAman($path)) {
+        if ($disk === null) {
             abort(404);
         }
 
-        return Storage::disk('public')->response($path, null, [
+        return Storage::disk($disk)->response($path, null, [
             'Cache-Control' => 'private, max-age=300',
         ]);
     }
 
     private function fileTersedia(?string $path): bool
     {
-        return $this->pathAman($path);
+        return $this->diskBukti($path) !== null;
     }
 
     private function pathAman(?string $path): bool
@@ -113,7 +123,25 @@ class BuktiController extends Controller
         return is_string($path)
             && $path !== ''
             && str_starts_with($path, 'bukti_transaksi/')
-            && ! str_contains($path, '..')
-            && Storage::disk('public')->exists($path);
+            && ! str_contains($path, '..');
+    }
+
+    /**
+     * Tentukan disk yang benar-benar menyimpan file bukti.
+     * Prioritaskan disk privat, lalu fallback ke file lama di disk publik.
+     */
+    private function diskBukti(?string $path): ?string
+    {
+        if (! $this->pathAman($path)) {
+            return null;
+        }
+
+        foreach ([self::DISK_BUKTI, self::DISK_BUKTI_LEGACY] as $disk) {
+            if (Storage::disk($disk)->exists($path)) {
+                return $disk;
+            }
+        }
+
+        return null;
     }
 }

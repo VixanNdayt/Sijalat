@@ -32,7 +32,7 @@ class TransaksiFlowTest extends TestCase
 
     public function test_pengembalian_tidak_bisa_diproses_dua_kali(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $student = User::factory()->create();
 
@@ -76,6 +76,9 @@ class TransaksiFlowTest extends TestCase
         $this->assertSame('dikembalikan', $pinjam->fresh()->status);
         $this->assertSame(6, $alat->fresh()->jumlah_stok);
 
+        // Bukti foto harus tersimpan di disk privat, bukan disk publik.
+        Storage::disk('local')->assertExists($pinjam->fresh()->bukti_kembali);
+
         // Kirim ulang permintaan yang sama (mis. tombol ditekan dua kali).
         $this->actingAs($student)
             ->post(route('transaksi.proses'), $payload)
@@ -87,7 +90,7 @@ class TransaksiFlowTest extends TestCase
 
     public function test_siswa_tidak_bisa_memproses_peminjaman_milik_orang_lain(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $owner = User::factory()->create();
         $other = User::factory()->create();

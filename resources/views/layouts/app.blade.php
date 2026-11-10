@@ -39,30 +39,8 @@
             </main>
         </div>
 
-        @unless (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            {{-- Alpine dipakai komponen Breeze (dropdown, modal). Saat aset Vite
-                 sudah di-build, Alpine ikut dari resources/js/app.js. --}}
-            <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
-
-            {{-- Toggle menu mobile sederhana, cadangan bila Alpine gagal dimuat --}}
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    var toggle = document.getElementById('sijalat-nav-toggle');
-                    var menu = document.getElementById('sijalat-nav-menu');
-
-                    if (!toggle || !menu) {
-                        return;
-                    }
-
-                    toggle.addEventListener('click', function () {
-                        var isOpen = !menu.classList.contains('hidden');
-
-                        menu.classList.toggle('hidden', isOpen);
-                        menu.classList.toggle('block', !isOpen);
-                        toggle.setAttribute('aria-expanded', String(!isOpen));
-                    });
-                });
-            </script>
-        @endunless
+        {{-- Interaksi UI (dropdown, menu mobile, modal) tanpa library yang
+             membutuhkan eval, sehingga tetap berjalan di bawah CSP ketat. --}}
+        <script defer src="{{ asset('js/ui.js') }}"></script>
     </body>
 </html>

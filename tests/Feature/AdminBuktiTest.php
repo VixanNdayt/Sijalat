@@ -52,7 +52,7 @@ class AdminBuktiTest extends TestCase
 
     public function test_admin_bisa_melihat_daftar_bukti_transaksi(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $admin = User::factory()->admin()->create();
         $siswa = User::factory()->create(['name' => 'Budi Santoso']);
@@ -60,7 +60,7 @@ class AdminBuktiTest extends TestCase
         $pinjam = $this->buatPinjam($siswa, $alat);
 
         $path = 'bukti_transaksi/ambil-' . $pinjam->id . '.png';
-        Storage::disk('public')->put($path, $this->pngBytes());
+        Storage::disk('local')->put($path, $this->pngBytes());
         $pinjam->update(['bukti_ambil' => $path]);
 
         $response = $this->actingAs($admin)->get(route('admin.bukti.index'));
@@ -76,7 +76,7 @@ class AdminBuktiTest extends TestCase
 
     public function test_siswa_tidak_bisa_mengakses_halaman_atau_file_bukti(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $siswa = User::factory()->create();
         $alat = $this->buatAlat();
@@ -95,7 +95,7 @@ class AdminBuktiTest extends TestCase
 
     public function test_admin_bisa_membuka_file_bukti_dan_file_hilang_menghasilkan_404(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $admin = User::factory()->admin()->create();
         $siswa = User::factory()->create();
@@ -103,7 +103,7 @@ class AdminBuktiTest extends TestCase
         $pinjam = $this->buatPinjam($siswa, $alat);
 
         $path = 'bukti_transaksi/kembali-' . $pinjam->id . '.png';
-        Storage::disk('public')->put($path, $this->pngBytes());
+        Storage::disk('local')->put($path, $this->pngBytes());
         $pinjam->update(['bukti_kembali' => $path]);
 
         $this->actingAs($admin)
@@ -111,7 +111,7 @@ class AdminBuktiTest extends TestCase
             ->assertOk()
             ->assertHeader('content-type', 'image/png');
 
-        Storage::disk('public')->delete($path);
+        Storage::disk('local')->delete($path);
 
         $this->actingAs($admin)
             ->get(route('admin.bukti.foto', ['pinjam' => $pinjam->id, 'jenis' => 'kembali']))
@@ -176,5 +176,25 @@ class AdminBuktiTest extends TestCase
                 'cari' => ['Budi'],
             ]))
             ->assertOk();
+    }
+
+    public function test_file_bukti_lama_di_disk_publik_tetap_bisa_dibuka_admin(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+
+        $admin = User::factory()->admin()->create();
+        $siswa = User::factory()->create();
+        $alat = $this->buatAlat();
+        $pinjam = $this->buatPinjam($siswa, $alat);
+
+        $path = 'bukti_transaksi/legacy-' . $pinjam->id . '.png';
+        Storage::disk('public')->put($path, $this->pngBytes());
+        $pinjam->update(['bukti_ambil' => $path]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.bukti.foto', ['pinjam' => $pinjam->id, 'jenis' => 'ambil']))
+            ->assertOk()
+            ->assertHeader('content-type', 'image/png');
     }
 }

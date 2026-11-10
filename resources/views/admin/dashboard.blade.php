@@ -30,7 +30,7 @@
                 <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
             </nav>
 
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="{{ asset('vendor/chart.umd.min.js') }}"></script>
 
             <div class="admin-container">
                 <div class="header-teks">

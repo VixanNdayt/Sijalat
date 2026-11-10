@@ -195,9 +195,10 @@ class TransaksiController extends Controller
             return back()->with('error', 'Status peminjaman sudah berubah. Silakan muat ulang halaman.')->withInput();
         }
 
-        // Upload bukti dilakukan sebelum transaksi database. Jika transaksi
-        // dibatalkan, file dihapus lagi agar tidak menumpuk.
-        $pathFoto = $request->file('bukti_foto')->store('bukti_transaksi', 'public');
+        // Bukti foto disimpan di disk privat (storage/app/private) agar tidak
+        // bisa diakses langsung lewat /storage. Admin membukanya lewat route
+        // BuktiController yang sudah dilindungi middleware admin.
+        $pathFoto = $request->file('bukti_foto')->store('bukti_transaksi', 'local');
         $pesanError = null;
 
         try {
@@ -268,7 +269,7 @@ class TransaksiController extends Controller
                 }
             });
         } catch (\Throwable $e) {
-            Storage::disk('public')->delete($pathFoto);
+            Storage::disk('local')->delete($pathFoto);
 
             if ($pesanError !== null) {
                 return back()->with('error', $pesanError)->withInput();

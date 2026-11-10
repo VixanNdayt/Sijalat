@@ -266,17 +266,26 @@ function verifikasiQr(kode, jenis) {
 // 8. Label Upload Foto
 function tampilkanNamaFile(inputElement, labelId) {
     const label = document.getElementById(labelId);
-    if (inputElement.files && inputElement.files[0]) {
-        const text = label.querySelector('.upload-text');
-        const html = '<strong>Foto terpilih:</strong> ' + inputElement.files[0].name;
-
-        if (text) {
-            text.innerHTML = html;
-        } else {
-            label.innerHTML = html;
-        }
-        label.style.color = "#004E39";
-        label.style.borderColor = "#004E39";
-        label.style.backgroundColor = "#e6f4ea";
+    if (!label || !inputElement.files || !inputElement.files[0]) {
+        return;
     }
+
+    // Nama file berasal dari perangkat pengguna, jadi jangan pernah
+    // dimasukkan lewat innerHTML. Susun DOM-nya dan pakai textContent.
+    let text = label.querySelector('.upload-text');
+
+    if (!text) {
+        text = document.createElement('span');
+        text.className = 'upload-text';
+        label.appendChild(text);
+    }
+
+    const strong = document.createElement('strong');
+    strong.textContent = 'Foto terpilih:';
+
+    text.replaceChildren(strong, document.createTextNode(' ' + inputElement.files[0].name));
+
+    label.style.color = '#004E39';
+    label.style.borderColor = '#004E39';
+    label.style.backgroundColor = '#e6f4ea';
 }

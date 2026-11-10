@@ -10,8 +10,8 @@
     </header>
 
     <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
+        type="button"
+        data-modal-open="confirm-user-deletion"
     >Hapus Akun</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
@@ -42,13 +42,14 @@
                     type="password"
                     class="mt-1 block w-3/4"
                     placeholder="Password"
+                    data-modal-autofocus
                 />
 
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
             </div>
 
             <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
+                <x-secondary-button type="button" data-modal-close>
                     Batal
                 </x-secondary-button>
 

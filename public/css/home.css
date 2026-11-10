@@ -1510,6 +1510,11 @@ body.home-page {
     min-width: 0;
 }
 
+.home-activity-hero > div {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
 .home-activity-avatar {
     display: inline-flex;
     align-items: center;
@@ -2414,6 +2419,14 @@ body.home-page {
         align-items: stretch;
         gap: 16px;
         padding: 22px;
+    }
+
+    .home-activity-hero {
+        flex-wrap: wrap;
+    }
+
+    .home-activity-hero > div {
+        flex: 1 1 0;
     }
 
     .home-activity-hero .home-btn,

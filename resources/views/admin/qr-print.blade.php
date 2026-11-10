@@ -14,7 +14,6 @@
             $statusCocok = $jenis === 'ambil'
                 ? $pinjam->status === 'disetuji'
                 : $pinjam->status === 'dipinjam';
-            $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=8&data=' . urlencode($kode);
         @endphp
 
         <div class="qr-print-card">
@@ -22,9 +21,12 @@
             <h1 class="qr-print-title">{{ $judul }}</h1>
             <p class="qr-print-sub">Tunjukkan QR ini ke siswa untuk di-scan</p>
 
-            <img class="qr-print-image"
-                 src="{{ $qrUrl }}"
-                 alt="QR {{ $jenis }} {{ $pinjam->kode_pinjam }}">
+            {{-- QR dibuat lokal di browser agar isi token tidak dikirim ke layanan pihak ketiga. --}}
+            <div class="qr-print-image"
+                 id="qr-print-code"
+                 data-kode="{{ $kode }}"
+                 role="img"
+                 aria-label="QR {{ $jenis }} {{ $pinjam->kode_pinjam }}"></div>
 
             <p class="qr-print-code">{{ $kode }}</p>
 
@@ -88,5 +90,21 @@
                 </button>
             </div>
         </div>
+
+        <script src="{{ asset('vendor/qrcode-generator.js') }}"></script>
+        <script>
+            (function () {
+                var target = document.getElementById('qr-print-code');
+
+                if (!target || typeof qrcode !== 'function') {
+                    return;
+                }
+
+                var qr = qrcode(0, 'M');
+                qr.addData(target.dataset.kode);
+                qr.make();
+                target.innerHTML = qr.createSvgTag(6, 8);
+            })();
+        </script>
     </body>
 </html>

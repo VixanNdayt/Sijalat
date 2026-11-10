@@ -1,7 +1,2 @@
-
-
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+// Interaksi UI utama dimuat dari public/js/ui.js tanpa Alpine/eval.
+// Berkas ini dipertahankan sebagai entry Vite agar build lama tetap valid.

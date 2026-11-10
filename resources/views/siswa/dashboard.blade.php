@@ -147,7 +147,7 @@
                             @if ($item->status === 'pending')
                                 <form action="{{ route('pinjam.destroy', $item->id) }}" method="POST"
                                       class="form-hapus-pinjam"
-                                      onsubmit="return confirm('Hapus pengajuan peminjaman {{ $namaAlat($item) }}? Tindakan ini tidak bisa dibatalkan.')">
+                                      onsubmit="return confirm(@js('Hapus pengajuan peminjaman ' . $namaAlat($item) . '? Tindakan ini tidak bisa dibatalkan.'))">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-hapus-pinjam" title="Hapus pengajuan">

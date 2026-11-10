@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['name', 'email', 'password', 'nis', 'kelas'])]
 #[Hidden(['password', 'remember_token'])]
@@ -81,7 +80,9 @@ class User extends Authenticatable
             return null;
         }
 
-        return Storage::disk('public')->url($this->profile_photo_path);
+        // URL relatif terhadap host yang sedang dipakai agar tetap sama-origin
+        // (lolos CSP) meski aplikasi dibuka lewat domain, IP LAN, atau localhost.
+        return asset('storage/' . ltrim($this->profile_photo_path, '/'));
     }
 
     /**

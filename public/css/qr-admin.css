@@ -259,6 +259,12 @@
     border-radius: 10px;
 }
 
+.qr-print-image svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
 .qr-print-code {
     margin: 12px 0 0;
     font-family: Consolas, monospace;

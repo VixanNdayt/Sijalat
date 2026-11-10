@@ -31,8 +31,9 @@ class SecurityHeaders
         );
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
-        // Konten hanya boleh dimuat dari aplikasi sendiri, kecuali library/asset
-        // yang memang dipakai (Chart.js, scanner QR, font, dan generator QR).
+        // Konten hanya boleh dimuat dari aplikasi sendiri. Library pihak ketiga
+        // (Chart.js, scanner QR, generator QR) sudah di-vendor di public/vendor
+        // sehingga tidak perlu izin CDN eksternal.
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; "
@@ -40,10 +41,10 @@ class SecurityHeaders
             . "object-src 'none'; "
             . "frame-ancestors 'self'; "
             . "form-action 'self'; "
-            . "script-src 'self' 'unsafe-inline' blob: https://cdn.jsdelivr.net https://unpkg.com; "
+            . "script-src 'self' 'unsafe-inline' blob:; "
             . "style-src 'self' 'unsafe-inline' https://fonts.bunny.net; "
             . "font-src 'self' data: https://fonts.bunny.net; "
-            . "img-src 'self' data: blob: https://api.qrserver.com; "
+            . "img-src 'self' data: blob:; "
             . "media-src 'self' blob:; "
             . "worker-src 'self' blob:; "
             . "connect-src 'self';"

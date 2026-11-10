@@ -100,4 +100,33 @@ class PinjamRequestTest extends TestCase
 
         $this->assertSame(1, Pinjam::count());
     }
+
+    public function test_konfirmasi_hapus_pengajuan_aman_dari_nama_alat_berisi_kutip(): void
+    {
+        $siswa = User::factory()->create();
+        $alat = $this->buatAlat();
+        $alat->update(['nama' => "Kabel ');alert(document.cookie);//"]);
+
+        Pinjam::create([
+            'kode_pinjam' => 'SJL-XSS1',
+            'qr_ambil_token' => str_repeat('a', 48),
+            'qr_kembali_token' => str_repeat('b', 48),
+            'user_id' => $siswa->id,
+            'alat_id' => $alat->id,
+            'dipinjam_saat' => now()->addDay(),
+            'dikembalikan_saat' => now()->addDay()->addHour(),
+            'jumlah_minta' => 1,
+            'deskripsi_minta' => 'Praktik jaringan',
+            'ruangan' => 'Lab Jaringan',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($siswa)->get(route('dashboard'));
+
+        $response->assertOk();
+
+        // Nama alat tidak boleh memutus string JavaScript pada atribut onsubmit.
+        $response->assertDontSee("peminjaman Kabel ');alert", false);
+        $response->assertSee('\\u0027', false);
+    }
 }

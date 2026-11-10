@@ -234,7 +234,12 @@ class AnalisisController extends Controller
         }
 
         if ($filter['group'] === 'month') {
-            $rows = Pinjam::select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as label"), DB::raw('count(*) as total'))
+            // DATE_FORMAT hanya tersedia di MySQL; SQLite memakai strftime.
+            $labelBulan = DB::connection()->getDriverName() === 'sqlite'
+                ? DB::raw("strftime('%Y-%m', created_at) as label")
+                : DB::raw("DATE_FORMAT(created_at, '%Y-%m') as label");
+
+            $rows = Pinjam::select($labelBulan, DB::raw('count(*) as total'))
                 ->whereBetween('created_at', [$filter['mulai'], $filter['selesai']])
                 ->groupBy('label')
                 ->orderBy('label', 'asc')
