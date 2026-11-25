@@ -120,7 +120,7 @@ select option:disabled {
     gap: 10px;
     width: 100%;
     min-height: 42px;
-    padding: 10px 38px 10px 12px;
+    padding: 10px 12px;
     border: 1px solid #d7e2dc;
     border-radius: 10px;
     background-color: #ffffff;
@@ -138,7 +138,7 @@ select option:disabled {
 
 .cs-select-compact .cs-trigger {
     min-height: 40px;
-    padding: 8px 36px 8px 12px;
+    padding: 8px 12px;
     border-radius: 9px;
 }
 
@@ -1040,5 +1040,310 @@ body.modal-open {
 
     .footer-meta {
         text-align: left;
+    }
+}
+
+/* ---------------- Notifikasi navbar ---------------- */
+
+.navbar-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-self: end;
+    gap: 6px;
+    min-width: 0;
+}
+
+/* Tombol pengalih tema terang/gelap di navbar. */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #004e39;
+    cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease,
+        color 0.18s ease;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+    outline: none;
+    border-color: #b8d8cb;
+    background-color: #f0f9f4;
+    color: #005c43;
+}
+
+.theme-toggle:focus-visible {
+    outline: 3px solid rgba(0, 92, 67, 0.35);
+    outline-offset: 2px;
+}
+
+.theme-toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle-icon[data-theme-icon="light"] {
+    display: none;
+}
+
+html[data-theme="dark"] .theme-toggle-icon[data-theme-icon="dark"] {
+    display: none;
+}
+
+html[data-theme="dark"] .theme-toggle-icon[data-theme-icon="light"] {
+    display: inline-flex;
+}
+
+.notif-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.notif-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #004e39;
+    cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.notif-btn:hover,
+.notif-btn:focus-visible,
+.notif-btn[aria-expanded="true"] {
+    outline: none;
+    border-color: #b8d8cb;
+    background-color: #f0f9f4;
+}
+
+.notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background-color: #dc2626;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.notif-badge[hidden] {
+    display: none;
+}
+
+.notif-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: min(340px, calc(100vw - 24px));
+    max-height: min(70vh, 480px);
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #dbe7e1;
+    border-radius: 14px;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18);
+}
+
+.notif-panel[hidden] {
+    display: none;
+}
+
+.notif-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #eef2f0;
+}
+
+.notif-head strong {
+    color: #17352b;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.notif-refresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #475569;
+    cursor: pointer;
+}
+
+.notif-refresh:hover,
+.notif-refresh:focus-visible {
+    outline: none;
+    border-color: #b8d8cb;
+    background-color: #f0f9f4;
+    color: #004e39;
+}
+
+.notif-refresh:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.notif-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.notif-empty {
+    margin: 0;
+    padding: 24px 14px;
+    color: #7a8a83;
+    font-size: 12px;
+    text-align: center;
+}
+
+.notif-section {
+    border-bottom: 1px solid #f1f5f4;
+}
+
+.notif-section:last-child {
+    border-bottom: none;
+}
+
+.notif-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px 4px;
+}
+
+.notif-section-head span {
+    color: #17352b;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.notif-section-head em {
+    padding: 1px 7px;
+    border-radius: 999px;
+    background-color: #fef2f2;
+    color: #b91c1c;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 800;
+}
+
+.notif-item {
+    display: block;
+    padding: 9px 14px;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+
+a.notif-item:hover,
+a.notif-item:focus-visible {
+    outline: none;
+    background-color: #f6faf8;
+}
+
+.notif-item-title {
+    display: block;
+    color: #263a33;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.notif-item-meta {
+    display: block;
+    margin-top: 2px;
+    color: #7a8a83;
+    font-size: 11px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.notif-more {
+    display: block;
+    padding: 9px 14px;
+    color: #00614a;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.notif-more:hover,
+.notif-more:focus-visible {
+    outline: none;
+    background-color: #f0f9f4;
+    text-decoration: underline;
+}
+
+.notif-foot {
+    padding: 8px 14px;
+    border-top: 1px solid #eef2f0;
+    background-color: #fbfdfc;
+    color: #8a9a93;
+    font-size: 10.5px;
+    text-align: center;
+}
+
+.notif-foot[hidden] {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .navbar-actions {
+        gap: 2px;
+    }
+
+    .notif-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+    }
+
+    .theme-toggle {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+    }
+
+    .notif-panel {
+        position: fixed;
+        top: 64px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-height: 70vh;
     }
 }

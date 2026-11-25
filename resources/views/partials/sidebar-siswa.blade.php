@@ -22,6 +22,7 @@
             @endif
         </a>
         <a href="{{ route('guide') }}">Guide</a>
+        <a href="{{ route('home') }}">Home</a>
     </div>
 
     <form method="POST" action="{{ route('logout') }}" class="sidebar-logout">

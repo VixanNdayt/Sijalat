@@ -17,7 +17,7 @@ class LaporanExport
         $width = $pdf->pageWidth;
         $margin = $pdf->margin;
 
-        PdfBrand::header($pdf, 'LAPORAN ANALISIS', 'SMK Negeri 2 Depok');
+        PdfBrand::header($pdf, 'LAPORAN ANALISIS', (string) config('lab.sekolah', 'SMK Negeri 2 Yogyakarta'));
 
         // --- Judul ---
         $pdf->moveTo(126);
@@ -141,7 +141,7 @@ class LaporanExport
         $xlsx->merge("A{$row}:F{$row}");
 
         $row = $xlsx->addRow([
-            ['v' => 'Sistem Peminjaman Alat SIJA - SMK Negeri 2 Depok', 's' => 'subtitle'],
+            ['v' => 'Sistem Peminjaman Alat SIJA - ' . config('lab.sekolah', 'SMK Negeri 2 Yogyakarta'), 's' => 'subtitle'],
             null, null, null, null, null,
         ], 16);
         $xlsx->merge("A{$row}:F{$row}");
@@ -291,10 +291,10 @@ class LaporanExport
         return $xlsx->output();
     }
 
-    private static function sectionTitle(SimplePdf $pdf, string $title): void
+    public static function sectionTitle(SimplePdf $pdf, string $title, string $documentType = 'LAPORAN ANALISIS'): void
     {
         if ($pdf->ensure(80)) {
-            PdfBrand::continuation($pdf);
+            PdfBrand::continuation($pdf, $documentType);
         }
 
         $y = $pdf->cursor();
@@ -363,8 +363,14 @@ class LaporanExport
         $pdf->moveTo($startY + (2 * $boxHeight) + $gap + 12);
     }
 
-    private static function table(SimplePdf $pdf, array $headers, array $rows, array $widths, array $align = []): void
-    {
+    public static function table(
+        SimplePdf $pdf,
+        array $headers,
+        array $rows,
+        array $widths,
+        array $align = [],
+        string $documentType = 'LAPORAN ANALISIS'
+    ): void {
         $total = array_sum($widths);
         $scale = $pdf->contentWidth() / $total;
         $widths = array_map(static fn ($width) => $width * $scale, $widths);
@@ -373,7 +379,7 @@ class LaporanExport
         $headerHeight = 20.0;
 
         if ($pdf->ensure($headerHeight + $rowHeight + 6)) {
-            PdfBrand::continuation($pdf);
+            PdfBrand::continuation($pdf, $documentType);
         }
 
         self::tableHeader($pdf, $headers, $widths);
@@ -412,7 +418,7 @@ class LaporanExport
 
             if ($pdf->need($height)) {
                 $pdf->addPage();
-                PdfBrand::continuation($pdf);
+                PdfBrand::continuation($pdf, $documentType);
                 self::tableHeader($pdf, $headers, $widths);
             }
 
@@ -485,7 +491,7 @@ class LaporanExport
         $pdf->moveTo($y + 21.6);
     }
 
-    private static function periodeText(array $periode): string
+    public static function periodeText(array $periode): string
     {
         if (($periode['periode'] ?? 'semua') === 'semua') {
             return 'Semua data';

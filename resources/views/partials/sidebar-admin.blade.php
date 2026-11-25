@@ -16,6 +16,7 @@
         <a href="{{ route('approval.index') }}">Approval</a>
         <a href="{{ route('admin.qr.index') }}">QR Transaksi</a>
         <a class="{{ request()->routeIs('admin.bukti.*') ? 'active' : '' }}" href="{{ route('admin.bukti.index') }}">Bukti Transaksi</a>
+        <a class="{{ request()->routeIs('admin.riwayat*') ? 'active' : '' }}" href="{{ route('admin.riwayat') }}">Riwayat Peminjaman</a>
         <a href="{{ route('admin.alat.index') }}">Manage Data</a>
         <a href="{{ route('admin.analisis') }}">Analisis</a>
         <a class="{{ request()->routeIs('admin.chat.*') ? 'active' : '' }}" href="{{ route('admin.chat.index') }}">
@@ -25,6 +26,7 @@
             @endif
         </a>
         <a href="{{ route('guide') }}">Guide</a>
+        <a href="{{ route('home') }}">Home</a>
     </div>
 
     <form method="POST" action="{{ route('logout') }}" class="sidebar-logout">

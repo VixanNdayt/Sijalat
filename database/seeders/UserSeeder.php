@@ -14,9 +14,22 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Akun contoh di bawah memakai password default yang mudah ditebak.
+        // Jangan pernah membuatnya di server produksi/staging yang bisa diakses
+        // publik. Buat akun admin produksi secara manual dengan password kuat.
+        if (! app()->environment(['local', 'testing'])) {
+            $this->command?->warn(
+                'UserSeeder dilewati karena APP_ENV bukan local/testing. '
+                . 'Buat akun admin produksi secara manual dengan password kuat.'
+            );
+
+            return;
+        }
+
         User::create([
             'name' => 'User2',
             'nis' => '2100',
+            'kelas' => 'XI SIJA A',
             'email' => 'user2@test.com',
             'password' => bcrypt('anu202002'),
         ]);
@@ -24,6 +37,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'User3',
             'nis' => '2120',
+            'kelas' => 'XI SIJA B',
             'email' => 'user3@test.com',
             'password' => bcrypt('anu202002'),
         ]);

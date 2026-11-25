@@ -1333,6 +1333,165 @@ body.home-page {
     line-height: 1.62;
 }
 
+/* ---------- Tutorial ---------- */
+
+.home-tutorial {
+    padding-top: 20px;
+}
+
+.home-tutorial-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 54px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.home-tutorial-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 52px;
+}
+
+.home-tutorial-step:nth-child(even) .home-tutorial-media {
+    order: 2;
+}
+
+.home-tutorial-step:nth-child(even) .home-tutorial-copy {
+    order: 1;
+}
+
+.home-tutorial-media {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--home-line);
+    border-radius: 20px;
+    background:
+        linear-gradient(145deg, #eef5f1 0%, #dcebe4 100%);
+    box-shadow: 0 20px 44px rgba(3, 43, 32, 0.09);
+    aspect-ratio: 1200 / 620;
+}
+
+.home-tutorial-media img {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-tutorial-media-num {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 78, 57, 0.16);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(64px, 10vw, 128px);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.home-tutorial-caption {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.home-tutorial-copy {
+    max-width: 520px;
+}
+
+.home-tutorial-step:nth-child(even) .home-tutorial-copy {
+    margin-left: auto;
+}
+
+.home-tutorial-num {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 13px;
+    border: 1px solid #cbe4d8;
+    border-radius: 999px;
+    background-color: #eaf6f0;
+    color: var(--home-green);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.home-tutorial-copy h3 {
+    margin: 14px 0 10px;
+    color: var(--home-ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.home-tutorial-copy p {
+    margin: 0;
+    color: var(--home-muted);
+    font-size: 14.5px;
+    line-height: 1.75;
+}
+
+.home-tutorial-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 14px !important;
+    padding: 11px 14px;
+    border-left: 3px solid var(--home-accent-strong);
+    border-radius: 0 12px 12px 0;
+    background-color: #eef8f3;
+    color: #2f5f4e !important;
+    font-size: 12.5px !important;
+    line-height: 1.6 !important;
+}
+
+.home-tutorial-note svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--home-green);
+}
+
+/* Garis penghubung melengkung, mengikuti wireframe. */
+.home-tutorial-arc {
+    position: absolute;
+    bottom: -54px;
+    width: 120px;
+    height: 54px;
+    border-bottom: 2px dashed #b9d7ca;
+    pointer-events: none;
+}
+
+.home-tutorial-step:nth-child(odd) .home-tutorial-arc {
+    right: 7%;
+    border-right: 2px dashed #b9d7ca;
+    border-bottom-right-radius: 90px;
+}
+
+.home-tutorial-step:nth-child(even) .home-tutorial-arc {
+    left: 7%;
+    border-left: 2px dashed #b9d7ca;
+    border-bottom-left-radius: 90px;
+}
+
+.home-tutorial-step:last-child .home-tutorial-arc {
+    display: none;
+}
+
 /* ---------- Regulasi ---------- */
 
 .home-regulation {
@@ -2310,6 +2469,30 @@ body.home-page {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .home-tutorial-step {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .home-tutorial-step:nth-child(even) .home-tutorial-media,
+    .home-tutorial-step:nth-child(even) .home-tutorial-copy {
+        order: 0;
+    }
+
+    .home-tutorial-copy,
+    .home-tutorial-step:nth-child(even) .home-tutorial-copy {
+        max-width: none;
+        margin-left: 0;
+    }
+
+    .home-tutorial-list {
+        gap: 34px;
+    }
+
+    .home-tutorial-arc {
+        display: none;
+    }
+
     .home-footer-main {
         grid-template-columns: 1fr 1fr;
         gap: 32px;
@@ -2493,6 +2676,14 @@ body.home-page {
 
     .home-steps {
         grid-template-columns: 1fr;
+    }
+
+    .home-tutorial-copy h3 {
+        font-size: 22px;
+    }
+
+    .home-tutorial-copy p {
+        font-size: 13.5px;
     }
 
     .home-equipment-grid {

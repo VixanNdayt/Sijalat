@@ -8,8 +8,9 @@
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/chat.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
+        <link rel="stylesheet" href="{{ asset('css/chat.css') }}?v=3">
+        @include('partials.theme-head')
     </head>
     <body>
         <div class="overlay" id="overlay"></div>
@@ -22,7 +23,7 @@
                 </a>
 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             @if (session('success'))
@@ -80,14 +81,20 @@
 
                                     if (! $last) {
                                         $preview = 'Belum ada pesan';
-                                    } elseif ((int) $last->sender_id === (int) $viewer->id) {
-                                        $preview = 'Kamu: ' . $last->body;
-                                    } elseif ((int) $last->sender_id === (int) $last->user_id) {
-                                        $preview = $last->body;
                                     } else {
-                                        // Balasan admin lain: tunjukkan namanya agar tidak
-                                        // dikira pesan dari siswa.
-                                        $preview = ($last->sender?->name ?? 'Admin') . ': ' . $last->body;
+                                        $teks = filled($last->body)
+                                            ? $last->body
+                                            : ($last->image_path ? '[Gambar]' : '');
+
+                                        if ((int) $last->sender_id === (int) $viewer->id) {
+                                            $preview = 'Kamu: ' . $teks;
+                                        } elseif ((int) $last->sender_id === (int) $last->user_id) {
+                                            $preview = $teks;
+                                        } else {
+                                            // Balasan admin lain: tunjukkan namanya agar tidak
+                                            // dikira pesan dari siswa.
+                                            $preview = ($last->sender?->name ?? 'Admin') . ': ' . $teks;
+                                        }
                                     }
                                 @endphp
 
@@ -148,6 +155,19 @@
                                         {{ $active->kelas ?: 'Tanpa kelas' }} &middot; NIS {{ $active->nis ?: '-' }}
                                     </p>
                                 </div>
+
+                                @if ($messages->isNotEmpty())
+                                    <button class="chat-clear"
+                                            type="button"
+                                            id="chatClear"
+                                            data-clear-url="{{ route('admin.chat.clear', $active->id) }}"
+                                            data-konfirmasi="Hapus seluruh riwayat chat dengan {{ $active->name }}? Tindakan ini tidak bisa dibatalkan."
+                                            data-reload="1"
+                                            title="Hapus semua chat"
+                                            aria-label="Hapus semua chat">
+                                        <x-icon name="trash" size="14" />
+                                    </button>
+                                @endif
                             </header>
 
                             <div class="chat-stream" id="chatStream" data-last-date="{{ $messages->last()?->created_at?->timezone('Asia/Jakarta')->format('Y-m-d') }}">
@@ -173,7 +193,10 @@
                                         @php($lastDate = $tanggal)
                                     @endif
 
-                                    <div class="chat-row {{ $mine ? 'mine' : 'theirs' }}" data-id="{{ $message->id }}">
+                                    <div class="chat-row {{ $mine ? 'mine' : 'theirs' }}"
+                                         data-id="{{ $message->id }}"
+                                         data-edit-url="{{ $mine ? route('chat.update', $message->id) : '' }}"
+                                         data-delete-url="{{ route('chat.destroy', $message->id) }}">
                                         @if (! $mine)
                                             <span class="chat-avatar">{{ $initials($message->sender->name ?? $active->name) }}</span>
                                         @endif
@@ -182,8 +205,21 @@
                                             @if (! $mine)
                                                 <span class="chat-sender">{{ $message->sender->name ?? $active->name }}</span>
                                             @endif
-                                            <p>{{ $message->body }}</p>
-                                            <span class="chat-time">{{ $waktu->format('H.i') }}</span>
+                                            @if ($message->image_path)
+                                                <a class="chat-image-link"
+                                                   href="{{ route('chat.image', $message->id) }}"
+                                                   target="_blank"
+                                                   rel="noopener">
+                                                    <img class="chat-image"
+                                                         src="{{ route('chat.image', $message->id) }}"
+                                                         alt="Lampiran gambar"
+                                                         loading="lazy">
+                                                </a>
+                                            @endif
+                                            @if (filled($message->body))
+                                                <p>{{ $message->body }}</p>
+                                            @endif
+                                            <span class="chat-time">{{ $waktu->format('H.i') }}@if ($message->edited_at) &middot; diedit @endif</span>
                                         </div>
                                     </div>
                                 @endforeach
@@ -191,22 +227,39 @@
 
                             <div class="chat-alert" id="chatAlert" role="alert"></div>
 
-                            <form class="chat-form" id="chatForm" action="{{ route('admin.chat.kirim', $active->id) }}" method="POST">
+                            <form class="chat-form" id="chatForm" action="{{ route('admin.chat.kirim', $active->id) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
+
+                                <button class="chat-attach" type="button" id="chatAttach" title="Lampirkan gambar" aria-label="Lampirkan gambar">
+                                    <x-icon name="image" size="18" />
+                                </button>
+                                <input type="file"
+                                       id="chatImageInput"
+                                       name="image"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       hidden>
+
                                 <div class="chat-input-wrap">
+                                    <div class="chat-preview" id="chatPreview" hidden>
+                                        <img id="chatPreviewImg" alt="Pratinjau lampiran">
+                                        <span class="chat-preview-size" id="chatPreviewSize"></span>
+                                        <button class="chat-preview-remove" type="button" id="chatPreviewRemove" title="Batalkan lampiran" aria-label="Batalkan lampiran">
+                                            <x-icon name="x" size="13" />
+                                        </button>
+                                    </div>
+
                                     <textarea id="chatInput"
                                               name="body"
                                               rows="1"
                                               maxlength="2000"
                                               placeholder="Tulis balasan untuk {{ $active->name }}..."
-                                              autocomplete="off"
-                                              required></textarea>
+                                              autocomplete="off"></textarea>
                                 </div>
                                 <button class="chat-send" type="submit" id="chatSend" title="Kirim pesan" aria-label="Kirim pesan">
                                     <x-icon name="send" size="18" />
                                 </button>
                             </form>
-                            <p class="chat-hint">Enter untuk kirim &middot; Shift + Enter untuk baris baru</p>
+                            <p class="chat-hint">Enter untuk kirim &middot; Shift + Enter untuk baris baru &middot; Klik kanan pesan untuk edit / hapus</p>
                         @endif
                     </section>
                 </div>
@@ -216,6 +269,6 @@
         @include('partials.sidebar-admin')
 
         <script src="{{ asset('js/univ.js') }}"></script>
-        <script src="{{ asset('js/chat.js') }}"></script>
+        <script src="{{ asset('js/chat.js') }}?v=3"></script>
     </body>
 </html>

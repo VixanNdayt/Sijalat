@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -31,23 +32,25 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'nis' => ['required', 'numeric', 'unique:users,nis'],
-            'kelas' => ['required', 'string', 'max:50'],
+            'nis' => ['required', 'digits_between:1,30', 'unique:users,nis'],
+            'kelas' => ['required', 'string', 'max:50', Rule::in(config('school.classes', []))],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class, new SchoolEmail],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ], [
             'nis.unique' => 'NIS sudah dipakai akun lain.',
+            'nis.digits_between' => 'NIS harus berupa angka 1 sampai 30 digit.',
+            'kelas.in' => 'Kelas yang dipilih tidak valid. Pilih salah satu kelas yang tersedia.',
             'email.unique' => 'Email ini sudah terdaftar.',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'nis' => $request->nis,
-            'kelas' => $request->kelas,
-            'password' => Hash::make($request->password),
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'nis' => $data['nis'],
+            'kelas' => $data['kelas'],
+            'password' => Hash::make($data['password']),
         ]);
 
         event(new Registered($user));

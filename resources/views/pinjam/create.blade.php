@@ -6,10 +6,11 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
         <link rel="stylesheet" href="{{ asset('css/pinjam.css') }}">
 
         @stack('styles')
+        @include('partials.theme-head')
     </head>
     <body class="page-pinjam">
         <div class="overlay" id="overlay"></div>
@@ -25,7 +26,7 @@
                 </a>
                 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             <header>
@@ -105,10 +106,13 @@
                                     + (int) $alat->kondisi_pengecekan
                                     + (int) $alat->kondisi_rusak
                                     + (int) $alat->kondisi_maintenance;
+                                $gambar = $alat->img
+                                    ? asset($alat->img)
+                                    : asset('svg/equipment-placeholder.svg');
                             @endphp
                             <article class="item-box" data-nama="{{ strtolower($alat->nama) }}" data-kategori="{{ strtolower($alat->jenis) }}">
                                 <div class="img-item">
-                                    <img src="{{ asset($alat->img) }}" alt="{{ $alat->nama }}" loading="lazy">
+                                    <img src="{{ $gambar }}" alt="{{ $alat->nama }}" loading="lazy">
                                     <span class="item-status {{ $ready > 0 ? 'is-ready' : 'is-empty' }}">
                                         {{ $ready > 0 ? 'Tersedia' : 'Habis' }}
                                     </span>
@@ -133,7 +137,9 @@
                                     <button
                                         type="button"
                                         class="btn-primary item-add"
-                                        onclick="pilihBarang({{ $alat->id }}, @js($alat->nama))"
+                                        data-action="pilih-barang"
+                                        data-id="{{ $alat->id }}"
+                                        data-nama="{{ $alat->nama }}"
                                         @disabled($ready <= 0)
                                     >
                                         <x-icon :name="$ready > 0 ? 'plus' : 'box'" size="15" />
@@ -185,7 +191,7 @@
                             <p class="keranjang-hint">Pilih alat di katalog, lalu isi form peminjaman.</p>
                         </div>
 
-                        <button type="button" class="btn-primary" id="btnBukaForm" onclick="bukaFormPeminjaman()" disabled>
+                        <button type="button" class="btn-primary" id="btnBukaForm" data-action="buka-form" disabled>
                             <x-icon name="file-text" size="16" /> Isi Form Peminjaman
                         </button>
                     </div>
@@ -224,12 +230,50 @@
                         </div>
 
                         <div class="input">
+                            <label>Kelas</label>
+                            <input type="text" value="{{ Auth::user()->kelas }}" readonly>
+                        </div>
+
+                        <div class="input">
                             <label>Keranjang Alat</label>
                             <!-- Input asli (alat_id[] & jumlah_minta[]) tinggal di sini -->
                             <div class="keranjang keranjang-modal">
                                 <p id="keranjang-modal-kosong" class="keranjang-kosong">Belum ada alat yang dipilih.</p>
                                 <div id="keranjang-container"></div>
                             </div>
+                        </div>
+
+                        @if ($gurus->isEmpty() || $mapels->isEmpty())
+                            <div class="form-warning">
+                                Data guru atau mata pelajaran belum tersedia. Hubungi admin agar form peminjaman bisa dikirim.
+                            </div>
+                        @endif
+
+                        <div class="input">
+                            <label for="guru_id">Guru Pengampu</label>
+                            <select name="guru_id" id="guru_id" required data-custom-select>
+                                <option value="">-- Pilih Guru --</option>
+                                @foreach ($gurus as $guru)
+                                    <option value="{{ $guru->id }}" {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
+                                        {{ $guru->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('guru_id') <span class="error-text">{{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Dropdown Mata Pelajaran (Independen - Bebas Dipilih) -->
+                        <div class="input">
+                            <label for="mapel_id">Mata Pelajaran</label>
+                            <select name="mapel_id" id="mapel_id" required data-custom-select>
+                                <option value="">-- Pilih Mapel --</option>
+                                @foreach ($mapels as $mapel)
+                                    <option value="{{ $mapel->id }}" {{ old('mapel_id') == $mapel->id ? 'selected' : '' }}>
+                                        {{ $mapel->nama_mapel }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('mapel_id') <span class="error-text">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="input">
@@ -239,7 +283,9 @@
                                 <input type="datetime-local" name="dikembalikan_saat" value="{{ old('dikembalikan_saat') }}" required>
                             </div>
                             <p class="form-hint">
-                                Hanya jam sekolah: Senin 08.00&ndash;16.30, Selasa&ndash;Kamis 07.00&ndash;16.35, Jumat 08.00&ndash;14.45.
+                                Pengambilan paling cepat pukul {{ str_replace(':', '.', $jadwalSekolah['ambil_mulai']) }}
+                                pada tanggal yang dipilih. Pengembalian paling lambat pada jam terakhir pembelajaran:
+                                {{ $jadwalSekolah['label'] }}.
                             </p>
                         </div>
 
@@ -262,16 +308,20 @@
         </div>
 
         <!-- Data untuk JavaScript -->
-        <script>
-            window.alatMap = @json($alats->pluck('nama', 'id'));
-            window.stokMap = @json($alats->pluck('jumlah_stok', 'id'));
-            window.oldCart = @json($oldCart);
+        <script type="application/json" id="pinjam-data">
+{!! Illuminate\Support\Js::encode([
+    'alatMap' => $alats->pluck('nama', 'id'),
+    'stokMap' => $alats->pluck('jumlah_stok', 'id'),
+    'oldCart' => $oldCart,
+    'jadwal' => $jadwalSekolah,
+]) !!}
         </script>
 
-            <!-- Sidebar -->
+        <!-- Sidebar -->
         @include('partials.sidebar-siswa')
 
         <script src="{{ asset('js/univ.js') }}"></script>
-        <script src="{{ asset('js/pinjam.js') }}"></script>
+        <script src="{{ asset('js/pinjam.js') }}?v=2"></script>
+        <script src="{{ asset('js/custom-select.js') }}?v=4"></script>
     </body>
 </html>

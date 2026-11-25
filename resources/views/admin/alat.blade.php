@@ -6,10 +6,12 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
         <link rel="stylesheet" href="{{ asset('css/alat-edit.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/csp.css') }}">
 
         @stack('styles')
+        @include('partials.theme-head')
     </head>
     <body>
         <div class="overlay" id="overlay"></div>
@@ -25,7 +27,7 @@
                 </a>
                 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             @if (session('success'))
@@ -51,7 +53,7 @@
                             <input type="search" id="cariAlat" placeholder="Cari nama atau kode alat..." aria-label="Cari alat" autocomplete="off">
                         </div>
 
-                        <button type="button" class="btn-primary" onclick="modeTambahAlat()">
+                        <button type="button" class="btn-primary" data-action="alat-tambah">
                             <x-icon name="plus" size="16" /> Tambah Alat
                         </button>
                     </div>
@@ -100,12 +102,12 @@
                     
                         <!-- Tombol Aksi -->
                         <div class="card-footer">
-                            <button type="button" class="btn-edit" onclick="editAlat({{ $alat->toJson() }})">
+                            <button type="button" class="btn-edit" data-action="alat-edit" data-alat="{{ $alat->toJson() }}">
                                 <x-icon name="pencil" size="15" /> Edit
                             </button>
                             <form action="{{ route('admin.alat.destroy', $alat->id) }}" method="POST">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn-delete" onclick="return confirm('Hapus alat ini? Tindakan ini tidak bisa dibatalkan.')">
+                                <button type="submit" class="btn-delete" data-confirm="Hapus alat ini? Tindakan ini tidak bisa dibatalkan.">
                                     <x-icon name="trash" size="15" /> Hapus
                                 </button>
                             </form>
@@ -145,9 +147,9 @@
 
                 <div class="modal-body">
                     @if ($errors->any() && ! $errors->has('hapus'))
-                        <div class="flash flash-error" style="width:100%; margin:0 0 16px;">
+                        <div class="flash flash-error u-flash-block">
                             <strong>Gagal menyimpan data!</strong>
-                            <ul style="margin:6px 0 0; padding-left:18px;">
+                            <ul class="u-flash-list">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -229,7 +231,7 @@
                     
                         <div class="modal-actions">
                             <button type="submit" class="btn-submit" id="btnSubmit">Simpan Alat</button>
-                            <button type="button" class="btn-reset" id="btnBatal" onclick="resetForm()" style="display:none;">Batal</button>
+                            <button type="button" class="btn-reset u-d-none" id="btnBatal" data-action="alat-reset">Batal</button>
                         </div>
                     </form>
                 </div>
@@ -240,6 +242,6 @@
 
         <script src="{{ asset('js/univ.js') }}"></script>
         <script src="{{ asset('js/manage.js') }}"></script>
-        <script src="{{ asset('js/custom-select.js') }}?v=2"></script>
+        <script src="{{ asset('js/custom-select.js') }}?v=4"></script>
     </body>
 </html>

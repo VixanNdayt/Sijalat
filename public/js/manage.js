@@ -41,6 +41,41 @@
         applyFilter();
     }
 
+    /* ---------------------------------------------------------
+       Tombol aksi katalog (pengganti onclick agar aman CSP)
+       --------------------------------------------------------- */
+    document.addEventListener('click', function (event) {
+        const trigger = event.target.closest('[data-action]');
+
+        if (!trigger) {
+            return;
+        }
+
+        const action = trigger.dataset.action;
+
+        if (action === 'alat-tambah') {
+            window.modeTambahAlat();
+        } else if (action === 'alat-edit') {
+            try {
+                window.editAlat(JSON.parse(trigger.dataset.alat));
+            } catch (error) {
+                console.error('Data alat tidak valid:', error);
+            }
+        } else if (action === 'alat-reset') {
+            window.resetForm();
+        }
+    });
+
+    // Konfirmasi hapus tanpa atribut onclick
+    document.addEventListener('click', function (event) {
+        const button = event.target.closest('[data-confirm]');
+
+        if (button && !window.confirm(button.dataset.confirm)) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+
     const form = document.getElementById('formAlat');
 
     if (!form) {

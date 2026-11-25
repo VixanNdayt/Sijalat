@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class SecurityHeadersTest extends TestCase
@@ -52,5 +53,56 @@ class SecurityHeadersTest extends TestCase
         $this->actingAs($student)
             ->get(route('transaksi.scan'))
             ->assertOk();
+    }
+
+    public function test_csp_tidak_mengizinkan_script_dan_style_inline(): void
+    {
+        $csp = (string) $this->get('/')->headers->get('Content-Security-Policy');
+
+        preg_match('/script-src([^;]+)/', $csp, $script);
+        preg_match('/style-src([^;]+)/', $csp, $style);
+
+        $this->assertNotEmpty($script);
+        $this->assertNotEmpty($style);
+
+        $this->assertStringNotContainsString("'unsafe-inline'", $script[1]);
+        $this->assertStringNotContainsString('data:', $script[1]);
+        $this->assertStringNotContainsString("'unsafe-inline'", $style[1]);
+        $this->assertStringNotContainsString('data:', $style[1]);
+    }
+
+    public function test_tidak_ada_atribut_style_inline_pada_view(): void
+    {
+        $temuan = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            $isi = (string) file_get_contents($file->getPathname());
+
+            if (preg_match('/style\s*=\s*["\']/', $isi)) {
+                $temuan[] = $file->getRelativePathname();
+            }
+        }
+
+        $this->assertSame([], $temuan, 'Masih ada inline style di: '.implode(', ', $temuan));
+    }
+
+    public function test_tidak_ada_inline_script_dan_event_handler_pada_view(): void
+    {
+        $temuan = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            $isi = (string) file_get_contents($file->getPathname());
+            $nama = $file->getRelativePathname();
+
+            if (preg_match('/<script(?![^>]*\bsrc=)(?![^>]*type="application\/json")/i', $isi)) {
+                $temuan[] = $nama.' (script inline)';
+            }
+
+            if (preg_match('/\son(click|change|submit|input|load|error|keyup|keydown)\s*=/i', $isi)) {
+                $temuan[] = $nama.' (event handler inline)';
+            }
+        }
+
+        $this->assertSame([], $temuan, 'Masih ada inline script/handler di: '.implode(', ', $temuan));
     }
 }

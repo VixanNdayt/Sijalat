@@ -15,6 +15,8 @@ class RegistrationTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
+        $response->assertSee('data-custom-select', false);
+        $response->assertSee('js/custom-select.js', false);
     }
 
     public function test_new_users_can_register_with_school_email(): void
@@ -44,6 +46,36 @@ class RegistrationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    public function test_users_can_not_register_with_kelas_di_luar_daftar(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'nis' => '654322',
+            'kelas' => 'Kelas Palsu',
+            'email' => 'test3@student.stembayo.sch.id',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
+        ]);
+
+        $response->assertSessionHasErrors('kelas');
+        $this->assertGuest();
+    }
+
+    public function test_users_can_not_register_with_nis_terlalu_panjang(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'nis' => str_repeat('1', 31),
+            'kelas' => 'XI SIJA A',
+            'email' => 'test4@student.stembayo.sch.id',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
+        ]);
+
+        $response->assertSessionHasErrors('nis');
         $this->assertGuest();
     }
 

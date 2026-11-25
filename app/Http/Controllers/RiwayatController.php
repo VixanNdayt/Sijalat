@@ -6,6 +6,7 @@ use App\Models\Pinjam;
 use App\Support\RiwayatExport;
 use App\Support\StrukExport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class RiwayatController extends Controller
 {
@@ -14,7 +15,7 @@ class RiwayatController extends Controller
      */
     public function cetak(Request $request, Pinjam $pinjam)
     {
-        $this->pastikanBoleh($request, $pinjam, 'mencetak riwayat');
+        $this->pastikanBoleh($pinjam);
 
         $pdf = RiwayatExport::pdf($pinjam);
 
@@ -30,7 +31,7 @@ class RiwayatController extends Controller
      */
     public function struk(Request $request, Pinjam $pinjam)
     {
-        $this->pastikanBoleh($request, $pinjam, 'mencetak struk');
+        $this->pastikanBoleh($pinjam);
 
         $pdf = StrukExport::pdf($pinjam);
 
@@ -41,13 +42,10 @@ class RiwayatController extends Controller
         );
     }
 
-    private function pastikanBoleh(Request $request, Pinjam $pinjam, string $aksi): void
+    private function pastikanBoleh(Pinjam $pinjam): void
     {
-        $user = $request->user();
-
-        if (! $user || ($user->role_user !== 'admin' && $pinjam->user_id !== $user->id)) {
-            abort(403, 'Anda tidak berhak ' . $aksi . ' transaksi ini.');
-        }
+        // Policy memeriksa kepemilikan siswa atau hak admin di sisi server.
+        Gate::authorize('view', $pinjam);
     }
 
     private function kirimPdf(string $pdf, string $filename, bool $download)

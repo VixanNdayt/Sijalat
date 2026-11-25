@@ -3,27 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alat;
+use App\Models\Guru;
+use App\Models\Mapel;
 use App\Models\Pinjam;
+use App\Support\JadwalSekolah;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 
 class PinjamController extends Controller
 {
-    /**
-     * Jam operasional peminjaman sesuai jadwal sekolah.
-     * Senin 08.00-16.30, Selasa-Kamis 07.00-16.35, Jumat 08.00-14.45.
-     */
-    private const JAM_SEKOLAH = [
-        1 => ['08:00', '16:30'],
-        2 => ['07:00', '16:35'],
-        3 => ['07:00', '16:35'],
-        4 => ['07:00', '16:35'],
-        5 => ['08:00', '14:45'],
-    ];
-
     /**
      * Display a listing of the resource.
      */
@@ -89,7 +81,11 @@ class PinjamController extends Controller
             }
         }
 
-        return view('pinjam.create', compact('alats', 'oldCart', 'jenisAlats'));
+        $gurus = Guru::orderBy('nama', 'asc')->get();
+        $mapels = Mapel::orderBy('nama_mapel', 'asc')->get();
+        $jadwalSekolah = JadwalSekolah::ringkasan();
+
+        return view('pinjam.create', compact('alats', 'oldCart', 'jenisAlats', 'gurus', 'mapels', 'jadwalSekolah'));
     }
 
     /**
@@ -97,15 +93,35 @@ class PinjamController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'alat_id'           => 'required|array',
-            'alat_id.*'         => 'required|exists:alats,id',
-            'jumlah_minta'      => 'required|array',
-            'jumlah_minta.*'    => 'required|integer|min:1',
+        $validator = Validator::make($request->only([
+            'alat_id',
+            'jumlah_minta',
+            'guru_id',
+            'mapel_id',
+            'dipinjam_saat',
+            'ruangan',
+            'dikembalikan_saat',
+            'deskripsi_minta',
+        ]), [
+            'alat_id'           => 'required|array|max:50',
+            'alat_id.*'         => 'required|integer|distinct|exists:alats,id',
+            'jumlah_minta'      => 'required|array|max:50',
+            'jumlah_minta.*'    => 'required|integer|min:1|max:100000',
+            'guru_id'           => 'required|integer|exists:gurus,id',
+            'mapel_id'          => 'required|integer|exists:mapels,id',
             'dipinjam_saat'     => 'required|date',
             'ruangan'           => 'required|string|max:255',
             'dikembalikan_saat' => 'required|date|after_or_equal:dipinjam_saat',
             'deskripsi_minta'   => 'required|string|max:255',
+        ], [
+            'alat_id.max'       => 'Maksimal 50 jenis alat dalam satu pengajuan.',
+            'alat_id.*.distinct' => 'Alat yang sama tidak boleh dipilih dua kali dalam satu pengajuan.',
+            'jumlah_minta.max'  => 'Maksimal 50 jenis alat dalam satu pengajuan.',
+            'jumlah_minta.*.max' => 'Jumlah alat yang diminta terlalu besar.',
+            'guru_id.required'  => 'Pilih guru pengampu terlebih dahulu.',
+            'guru_id.exists'    => 'Guru yang dipilih tidak ditemukan. Muat ulang halaman lalu coba lagi.',
+            'mapel_id.required' => 'Pilih mata pelajaran terlebih dahulu.',
+            'mapel_id.exists'   => 'Mata pelajaran yang dipilih tidak ditemukan. Muat ulang halaman lalu coba lagi.',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -144,7 +160,7 @@ class PinjamController extends Controller
                 }
             }
 
-            // --- 2. Waktu peminjaman hanya di dalam jam sekolah (Senin-Jumat) ---
+            // --- 2. Pengambilan & pengembalian mengikuti jadwal sekolah ---
             foreach (['dipinjam_saat', 'dikembalikan_saat'] as $field) {
                 // Lewati field yang sudah gagal di validasi dasar (termasuk input
                 // berbentuk array) agar tidak memicu error saat di-parse.
@@ -166,21 +182,40 @@ class PinjamController extends Controller
                     continue;
                 }
 
-                $aturan = self::JAM_SEKOLAH[$saat->dayOfWeekIso] ?? null;
+                if (! JadwalSekolah::hariSekolah($saat)) {
+                    $validator->errors()->add(
+                        $field,
+                        ($field === 'dipinjam_saat' ? 'Pengambilan' : 'Pengembalian')
+                            . ' hanya dapat dilakukan pada hari Senin sampai Jumat.'
+                    );
 
-                if (! $aturan) {
-                    $pesan = 'Peminjaman hanya dapat dilakukan pada hari Senin sampai Jumat.';
-                } else {
-                    $jam = $saat->format('H:i');
+                    continue;
+                }
 
-                    if ($jam >= $aturan[0] && $jam <= $aturan[1]) {
+                $batas = JadwalSekolah::kembaliTerakhir($saat);
+
+                if ($field === 'dipinjam_saat') {
+                    $mulai = JadwalSekolah::ambilMulai($saat);
+
+                    if ($saat->lt($mulai)) {
+                        $pesan = 'Pengambilan paling cepat pukul '
+                            . str_replace(':', '.', config('school.jam_ambil_mulai', '06:30'))
+                            . ' pada tanggal yang dipilih.';
+                    } elseif ($batas && $saat->gt($batas)) {
+                        $pesan = 'Pengambilan paling lambat pukul '
+                            . $batas->format('H.i')
+                            . ' (jam terakhir pembelajaran hari ' . JadwalSekolah::HARI[$saat->dayOfWeekIso] . ').';
+                    } else {
                         continue;
                     }
-
-                    $pesan = 'Jam peminjaman harus di antara '
-                        . str_replace(':', '.', $aturan[0]) . ' - '
-                        . str_replace(':', '.', $aturan[1])
-                        . ' sesuai jam sekolah.';
+                } else {
+                    if ($batas && $saat->gt($batas)) {
+                        $pesan = 'Pengembalian paling lambat pukul '
+                            . $batas->format('H.i')
+                            . ' (jam terakhir pembelajaran hari ' . JadwalSekolah::HARI[$saat->dayOfWeekIso] . ').';
+                    } else {
+                        continue;
+                    }
                 }
 
                 // Hindari pesan yang sama muncul dua kali (waktu ambil & kembali).
@@ -194,23 +229,31 @@ class PinjamController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        DB::transaction(function () use ($request) {
-            $jumlahMinta = (array) $request->jumlah_minta;
+        $data = $validator->validated();
 
-            foreach ((array) $request->alat_id as $index => $id_alat) {
-                Pinjam::create([
+        DB::transaction(function () use ($data) {
+            $jumlahMinta = (array) $data['jumlah_minta'];
+
+            foreach ((array) $data['alat_id'] as $index => $id_alat) {
+                $pinjam = new Pinjam([
                     'kode_pinjam'       => Pinjam::generateKodePinjam(),
-                    'qr_ambil_token'    => Pinjam::generateQrToken(),
-                    'qr_kembali_token'  => Pinjam::generateQrToken(),
-                    'user_id'           => Auth::id(),
                     'alat_id'           => $id_alat,
+                    'guru_id'           => $data['guru_id'],
+                    'mapel_id'          => $data['mapel_id'],
                     'jumlah_minta'      => (int) $jumlahMinta[$index],
-                    'dipinjam_saat'     => $request->dipinjam_saat,
-                    'ruangan'           => $request->ruangan,
-                    'dikembalikan_saat' => $request->dikembalikan_saat,
-                    'deskripsi_minta'   => $request->deskripsi_minta,
-                    'status'            => 'pending',
+                    'dipinjam_saat'     => $data['dipinjam_saat'],
+                    'ruangan'           => $data['ruangan'],
+                    'dikembalikan_saat' => $data['dikembalikan_saat'],
+                    'deskripsi_minta'   => $data['deskripsi_minta'],
                 ]);
+
+                // Kolom sensitif diisi eksplisit di server, bukan mass assignment.
+                $pinjam->forceFill([
+                    'qr_ambil_token'   => Pinjam::generateQrToken(),
+                    'qr_kembali_token' => Pinjam::generateQrToken(),
+                    'user_id'          => Auth::id(),
+                    'status'           => 'pending',
+                ])->save();
             }
         });
 
@@ -248,8 +291,8 @@ class PinjamController extends Controller
      */
     public function destroy(Pinjam $pinjam)
     {
-        // Hanya pemilik request yang boleh menghapus
-        if ($pinjam->user_id !== Auth::id()) {
+        // Pemeriksaan kepemilikan dilakukan di server melalui Policy.
+        if (Gate::denies('delete', $pinjam)) {
             return redirect()->route('dashboard')
                 ->withErrors(['hapus' => 'Kamu tidak berhak menghapus pengajuan ini.']);
         }

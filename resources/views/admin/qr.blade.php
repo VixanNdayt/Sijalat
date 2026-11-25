@@ -6,8 +6,9 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>SIJALAT - QR Transaksi</title>
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
         <link rel="stylesheet" href="{{ asset('css/qr-admin.css') }}">
+        @include('partials.theme-head')
     </head>
     <body>
         <div class="overlay" id="overlay"></div>
@@ -20,7 +21,7 @@
                 </a>
 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             <div class="qr-admin-container">

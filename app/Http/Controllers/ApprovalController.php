@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Pinjam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ApprovalController extends Controller
 {
     public function index()
     {
-        $pendingList = Pinjam::with(['user', 'alat'])
+        $pendingList = Pinjam::with(['user', 'alat', 'guru', 'mapel'])
                              ->where('status', 'pending')
                              ->orderBy('created_at', 'asc')
                              ->get();
@@ -24,6 +25,9 @@ class ApprovalController extends Controller
         ]);
 
         $pinjam = Pinjam::findOrFail($id);
+
+        // Verifikasi role di level resource, bukan hanya middleware route.
+        Gate::authorize('approve', $pinjam);
 
         if ($pinjam->status !== 'pending') {
             return back()->withErrors([

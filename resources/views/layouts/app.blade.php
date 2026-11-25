@@ -19,6 +19,7 @@
             {{-- Fallback saat aset Vite belum di-build (npm run build) --}}
             <link rel="stylesheet" href="{{ asset('css/tailwind-fallback.css') }}">
         @endif
+        @include('partials.theme-head')
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

@@ -1,37 +1,151 @@
 .analisis-container { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: sans-serif; color: #333; }
     
-.header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.header-action { display: flex; flex-direction: column; align-items: stretch; gap: 14px; margin-bottom: 25px; }
+.header-action > div { min-width: 0; }
 .header-action h2 { margin: 0; font-size: 24px; }
 .header-action p { margin: 5px 0 0 0; color: #666; font-size: 14px; }
 
-.kontrol-filter { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.date-picker, .btn-export { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; cursor: pointer; }
+.filter-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e3ebe7;
+    border-radius: 12px;
+    background-color: #fbfdfc;
+}
 
-select.date-picker {
-    min-height: 40px;
-    padding: 8px 36px 8px 12px;
-    border-color: #d7e2dc;
-    border-radius: 9px;
+.filter-fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding-left: 12px;
+    border-left: 1px solid #e3ebe7;
+}
+
+.filter-actions-label {
+    margin-right: 2px;
+    color: #7a8a82;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.date-picker {
+    min-height: 38px;
+    padding: 0 11px;
+    border: 1px solid #d7e2dc;
+    border-radius: 8px;
     background-color: #ffffff;
-    background-position: right 11px center;
     color: #17352b;
-    font-weight: 500;
-    box-shadow: 0 1px 2px rgba(23, 53, 43, 0.04);
+    font-family: inherit;
+    font-size: 13px;
+    box-shadow: none;
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-select.date-picker:hover:not(:disabled) {
+input.date-picker {
+    width: 158px;
+}
+
+select.date-picker {
+    min-width: 170px;
+}
+
+.date-picker:hover:not(:disabled) {
     border-color: #b9d7ca;
 }
 
-select.date-picker:focus {
+.date-picker:focus {
     border-color: #007a58;
+    outline: none;
     box-shadow: 0 0 0 3px rgba(0, 122, 88, 0.12);
 }
-.btn-export { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; line-height: 1.2; }
-.btn-export:hover { filter: brightness(0.94); }
-.btn-export.pdf { background: #ef4444; color: white; border: none; font-weight: bold; }
-.btn-export.excel { background: #10b981; color: white; border: none; font-weight: bold; }
+
+.date-picker:disabled {
+    background-color: #f4f7f5;
+    color: #9aa8a1;
+}
+
+select.date-picker {
+    padding-right: 34px;
+    background-position: right 11px center;
+    font-weight: 500;
+}
+
+.btn-export,
+.btn-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid #d7e2dc;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #1d3b30;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-export svg,
+.btn-apply svg {
+    flex: none;
+}
+
+.btn-export svg {
+    color: #4d6b5e;
+}
+
+.btn-export:hover {
+    border-color: #b9d7ca;
+    background-color: #f1f7f4;
+    color: #0d3d2e;
+}
+
+.btn-export:active {
+    background-color: #e8f3ee;
+}
+
+.btn-apply {
+    border-color: #005c43;
+    background-color: #005c43;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.btn-apply:hover {
+    border-color: #004e39;
+    background-color: #004e39;
+}
+
+.btn-apply svg {
+    color: #dbeee6;
+}
+
+.btn-export:focus-visible,
+.btn-apply:focus-visible {
+    outline: 2px solid rgba(0, 122, 88, 0.35);
+    outline-offset: 2px;
+}
+
 .filter-note { margin: 6px 0 0; font-size: 12px; color: #047857; }
 .filter-note a { color: #0369a1; font-weight: 600; }
 .table-empty { text-align: center; color: #94a3b8; font-size: 12px; }
@@ -55,6 +169,58 @@ select.date-picker:focus {
 .badge.ditolak { background: #fecaca; color: #991b1b; }
 .badge.terlambat { background: #fde68a; color: #92400e; }
 
+/* ---------- Riwayat peminjaman ---------- */
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+.riwayat-table {
+    min-width: 980px;
+}
+
+.riwayat-table td {
+    vertical-align: top;
+}
+
+.riwayat-meta {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.table-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 13px;
+}
+
+.pager-link {
+    padding: 7px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #065f46;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.pager-link:hover {
+    background: #ecfdf5;
+}
+
+.pager-link.is-disabled {
+    color: #9ca3af;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+}
+
+.pager-info {
+    color: #4b5563;
+}
+
 @media (max-width: 900px) {
     .analisis-container { padding: 14px; }
 
@@ -67,11 +233,37 @@ select.date-picker:focus {
 
     .header-action h2 { font-size: 20px; }
 
-    .kontrol-filter { flex-wrap: wrap; }
+    .filter-toolbar {
+        width: 100%;
+    }
 
-    .kontrol-filter .date-picker { flex: 1 1 100%; }
+    .filter-fields {
+        flex: 1 1 100%;
+    }
 
-    .kontrol-filter .btn-export { flex: 1 1 0; min-width: 0; }
+    .filter-fields .date-picker {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+    }
+
+    .filter-fields .btn-apply {
+        flex: 0 0 auto;
+    }
+
+    .filter-actions {
+        flex: 1 1 100%;
+        margin-left: 0;
+        padding-top: 10px;
+        padding-left: 0;
+        border-top: 1px solid #e3ebe7;
+        border-left: 0;
+    }
+
+    .filter-actions .btn-export {
+        flex: 1 1 0;
+        min-width: 0;
+    }
 
     .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-2 { grid-template-columns: 1fr; }
@@ -89,6 +281,10 @@ select.date-picker:focus {
     .grid-4 { grid-template-columns: 1fr; }
     .chart-box, .table-widget { padding: 14px; }
     .kpi-card .data h3 { font-size: 16px; }
+
+    .filter-fields .btn-apply {
+        flex: 1 1 100%;
+    }
 
     /* Chart.js memakai lebar tetap; batasi supaya tidak melebar ke luar layar */
     .chart-box { min-width: 0; overflow: hidden; }

@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PinjamController;
 use App\Http\Controllers\QrTransaksiController;
 use App\Http\Controllers\RiwayatController;
@@ -20,6 +21,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
+
+    Route::get('/notifikasi', [NotificationController::class, 'index'])
+        ->middleware('throttle:120,1')
+        ->name('notifikasi');
 
     Route::get('/pinjam/buat', [PinjamController::class, 'create'])->name('pinjam.create');
     Route::post('/pinjam', [PinjamController::class, 'store'])
@@ -45,6 +50,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/chat', [ChatController::class, 'kirim'])
         ->middleware('throttle:30,1')
         ->name('chat.kirim');
+    Route::get('/chat/gambar/{message}', [ChatController::class, 'gambar'])
+        ->middleware('throttle:120,1')
+        ->name('chat.image');
+    Route::delete('/chat', [ChatController::class, 'hapusPercakapan'])
+        ->middleware('throttle:10,1')
+        ->name('chat.clear');
+    Route::delete('/chat/{message}', [ChatController::class, 'hapusPesan'])
+        ->middleware('throttle:30,1')
+        ->name('chat.destroy');
+    Route::patch('/chat/{message}', [ChatController::class, 'ubahPesan'])
+        ->middleware('throttle:30,1')
+        ->name('chat.update');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])
@@ -65,6 +82,14 @@ Route::middleware('auth')->group(function () {
         ->name('transaksi.cariKode');
 
     Route::middleware('admin')->group(function () {
+        Route::get('/admin/notifikasi', [NotificationController::class, 'index'])
+            ->middleware('throttle:120,1')
+            ->name('admin.notifikasi');
+
+        Route::get('/admin/transaksi/{pinjam}', [DashboardController::class, 'detail'])
+            ->middleware('throttle:120,1')
+            ->name('admin.transaksi.detail');
+
         Route::get('/admin/chat', [ChatController::class, 'adminIndex'])->name('admin.chat.index');
         Route::get('/admin/chat/{user}/pesan', [ChatController::class, 'adminPesan'])
             ->middleware('throttle:120,1')
@@ -73,6 +98,9 @@ Route::middleware('auth')->group(function () {
             ->middleware('throttle:30,1')
             ->name('admin.chat.kirim');
         Route::get('/admin/chat/{user}', [ChatController::class, 'adminShow'])->name('admin.chat.show');
+        Route::delete('/admin/chat/{user}', [ChatController::class, 'adminHapusPercakapan'])
+            ->middleware('throttle:10,1')
+            ->name('admin.chat.clear');
 
         Route::get('/admin/approval', [ApprovalController::class, 'index'])->name('approval.index');
         Route::post('/admin/approval/proses/{id}', [ApprovalController::class, 'proses'])
@@ -97,6 +125,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/analisis/export/excel', [App\Http\Controllers\AnalisisController::class, 'exportExcel'])
             ->middleware('throttle:20,1')
             ->name('admin.analisis.excel');
+
+        Route::get('/admin/riwayat', [App\Http\Controllers\RiwayatPeminjamanController::class, 'index'])
+            ->name('admin.riwayat');
+        Route::get('/admin/riwayat/export/pdf', [App\Http\Controllers\RiwayatPeminjamanController::class, 'exportPdf'])
+            ->middleware('throttle:20,1')
+            ->name('admin.riwayat.pdf');
+        Route::get('/admin/riwayat/export/excel', [App\Http\Controllers\RiwayatPeminjamanController::class, 'exportExcel'])
+            ->middleware('throttle:20,1')
+            ->name('admin.riwayat.excel');
 
         Route::get('/admin/qr', [QrTransaksiController::class, 'index'])->name('admin.qr.index');
         Route::get('/admin/qr/{pinjam}/{jenis}', [QrTransaksiController::class, 'print'])->name('admin.qr.print');

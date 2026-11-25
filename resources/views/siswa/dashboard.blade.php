@@ -6,10 +6,11 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
         <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
         @stack('styles')
+        @include('partials.theme-head')
     </head>
     <body>
         <div class="overlay" id="overlay"></div>
@@ -25,7 +26,7 @@
                 </a>
                 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             @if (session('success'))
@@ -147,7 +148,7 @@
                             @if ($item->status === 'pending')
                                 <form action="{{ route('pinjam.destroy', $item->id) }}" method="POST"
                                       class="form-hapus-pinjam"
-                                      onsubmit="return confirm(@js('Hapus pengajuan peminjaman ' . $namaAlat($item) . '? Tindakan ini tidak bisa dibatalkan.'))">
+                                      data-confirm="{{ 'Hapus pengajuan peminjaman ' . $namaAlat($item) . '? Tindakan ini tidak bisa dibatalkan.' }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-hapus-pinjam" title="Hapus pengajuan">
@@ -262,8 +263,8 @@
                                     <strong>{{ $namaAlat($item) }}</strong>
                                     <small>
                                         Tenggat {{ $formatTanggal($item->dikembalikan_saat) }}
-                                        @if ($item->hari_terlambat > 0)
-                                            &middot; terlambat {{ $item->hari_terlambat }} hari
+                                        @if ($item->terlambat_label)
+                                            &middot; {{ strtolower($item->terlambat_label) }}
                                         @endif
                                     </small>
                                 </div>

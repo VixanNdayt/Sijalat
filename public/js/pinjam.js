@@ -36,8 +36,10 @@
         });
     }
 
-    const alatMap = window.alatMap || {};
-    const stokMap = window.stokMap || {};
+    const pinjamDataEl = document.getElementById('pinjam-data');
+    const pinjamData = pinjamDataEl ? JSON.parse(pinjamDataEl.textContent) : {};
+    const alatMap = pinjamData.alatMap || {};
+    const stokMap = pinjamData.stokMap || {};
 
     function namaAlat(id) {
         return alatMap[id] || 'Alat';
@@ -99,9 +101,9 @@
                     <div class="cart-qty-box">
                         <label class="cart-qty-label">Jumlah</label>
                         <input type="number" name="jumlah_minta[]" value="${jumlah}" min="1" max="${batas}"
-                               class="cart-qty" data-stok="${batas}" oninput="ubahJumlah(${id}, this.value)">
+                               class="cart-qty" data-stok="${batas}" data-cart-id="${id}">
                     </div>
-                    <button type="button" class="cart-remove" onclick="hapusBarang(${id})" aria-label="Hapus alat">
+                    <button type="button" class="cart-remove" data-cart-remove="${id}" aria-label="Hapus alat">
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                              stroke-linejoin="round" aria-hidden="true">
@@ -359,22 +361,26 @@
     /* ------------------------------------------------------------------
      * Batasi waktu peminjaman sesuai jam sekolah
      * ------------------------------------------------------------------ */
-    const JAM_SEKOLAH = {
-        1: { buka: '08:00', tutup: '16:30' }, // Senin
-        2: { buka: '07:00', tutup: '16:35' }, // Selasa
-        3: { buka: '07:00', tutup: '16:35' }, // Rabu
-        4: { buka: '07:00', tutup: '16:35' }, // Kamis
-        5: { buka: '08:00', tutup: '14:45' }, // Jumat
-    };
+    const jadwalData = pinjamData.jadwal || {};
+    const AMBIL_MULAI = jadwalData.ambil_mulai || '06:30';
+    const KEMBALI_TERAKHIR = jadwalData.kembali_terakhir || {};
 
     const inputMulai = document.querySelector('input[name="dipinjam_saat"]');
     const inputKembali = document.querySelector('input[name="dikembalikan_saat"]');
 
-    function jamSekolah(hari) {
-        return JAM_SEKOLAH[hari === 0 ? 7 : hari] || null;
+    function aturanHari(tanggal) {
+        // getDay(): 0 = Minggu, 1 = Senin, ... 6 = Sabtu. Samakan ke ISO.
+        const hari = tanggal.getDay() === 0 ? 7 : tanggal.getDay();
+        const tutup = KEMBALI_TERAKHIR[hari] || KEMBALI_TERAKHIR[String(hari)];
+
+        if (!tutup) {
+            return null;
+        }
+
+        return { buka: AMBIL_MULAI, tutup: tutup };
     }
 
-    function aturBatasJam(input) {
+    function aturBatasJam(input, jenis) {
         if (!input) {
             return;
         }
@@ -390,31 +396,62 @@
 
         const tanggal = input.value.slice(0, 10);
         const waktu = input.value.slice(11, 16) || '00:00';
-        const aturan = jamSekolah(new Date(tanggal + 'T00:00:00').getDay());
+        const aturan = aturanHari(new Date(tanggal + 'T00:00:00'));
 
         if (!aturan) {
-            input.setCustomValidity('Peminjaman hanya dapat dilakukan pada hari Senin sampai Jumat.');
+            input.removeAttribute('min');
+            input.removeAttribute('max');
+            input.setCustomValidity(
+                (jenis === 'mulai' ? 'Pengambilan' : 'Pengembalian')
+                + ' hanya dapat dilakukan pada hari Senin sampai Jumat.'
+            );
             return;
         }
 
-        input.min = tanggal + 'T' + aturan.buka;
+        let batasBawah = aturan.buka;
+
+        if (jenis === 'kembali' && inputMulai && inputMulai.value
+            && inputMulai.value.slice(0, 10) === tanggal) {
+            batasBawah = inputMulai.value.slice(11, 16) || aturan.buka;
+        }
+
+        input.min = tanggal + 'T' + batasBawah;
         input.max = tanggal + 'T' + aturan.tutup;
 
-        if (waktu < aturan.buka || waktu > aturan.tutup) {
+        if (jenis === 'mulai') {
+            if (waktu < aturan.buka) {
+                input.setCustomValidity(
+                    'Pengambilan paling cepat pukul ' + aturan.buka.replace(':', '.')
+                    + ' pada tanggal yang dipilih.'
+                );
+            } else if (waktu > aturan.tutup) {
+                input.setCustomValidity(
+                    'Pengambilan paling lambat pukul ' + aturan.tutup.replace(':', '.')
+                    + ' (jam terakhir pembelajaran).'
+                );
+            }
+
+            return;
+        }
+
+        if (waktu < batasBawah) {
+            input.setCustomValidity('Waktu pengembalian tidak boleh sebelum waktu pengambilan.');
+        } else if (waktu > aturan.tutup) {
             input.setCustomValidity(
-                'Jam harus di antara ' + aturan.buka.replace(':', '.') + ' - ' + aturan.tutup.replace(':', '.') + '.'
+                'Pengembalian paling lambat pukul ' + aturan.tutup.replace(':', '.')
+                + ' (jam terakhir pembelajaran).'
             );
         }
     }
 
     function perbaruiBatasWaktu() {
-        aturBatasJam(inputMulai);
-        aturBatasJam(inputKembali);
+        aturBatasJam(inputMulai, 'mulai');
+        aturBatasJam(inputKembali, 'kembali');
 
         if (inputMulai && inputKembali && inputMulai.value && inputKembali.value) {
             const tanggalSama = inputMulai.value.slice(0, 10) === inputKembali.value.slice(0, 10);
 
-            if (tanggalSama && inputKembali.value < inputMulai.value) {
+            if (tanggalSama && inputKembali.value < inputMulai.value && !inputKembali.validationMessage) {
                 inputKembali.setCustomValidity('Waktu pengembalian tidak boleh sebelum waktu pengambilan.');
             }
         }
@@ -432,10 +469,29 @@
     perbaruiBatasWaktu();
 
     /* ------------------------------------------------------------------
+     * Delegasi event keranjang (pengganti onclick/oninput yang diblokir CSP)
+     * ------------------------------------------------------------------ */
+    document.addEventListener('input', function (event) {
+        const input = event.target.closest('.cart-qty');
+
+        if (input && input.dataset.cartId) {
+            window.ubahJumlah(Number(input.dataset.cartId), input.value);
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        const button = event.target.closest('[data-cart-remove]');
+
+        if (button) {
+            window.hapusBarang(Number(button.dataset.cartRemove));
+        }
+    });
+
+    /* ------------------------------------------------------------------
      * Pulihkan keranjang setelah validasi gagal (old input)
      * ------------------------------------------------------------------ */
-    if (Array.isArray(window.oldCart) && window.oldCart.length > 0) {
-        window.oldCart.forEach(function (item) {
+    if (Array.isArray(pinjamData.oldCart) && pinjamData.oldCart.length > 0) {
+        pinjamData.oldCart.forEach(function (item) {
             if (item && item.id && !keranjang.includes(Number(item.id))) {
                 tambahKeKeranjang(item.id, item.qty || 1);
             }
@@ -444,4 +500,21 @@
         // Buka form lagi supaya pesan error langsung terlihat
         window.bukaModal('modal-pinjam');
     }
+
+    /* ------------------------------------------------------------------
+     * Delegasi tombol katalog (pengganti onclick yang diblokir CSP)
+     * ------------------------------------------------------------------ */
+    document.addEventListener('click', function (event) {
+        const trigger = event.target.closest('[data-action]');
+
+        if (!trigger) {
+            return;
+        }
+
+        if (trigger.dataset.action === 'pilih-barang') {
+            window.pilihBarang(Number(trigger.dataset.id), trigger.dataset.nama);
+        } else if (trigger.dataset.action === 'buka-form') {
+            window.bukaFormPeminjaman();
+        }
+    });
 })();

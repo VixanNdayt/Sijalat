@@ -7,10 +7,12 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>@yield('title', 'SIJALAT - Bukti Peminjaman')</title>
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
         <link rel="stylesheet" href="{{ asset('css/bukti.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/csp.css') }}">
 
         @stack('styles')
+        @include('partials.theme-head')
     </head>
     <body>
         <div class="overlay" id="overlay"></div>
@@ -26,7 +28,7 @@
                 </a>
                 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             <div class="main-container">
@@ -54,7 +56,7 @@
 
                 @if ($errors->any())
                     <div class="alert alert-error">
-                        <ul style="margin: 0; padding-left: 20px;">
+                        <ul class="u-list-indent">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -64,8 +66,8 @@
 
                 <!-- Tombol Tab -->
                 <div class="tab-container">
-                    <button type="button" id="btn-ambil" class="tab-btn active" onclick="switchTab('ambil')">1. PENGAMBILAN ALAT</button>
-                    <button type="button" id="btn-kembali" class="tab-btn" onclick="switchTab('kembali')">2. PENGEMBALIAN ALAT</button>
+                    <button type="button" id="btn-ambil" class="tab-btn active" data-action="tab" data-tab="ambil">1. PENGAMBILAN ALAT</button>
+                    <button type="button" id="btn-kembali" class="tab-btn" data-action="tab" data-tab="kembali">2. PENGEMBALIAN ALAT</button>
                 </div>
             
                 <!-- ============================================ -->
@@ -75,27 +77,31 @@
                     <div class="form-header">
                         <h3>Verifikasi Pengambilan di Lab</h3>
                         <p>Scan <strong>QR Pengambilan</strong> yang ditampilkan guru untuk transaksi yang akan Anda ambil</p>
+                        <small class="field-hint">
+                            Pengambilan paling cepat pukul {{ str_replace(':', '.', $jadwalSekolah['ambil_mulai']) }}
+                            pada tanggal yang tertera di form peminjaman.
+                        </small>
                     </div>
 
                     <!-- Area Verifikasi QR transaksi (Pengambilan) -->
                     <div class="qr-box">
                         <label class="qr-label"><x-icon name="qr-code" size="16" /> Scan QR Pengambilan dari Guru</label>
                         <div class="qr-actions">
-                            <button type="button" class="btn-scan" id="btn-scan-ambil" onclick="toggleScanner('ambil')">
+                            <button type="button" class="btn-scan" id="btn-scan-ambil" data-action="scan" data-tab="ambil">
                                 <x-icon name="camera" size="16" /> <span class="btn-label">Buka Kamera Scan QR</span>
                             </button>
                             <span class="qr-or">atau</span>
                             <div class="qr-input-group">
                                 <input type="text" id="input-kode-ambil" placeholder="Tempel/ketik kode QR dari guru">
-                                <button type="button" class="btn-cek" onclick="cariKode('ambil')">Verifikasi</button>
+                                <button type="button" class="btn-cek" data-action="cek-kode" data-tab="ambil">Verifikasi</button>
                             </div>
                         </div>
 
                         <!-- Wadah Kamera Scanner Pengambilan -->
-                        <div id="reader-ambil" class="qr-reader-container" style="display: none;"></div>
+                        <div id="reader-ambil" class="qr-reader-container u-d-none"></div>
 
                         <!-- Feedback Status Verifikasi QR -->
-                        <div id="qr-feedback-ambil" class="qr-feedback" style="display: none;"></div>
+                        <div id="qr-feedback-ambil" class="qr-feedback u-d-none"></div>
                     </div>
                 
                     <form action="{{ route('transaksi.proses') }}" method="POST" enctype="multipart/form-data">
@@ -106,18 +112,18 @@
 
                         <div class="input-group">
                             <label>Nama Siswa</label>
-                            <input type="text" name="nama" id="nama_ambil" value="{{ old('nama', auth()->user()->name) }}" placeholder="Masukkan nama" required readonly style="background-color: #f9fafb;">
+                            <input type="text" name="nama" id="nama_ambil" value="{{ old('nama', auth()->user()->name) }}" placeholder="Masukkan nama" required readonly class="u-readonly">
                         </div>
                     
                         <div class="row">
                             <div class="input-group col">
                                 <label>NIS</label>
-                                <input type="text" name="nis" id="nis_ambil" value="{{ old('nis', auth()->user()->nis) }}" placeholder="Masukkan NIS" required readonly style="background-color: #f9fafb;">
+                                <input type="text" name="nis" id="nis_ambil" value="{{ old('nis', auth()->user()->nis) }}" placeholder="Masukkan NIS" required readonly class="u-readonly">
                             </div>
                             <div class="input-group col">
                                 <label>Kelas</label>
                                 @php $kelasSiswa = auth()->user()->kelas ?? ''; @endphp
-                                <input type="text" name="kelas" id="kelas_ambil" value="{{ old('kelas', $kelasSiswa) }}" placeholder="Kelas belum diisi, lengkapi di Profil" @if ($kelasSiswa) readonly style="background-color: #f9fafb;" @endif>
+                                <input type="text" name="kelas" id="kelas_ambil" value="{{ old('kelas', $kelasSiswa) }}" placeholder="Kelas belum diisi, lengkapi di Profil" @if ($kelasSiswa) readonly class="u-readonly" @endif>
                                 @if (! $kelasSiswa && ! old('kelas'))
                                     <small class="field-hint">Kelas belum ada di profil. <a href="{{ route('profile.edit') }}">Lengkapi profil</a> agar terisi otomatis.</small>
                                 @endif
@@ -126,7 +132,7 @@
                     
                         <div class="input-group">
                             <label>Nama Barang / Alat</label>
-                            <input type="text" name="barang" id="barang_ambil" placeholder="Terisi otomatis setelah scan QR dari guru" value="{{ old('barang') }}" required readonly style="background-color: #f9fafb;">
+                            <input type="text" name="barang" id="barang_ambil" placeholder="Terisi otomatis setelah scan QR dari guru" value="{{ old('barang') }}" required readonly class="u-readonly">
                         </div>
                     
                         <div class="input-group">
@@ -135,8 +141,8 @@
                                 <input type="time" name="waktu_mulai" id="waktu_mulai_ambil" class="col" value="{{ old('waktu_mulai', date('H:i')) }}">
                                 <input type="time" name="waktu_selesai" id="waktu_selesai_ambil" class="col" value="{{ old('waktu_selesai') }}">
                             </div>
-                            <input type="text" name="tempat" id="tempat_ambil" placeholder="Lokasi penggunaan (misal: Ruang Lab Jaringan)" value="{{ old('tempat') }}" style="margin-top: 10px;">
-                            <small class="auto-fill-hint" id="hint-jadwal-ambil" style="display: none;"></small>
+                            <input type="text" name="tempat" id="tempat_ambil" class="u-mt-10" placeholder="Lokasi penggunaan (misal: Ruang Lab Jaringan)" value="{{ old('tempat') }}">
+                            <small class="auto-fill-hint u-d-none" id="hint-jadwal-ambil"></small>
                         </div>
                     
                         <div class="input-group">
@@ -149,7 +155,7 @@
                             <label for="foto-ambil" class="upload-box" id="label-foto-ambil">
                                 <x-icon name="upload" size="22" /><br><span class="upload-text">Klik di sini untuk upload foto barang saat diambil di meja lab</span>
                             </label>
-                            <input type="file" id="foto-ambil" name="bukti_foto" accept="image/*" required onchange="tampilkanNamaFile(this, 'label-foto-ambil')">
+                            <input type="file" id="foto-ambil" name="bukti_foto" accept="image/*" required data-file-label="label-foto-ambil">
                         </div>
                     
                         <button type="submit" class="btn-submit" id="btn-submit-ambil">
@@ -161,31 +167,35 @@
                 <!-- ============================================ -->
                 <!-- 2. BUNGKUSAN FORM PENGEMBALIAN -->
                 <!-- ============================================ -->
-                <div id="form-kembali" class="form-wrapper" style="display: none;">
+                <div id="form-kembali" class="form-wrapper u-d-none">
                     <div class="form-header">
                         <h3>Verifikasi Pengembalian di Lab</h3>
                         <p>Scan <strong>QR Pengembalian</strong> yang ditampilkan guru untuk transaksi yang akan Anda kembalikan</p>
+                        <small class="field-hint">
+                            Pengembalian paling lambat pada jam terakhir pembelajaran: {{ $jadwalSekolah['label'] }}.
+                            Melewati batas ini dihitung sebagai pelanggaran peminjaman.
+                        </small>
                     </div>
 
                     <!-- Area Verifikasi QR transaksi (Pengembalian) -->
                     <div class="qr-box">
                         <label class="qr-label"><x-icon name="qr-code" size="16" /> Scan QR Pengembalian dari Guru</label>
                         <div class="qr-actions">
-                            <button type="button" class="btn-scan" id="btn-scan-kembali" onclick="toggleScanner('kembali')">
+                            <button type="button" class="btn-scan" id="btn-scan-kembali" data-action="scan" data-tab="kembali">
                                 <x-icon name="camera" size="16" /> <span class="btn-label">Buka Kamera Scan QR</span>
                             </button>
                             <span class="qr-or">atau</span>
                             <div class="qr-input-group">
                                 <input type="text" id="input-kode-kembali" placeholder="Tempel/ketik kode QR dari guru">
-                                <button type="button" class="btn-cek" onclick="cariKode('kembali')">Verifikasi</button>
+                                <button type="button" class="btn-cek" data-action="cek-kode" data-tab="kembali">Verifikasi</button>
                             </div>
                         </div>
 
                         <!-- Wadah Kamera Scanner Pengembalian -->
-                        <div id="reader-kembali" class="qr-reader-container" style="display: none;"></div>
+                        <div id="reader-kembali" class="qr-reader-container u-d-none"></div>
 
                         <!-- Feedback Status Verifikasi QR -->
-                        <div id="qr-feedback-kembali" class="qr-feedback" style="display: none;"></div>
+                        <div id="qr-feedback-kembali" class="qr-feedback u-d-none"></div>
                     </div>
                 
                     <form action="{{ route('transaksi.proses') }}" method="POST" enctype="multipart/form-data">
@@ -196,18 +206,18 @@
 
                         <div class="input-group">
                             <label>Nama Siswa</label>
-                            <input type="text" name="nama" id="nama_kembali" value="{{ old('nama', auth()->user()->name) }}" placeholder="Masukkan nama" required readonly style="background-color: #f9fafb;">
+                            <input type="text" name="nama" id="nama_kembali" value="{{ old('nama', auth()->user()->name) }}" placeholder="Masukkan nama" required readonly class="u-readonly">
                         </div>
                     
                         <div class="row">
                             <div class="input-group col">
                                 <label>NIS</label>
-                                <input type="text" name="nis" id="nis_kembali" value="{{ old('nis', auth()->user()->nis) }}" placeholder="Masukkan NIS" required readonly style="background-color: #f9fafb;">
+                                <input type="text" name="nis" id="nis_kembali" value="{{ old('nis', auth()->user()->nis) }}" placeholder="Masukkan NIS" required readonly class="u-readonly">
                             </div>
                             <div class="input-group col">
                                 <label>Kelas</label>
                                 @php $kelasSiswa = $kelasSiswa ?? (auth()->user()->kelas ?? ''); @endphp
-                                <input type="text" name="kelas" id="kelas_kembali" value="{{ old('kelas', $kelasSiswa) }}" placeholder="Kelas belum diisi, lengkapi di Profil" @if ($kelasSiswa) readonly style="background-color: #f9fafb;" @endif>
+                                <input type="text" name="kelas" id="kelas_kembali" value="{{ old('kelas', $kelasSiswa) }}" placeholder="Kelas belum diisi, lengkapi di Profil" @if ($kelasSiswa) readonly class="u-readonly" @endif>
                                 @if (! $kelasSiswa && ! old('kelas'))
                                     <small class="field-hint">Kelas belum ada di profil. <a href="{{ route('profile.edit') }}">Lengkapi profil</a> agar terisi otomatis.</small>
                                 @endif
@@ -216,12 +226,12 @@
                     
                         <div class="input-group">
                             <label>Nama Barang / Alat yang Dikembalikan</label>
-                            <input type="text" name="barang" id="barang_kembali" placeholder="Terisi otomatis setelah scan QR dari guru" value="{{ old('barang') }}" required readonly style="background-color: #f9fafb;">
+                            <input type="text" name="barang" id="barang_kembali" placeholder="Terisi otomatis setelah scan QR dari guru" value="{{ old('barang') }}" required readonly class="u-readonly">
                         </div>
                     
                         <div class="input-group">
                             <label>Waktu Pengembalian</label>
-                            <input type="time" name="waktu_kembali" value="{{ old('waktu_kembali', date('H:i')) }}" style="width: 50%;">
+                            <input type="time" name="waktu_kembali" class="u-w-50" value="{{ old('waktu_kembali', date('H:i')) }}">
                         </div>
                     
                         <div class="input-group">
@@ -264,7 +274,7 @@
                             <label for="foto-kembali" class="upload-box" id="label-foto-kembali">
                                 <x-icon name="upload" size="22" /><br><span class="upload-text">Klik di sini untuk upload foto barang saat dikembalikan di meja lab</span>
                             </label>
-                            <input type="file" id="foto-kembali" name="bukti_foto" accept="image/*" required onchange="tampilkanNamaFile(this, 'label-foto-kembali')">
+                            <input type="file" id="foto-kembali" name="bukti_foto" accept="image/*" required data-file-label="label-foto-kembali">
                         </div>
                     
                         <button type="submit" class="btn-submit" id="btn-submit-kembali">

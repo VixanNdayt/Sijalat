@@ -20,7 +20,7 @@ class RiwayatExport
         $width = $pdf->pageWidth;
         $margin = $pdf->margin;
 
-        PdfBrand::header($pdf, 'BUKTI RIWAYAT', 'SMK Negeri 2 Depok');
+        PdfBrand::header($pdf, 'BUKTI RIWAYAT', (string) config('lab.sekolah', 'SMK Negeri 2 Yogyakarta'));
 
         // --- Judul ---
         $pdf->moveTo(126);

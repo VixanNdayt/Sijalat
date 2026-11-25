@@ -21,7 +21,7 @@ class AuthController extends Controller
     // Memproses data pendaftaran dari form
     public function register(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'nis' => 'required|numeric|unique:users,nis',
             'kelas' => 'required|string|max:50',
@@ -30,12 +30,11 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'nis' => $validated['nis'],
-            'kelas' => $validated['kelas'],
-            'email' => $validated['email'],
-            'role_user' => 'siswa',
-            'password' => Hash::make($validated['password']),
+            'name' => $data['name'],
+            'nis' => $data['nis'],
+            'kelas' => $data['kelas'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
         ]);
 
         event(new Registered($user));

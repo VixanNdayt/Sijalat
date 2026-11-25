@@ -9,7 +9,7 @@
         <title>SIJALAT &middot; Peminjaman Alat &amp; Inventaris Jurusan</title>
 
         <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/home.css') }}?v=2">
         @stack('styles')
     </head>
     <body class="home-page">
@@ -24,7 +24,7 @@
 
                 <nav class="home-nav-links" id="homeNavLinks" aria-label="Navigasi utama">
                     <a href="#katalog">Katalog</a>
-                    <a href="#alur">Alur Peminjaman</a>
+                    <a href="#tutorial">Tutorial</a>
                     <a href="#regulasi">Regulasi</a>
                     <a href="#aktivitas">Aktivitas</a>
                     <a href="#kontak">Kontak</a>
@@ -322,42 +322,58 @@
             </section>
 
             <!-- ================================================
-                 3. ALUR & PROSEDUR PEMINJAMAN
+                 3. TUTORIAL PEMINJAMAN
                  ================================================ -->
-            <section class="home-section home-workflow" id="alur">
+            @php
+                $langkahTutorial = config('tutorial.steps', []);
+                $folderTutorial = config('tutorial.image_path', 'tutorial');
+            @endphp
+
+            <span id="alur" aria-hidden="true"></span>
+
+            <section class="home-section home-tutorial" id="tutorial">
                 <div class="home-section-head home-section-head-center">
                     <div>
-                        <span class="home-eyebrow">Borrowing workflow</span>
-                        <h2>Empat langkah, alat siap dipakai</h2>
-                        <p>Alur pengajuan yang jelas dari katalog sampai serah terima fisik di ruang alat.</p>
+                        <span class="home-eyebrow">Tutorial</span>
+                        <h2>Panduan peminjaman langkah demi langkah</h2>
+                        <p>Ikuti sebelas langkah berikut dari pendaftaran akun sampai pengembalian alat selesai.</p>
                     </div>
                 </div>
 
-                <ol class="home-steps">
-                    <li class="home-step">
-                        <span class="home-step-num">01</span>
-                        <span class="home-step-icon"><x-icon name="cart" size="22" /></span>
-                        <h3>Pilih alat</h3>
-                        <p>Cari barang di katalog, lalu masukkan beberapa alat sekaligus ke keranjang peminjaman.</p>
-                    </li>
-                    <li class="home-step">
-                        <span class="home-step-num">02</span>
-                        <span class="home-step-icon"><x-icon name="file-text" size="22" /></span>
-                        <h3>Isi form pengajuan</h3>
-                        <p>Tentukan tanggal pinjam, estimasi pengembalian, kegiatan praktikum, dan guru pembimbing.</p>
-                    </li>
-                    <li class="home-step">
-                        <span class="home-step-num">03</span>
-                        <span class="home-step-icon"><x-icon name="check-circle" size="22" /></span>
-                        <h3>Verifikasi &amp; persetujuan</h3>
-                        <p>Laboran, toolman, atau guru praktikum memeriksa ketersediaan dan menyetujui pengajuan.</p>
-                    </li>
-                    <li class="home-step">
-                        <span class="home-step-num">04</span>
-                        <span class="home-step-icon"><x-icon name="qr-code" size="22" /></span>
-                        <h3>Pengambilan barang</h3>
-                        <p>Tunjukkan kode QR atau ID transaksi di ruang penyimpanan alat untuk serah terima fisik.</p>
-                    </li>
+                <ol class="home-tutorial-list">
+                    @foreach ($langkahTutorial as $index => $langkah)
+                        <li class="home-tutorial-step">
+                            <figure class="home-tutorial-media">
+                                <span class="home-tutorial-media-num" aria-hidden="true">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                                <img
+                                    src="{{ asset($folderTutorial . '/' . $langkah['image']) }}"
+                                    alt=""
+                                    loading="lazy"
+                                    width="1200"
+                                    height="620">
+                                <figcaption class="home-tutorial-caption">
+                                    Langkah {{ $index + 1 }}: {{ $langkah['title'] }}
+                                </figcaption>
+                            </figure>
+
+                            <div class="home-tutorial-copy">
+                                <span class="home-tutorial-num">Langkah {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                                <h3>{{ $langkah['title'] }}</h3>
+                                <p>{{ $langkah['description'] }}</p>
+
+                                @if (! empty($langkah['note']))
+                                    <p class="home-tutorial-note">
+                                        <x-icon name="alert-circle" size="15" />
+                                        <span>{{ $langkah['note'] }}</span>
+                                    </p>
+                                @endif
+                            </div>
+
+                            @if (! $loop->last)
+                                <span class="home-tutorial-arc" aria-hidden="true"></span>
+                            @endif
+                        </li>
+                    @endforeach
                 </ol>
             </section>
 
@@ -390,9 +406,10 @@
                             <span class="home-reg-icon"><x-icon name="shield" size="22" /></span>
                             <h3>Aturan &amp; ketentuan peminjaman</h3>
                             <ul class="home-rules">
-                                <li>Peminjaman selama jam pelajaran wajib dikembalikan sebelum jam sekolah berakhir.</li>
+                                <li>Pengambilan alat paling cepat pukul 06.30 pada tanggal yang tertera di form peminjaman.</li>
+                                <li>Pengembalian paling lambat pada jam terakhir pembelajaran sesuai hari (Senin 16.30, Selasa&ndash;Kamis 16.35, Jumat 14.45).</li>
                                 <li>Pinjam bawa pulang hanya dengan izin guru pembimbing dan laboran.</li>
-                                <li>Keterlambatan pengembalian dicatat sebagai pelanggaran peminjaman.</li>
+                                <li>Pengembalian melewati jam terakhir pembelajaran dihitung sebagai pelanggaran peminjaman.</li>
                                 <li>Alat yang rusak atau hilang menjadi tanggung jawab peminjam sesuai ketentuan sekolah.</li>
                             </ul>
                         </article>
@@ -477,10 +494,10 @@
                                                 <span><x-icon name="calendar" size="13" /> Tenggat {{ $tenggat }}</span>
                                                 <span><x-icon name="box" size="13" /> {{ $loan->jumlah_minta }} unit</span>
                                             </p>
-                                            @if ($loan->hari_terlambat > 0)
+                                            @if ($loan->terlambat_label)
                                                 <p class="home-loan-late">
                                                     <x-icon name="alert-triangle" size="13" />
-                                                    Terlambat {{ $loan->hari_terlambat }} hari
+                                                    {{ $loan->terlambat_label }}
                                                 </p>
                                             @endif
                                         </div>
@@ -670,15 +687,15 @@
 
         <div class="home-toast" id="homeToast" role="status" aria-live="polite"></div>
 
-        <script>
-            window.SIJALAT_HOME = {
-                alats: @json($alatJson),
-                authenticated: @json(auth()->check()),
-                flash: @json(session('success')),
-                homeUrl: @json(route('home', absolute: false)),
-                borrowUrl: @json(route('pinjam.create', absolute: false)),
-                loginUrl: @json(route('login', absolute: false)),
-            };
+        <script type="application/json" id="home-data">
+{!! Illuminate\Support\Js::encode([
+    'alats' => $alatJson,
+    'authenticated' => auth()->check(),
+    'flash' => session('success'),
+    'homeUrl' => route('home', absolute: false),
+    'borrowUrl' => route('pinjam.create', absolute: false),
+    'loginUrl' => route('login', absolute: false),
+]) !!}
         </script>
         <script src="{{ asset('js/home.js') }}"></script>
     </body>

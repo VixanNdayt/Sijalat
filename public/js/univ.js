@@ -114,6 +114,53 @@
     });
 
     /* ------------------------------------------------------------------
+     * Aksi umum tanpa inline handler (aman CSP)
+     * ------------------------------------------------------------------ */
+    document.addEventListener('click', function (event) {
+        const confirmBtn = event.target.closest('[data-confirm]');
+
+        if (confirmBtn && !window.confirm(confirmBtn.dataset.confirm)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+        }
+
+        const logout = event.target.closest('[data-logout]');
+
+        if (logout) {
+            event.preventDefault();
+
+            const form = logout.closest('form');
+
+            if (form) {
+                form.submit();
+            }
+
+            return;
+        }
+
+        const actionBtn = event.target.closest('[data-action]');
+
+        if (!actionBtn) {
+            return;
+        }
+
+        if (actionBtn.dataset.action === 'print') {
+            window.print();
+        } else if (actionBtn.dataset.action === 'close') {
+            window.close();
+        }
+    });
+
+    document.addEventListener('submit', function (event) {
+        const form = event.target;
+
+        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) {
+            event.preventDefault();
+        }
+    });
+
+    /* ------------------------------------------------------------------
      * Tandai menu sidebar yang sedang aktif
      * ------------------------------------------------------------------ */
     (function tandaiMenuAktif() {

@@ -66,6 +66,24 @@ class ProfileTest extends TestCase
         $response->assertSessionHasErrors('email');
     }
 
+    public function test_student_can_not_change_kelas_to_unlisted_value(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->patch('/profile', [
+                'name' => $user->name,
+                'nis' => $user->nis,
+                'kelas' => 'Kelas Palsu',
+                'email' => $user->email,
+            ]);
+
+        $response->assertSessionHasErrors('kelas');
+        $this->assertSame('XI SIJA A', $user->fresh()->kelas);
+    }
+
     public function test_user_can_upload_a_profile_photo(): void
     {
         Storage::fake('public');

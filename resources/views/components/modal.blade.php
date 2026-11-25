@@ -20,7 +20,6 @@ $maxWidth = [
     role="dialog"
     aria-modal="true"
     class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
-    style="display: {{ $show ? 'block' : 'none' }};"
     @if (! $show) hidden @endif
 >
     <div data-modal-backdrop class="fixed inset-0 transform transition-all">

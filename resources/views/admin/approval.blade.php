@@ -6,10 +6,12 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
         <link rel="stylesheet" href="{{ asset('css/approval.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/csp.css') }}">
 
         @stack('styles')
+        @include('partials.theme-head')
     </head>
     <body>
         <div class="overlay" id="overlay"></div>
@@ -25,7 +27,7 @@
                 </a>
                 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             <div class="admin-container">
@@ -38,7 +40,7 @@
                 @if(session('success'))
                     <div class="alert-success">
                         {{ session('success') }}
-                        <a href="{{ route('admin.qr.index') }}" style="font-weight:bold; color:#065f46; margin-left:6px;">Lihat QR transaksi &rarr;</a>
+                        <a href="{{ route('admin.qr.index') }}" class="u-link-inline">Lihat QR transaksi &rarr;</a>
                     </div>
                 @endif
                 
@@ -50,7 +52,7 @@
                         <span>Qty</span>
                         <span>Alasan</span>
                         <span>Waktu Pinjam</span>
-                        <span style="text-align: center;">Aksi</span>
+                        <span class="u-text-center">Aksi</span>
                     </div>
                     
                     @forelse($pendingList as $index => $trx)
@@ -58,9 +60,17 @@
                         <span>{{ $index + 1 }}</span>
                         <span>
                             <strong>{{ $trx->user?->name ?? 'Pengguna tidak tersedia' }}</strong><br>
-                            <small style="color: #666;">NIS: {{ $trx->user?->nis ?? '-' }} &middot; Kelas: {{ $trx->user?->kelas ?: '-' }}</small>
+                            <small class="u-text-muted">NIS: {{ $trx->user?->nis ?? '-' }} &middot; Kelas: {{ $trx->user?->kelas ?: '-' }}</small>
                         </span>
-                        <span>{{ $trx->alat?->nama ?? 'Alat tidak tersedia' }}</span>
+                        <span>
+                            {{ $trx->alat?->nama ?? 'Alat tidak tersedia' }}
+                            @if ($trx->guru || $trx->mapel)
+                                <br>
+                                <small class="u-text-muted">
+                                    Guru: {{ $trx->guru?->nama ?? '-' }} &middot; Mapel: {{ $trx->mapel?->nama_mapel ?? '-' }}
+                                </small>
+                            @endif
+                        </span>
                         <span>{{ $trx->jumlah_minta }} unit</span>
                         <span>{{ $trx->deskripsi_minta }}</span>
                         <span>{{ \Carbon\Carbon::parse($trx->dipinjam_saat)->format('d M Y, H:i') }}</span>
@@ -70,21 +80,21 @@
                             <form action="{{ route('approval.proses', $trx->id) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="aksi" value="setuju">
-                                <button type="submit" class="btn-approve" onclick="return confirm('Setujui peminjaman ini?')"><x-icon name="check" size="15" /> Setuju</button>
+                                <button type="submit" class="btn-approve" data-confirm="Setujui peminjaman ini?"><x-icon name="check" size="15" /> Setuju</button>
                             </form>
                         
                             <!-- Tombol Tolak -->
                             <form action="{{ route('approval.proses', $trx->id) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="aksi" value="tolak">
-                                <button type="submit" class="btn-reject" onclick="return confirm('Tolak peminjaman ini?')"><x-icon name="x" size="15" /> Tolak</button>
+                                <button type="submit" class="btn-reject" data-confirm="Tolak peminjaman ini?"><x-icon name="x" size="15" /> Tolak</button>
                             </form>
                         </div>
                     </div>
                     @empty
-                    <div style="padding: 20px; text-align: center; color: #666; background: white; border-radius: 8px;">
+                    <div class="u-empty-box">
                         <x-icon name="inbox" size="26" />
-                        <p style="margin:8px 0 0;">Tidak ada antrean peminjaman saat ini.</p>
+                        <p class="u-empty-text">Tidak ada antrean peminjaman saat ini.</p>
                     </div>
                     @endforelse
                 </div>

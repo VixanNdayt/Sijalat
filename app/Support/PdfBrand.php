@@ -21,8 +21,10 @@ class PdfBrand
     /**
      * Header utama halaman pertama.
      */
-    public static function header(SimplePdf $pdf, string $documentType, string $subtitle = 'SMK Negeri 2 Depok'): void
+    public static function header(SimplePdf $pdf, string $documentType, ?string $subtitle = null): void
     {
+        $subtitle ??= (string) config('lab.sekolah', 'SMK Negeri 2 Yogyakarta');
+
         $width = $pdf->pageWidth;
         $margin = $pdf->margin;
 

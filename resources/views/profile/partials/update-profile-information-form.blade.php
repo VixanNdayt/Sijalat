@@ -57,7 +57,17 @@
 
         <div>
             <x-input-label for="kelas" :value="__('Kelas')" />
-            <x-text-input id="kelas" name="kelas" type="text" class="mt-1 block w-full" :value="old('kelas', $user->kelas)" placeholder="Contoh: XI SIJA A" autocomplete="off" />
+            <select
+                id="kelas"
+                name="kelas"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                :required="$user->isStudent()"
+            >
+                <option value="">-- Pilih Kelas --</option>
+                @foreach (config('school.classes', []) as $kelas)
+                    <option value="{{ $kelas }}" @selected(old('kelas', $user->kelas) === $kelas)>{{ $kelas }}</option>
+                @endforeach
+            </select>
             <x-input-error class="mt-2" :messages="$errors->get('kelas')" />
         </div>
 

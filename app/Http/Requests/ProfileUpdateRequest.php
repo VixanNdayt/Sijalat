@@ -26,10 +26,18 @@ class ProfileUpdateRequest extends FormRequest
             'nis' => [
                 Rule::requiredIf(fn () => $user->isStudent()),
                 'nullable',
-                'numeric',
+                'digits_between:1,30',
                 Rule::unique(User::class, 'nis')->ignore($user->id),
             ],
-            'kelas' => ['nullable', 'string', 'max:50'],
+            // Samakan dengan validasi registrasi agar kelas tidak bisa diisi
+            // sembarang lewat halaman profil.
+            'kelas' => [
+                Rule::requiredIf(fn () => $user->isStudent()),
+                'nullable',
+                'string',
+                'max:50',
+                Rule::in(config('school.classes', [])),
+            ],
             'email' => [
                 'required',
                 'string',
@@ -51,8 +59,23 @@ class ProfileUpdateRequest extends FormRequest
                     }
                 },
             ],
-            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:2048'],
             'remove_photo' => ['nullable', 'boolean'],
+        ];
+    }
+
+    /**
+     * Pesan validasi agar sesuai dengan bahasa aplikasi.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'nis.required' => 'NIS wajib diisi untuk akun siswa.',
+            'nis.digits_between' => 'NIS harus berupa angka 1 sampai 30 digit.',
+            'kelas.required' => 'Kelas wajib dipilih untuk akun siswa.',
+            'kelas.in' => 'Kelas yang dipilih tidak valid. Pilih salah satu kelas yang tersedia.',
         ];
     }
 }

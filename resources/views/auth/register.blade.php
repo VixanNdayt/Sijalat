@@ -81,15 +81,12 @@
 
                         <div class="form-group">
                             <label for="kelas">Kelas</label>
-                            <input
-                                type="text"
-                                id="kelas"
-                                name="kelas"
-                                value="{{ old('kelas') }}"
-                                placeholder="Contoh: XI SIJA A"
-                                required
-                            >
-
+                            <select name="kelas" id="kelas" required data-custom-select>
+                                <option value="">-- Pilih Kelas --</option>
+                                @foreach (config('school.classes', []) as $kelas)
+                                    <option value="{{ $kelas }}" @selected(old('kelas') === $kelas)>{{ $kelas }}</option>
+                                @endforeach
+                            </select>
                             @error('kelas')
                                 <span class="error-text">{{ $message }}</span>
                             @enderror
@@ -102,7 +99,7 @@
                                 id="email"
                                 name="email"
                                 value="{{ old('email') }}"
-                                placeholder="nama&#64;student.stembayo.sch.id"
+                                placeholder="NIS&#64;{{ config('auth.student_email_domain') }}"
                                 required
                                 autocomplete="username"
                             >
@@ -112,7 +109,7 @@
                             @enderror
 
                             <p class="input-hint">
-                                Wajib memakai email <strong>&#64;student.stembayo.sch.id</strong>.
+                                Wajib memakai email <strong>&#64;{{ config('auth.student_email_domain') }}</strong>.
                             </p>
                         </div>
 
@@ -157,5 +154,7 @@
                 </div>
             </section>
         </main>
+
+        <script src="{{ asset('js/custom-select.js') }}?v=4"></script>
     </body>
 </html>

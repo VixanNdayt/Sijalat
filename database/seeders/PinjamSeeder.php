@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\pinjam;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class PinjamSeeder extends Seeder
 {
@@ -14,7 +11,6 @@ class PinjamSeeder extends Seeder
      */
     public function run(): void
     {
-         
         //
     }
 }

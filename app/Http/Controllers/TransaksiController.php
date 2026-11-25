@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Alat;
 use App\Models\Pinjam;
+use App\Support\JadwalSekolah;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +35,9 @@ class TransaksiController extends Controller
             ->latest()
             ->get();
 
-        return view('pinjam.bukti', compact('pinjamanAmbil', 'pinjamanKembali'));
+        $jadwalSekolah = JadwalSekolah::ringkasan();
+
+        return view('pinjam.bukti', compact('pinjamanAmbil', 'pinjamanKembali', 'jadwalSekolah'));
     }
 
     /**
@@ -117,6 +121,13 @@ class TransaksiController extends Controller
             ], 409);
         }
 
+        if ($pesanWaktu = $this->cekWaktuTransaksi($pinjam, $jenis)) {
+            return response()->json([
+                'success' => false,
+                'message' => $pesanWaktu,
+            ], 409);
+        }
+
         return response()->json([
             'success' => true,
             'tipe'    => 'QR_TRANSAKSI',
@@ -165,10 +176,20 @@ class TransaksiController extends Controller
             'qr_token'    => 'required|string',
             'nis'         => 'required|string',
             'barang'      => 'required|string',
-            'bukti_foto'  => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'bukti_foto'  => 'required|image|mimes:jpeg,png,jpg|mimetypes:image/jpeg,image/png|max:2048',
             'catatan'     => 'nullable|string|max:1000',
             'kondisi_kembali' => 'nullable|required_if:aksi,KEMBALI|in:baik,pengecekan,rusak',
             'catatan_kembali' => 'nullable|string|max:1000',
+        ], [
+            'pinjam_id.required' => 'Scan atau verifikasi QR dari guru dulu sebelum mengirim bukti.',
+            'pinjam_id.exists'   => 'Data peminjaman tidak ditemukan. Scan ulang QR dari guru.',
+            'qr_token.required'  => 'Token QR belum terisi. Scan ulang QR dari guru.',
+            'barang.required'    => 'Data barang belum terisi. Verifikasi QR dari guru terlebih dahulu.',
+            'bukti_foto.required' => 'Foto bukti wajib diunggah.',
+            'bukti_foto.image'    => 'File bukti harus berupa gambar.',
+            'bukti_foto.mimes'    => 'Foto bukti harus berformat JPG atau PNG.',
+            'bukti_foto.max'      => 'Ukuran foto bukti maksimal 2 MB. Kecilkan foto atau pilih foto lain.',
+            'bukti_foto.uploaded' => 'Foto gagal diunggah karena melebihi batas server. Coba foto yang lebih kecil.',
         ]);
 
         $aksi = $request->aksi;
@@ -193,6 +214,10 @@ class TransaksiController extends Controller
 
         if ($pinjam->status !== $statusWajib) {
             return back()->with('error', 'Status peminjaman sudah berubah. Silakan muat ulang halaman.')->withInput();
+        }
+
+        if ($pesanWaktu = $this->cekWaktuTransaksi($pinjam, $aksi)) {
+            return back()->with('error', $pesanWaktu)->withInput();
         }
 
         // Bukti foto disimpan di disk privat (storage/app/private) agar tidak
@@ -257,12 +282,17 @@ class TransaksiController extends Controller
                     $alat->increment('jumlah_stok', $jumlah);
 
                     // Pindahkan qty dari kondisi baik ke kondisi yang dilaporkan siswa.
+                    // Jika data lama tidak konsisten (kondisi_baik lebih kecil dari qty),
+                    // pindahkan sebanyak yang tersedia saja agar total unit fisik tidak
+                    // bertambah dan stok tidak melebihi jumlah unit sebenarnya.
+                    $pindah = min($jumlah, max(0, (int) $alat->kondisi_baik));
+
                     if ($kondisi === 'pengecekan') {
-                        $alat->kondisi_baik = max(0, (int) $alat->kondisi_baik - $jumlah);
-                        $alat->kondisi_pengecekan = (int) $alat->kondisi_pengecekan + $jumlah;
+                        $alat->kondisi_baik = (int) $alat->kondisi_baik - $pindah;
+                        $alat->kondisi_pengecekan = (int) $alat->kondisi_pengecekan + $pindah;
                     } elseif ($kondisi === 'rusak') {
-                        $alat->kondisi_baik = max(0, (int) $alat->kondisi_baik - $jumlah);
-                        $alat->kondisi_rusak = (int) $alat->kondisi_rusak + $jumlah;
+                        $alat->kondisi_baik = (int) $alat->kondisi_baik - $pindah;
+                        $alat->kondisi_rusak = (int) $alat->kondisi_rusak + $pindah;
                     }
 
                     $alat->save();
@@ -280,5 +310,62 @@ class TransaksiController extends Controller
 
         $pesan = ($aksi === 'AMBIL') ? 'Pengambilan alat berhasil diverifikasi & dicatat!' : 'Pengembalian alat berhasil diselesaikan!';
         return redirect()->route('dashboard')->with('success', $pesan)->with('struk_id', $pinjam->id);
+    }
+
+    /**
+     * Validasi waktu pengambilan/pengembalian terhadap jadwal sekolah.
+     * Mengembalikan pesan error, atau null jika boleh diproses.
+     */
+    private function cekWaktuTransaksi(Pinjam $pinjam, string $aksi): ?string
+    {
+        $sekarang = now()->timezone('Asia/Jakarta');
+
+        if ($aksi === 'AMBIL') {
+            if (! $pinjam->dipinjam_saat) {
+                return 'Jadwal pengambilan belum diisi. Hubungi guru atau admin.';
+            }
+
+            $jadwal = Carbon::parse($pinjam->dipinjam_saat)->timezone('Asia/Jakarta');
+
+            if (! JadwalSekolah::hariSekolah($jadwal)) {
+                return 'Pengambilan hanya dapat dilakukan pada hari Senin sampai Jumat.';
+            }
+
+            $tanggal = $jadwal->locale('id')->translatedFormat('d F Y');
+
+            if ($sekarang->toDateString() !== $jadwal->toDateString()) {
+                return 'Pengambilan hanya dapat dilakukan pada tanggal ' . $tanggal
+                    . ' sesuai form peminjaman.';
+            }
+
+            $mulai = JadwalSekolah::ambilMulai($jadwal);
+
+            if ($sekarang->lt($mulai)) {
+                return 'Pengambilan paling cepat pukul ' . $mulai->format('H.i')
+                    . ' pada tanggal ' . $tanggal . '.';
+            }
+
+            $batas = JadwalSekolah::kembaliTerakhir($jadwal);
+
+            if ($batas && $sekarang->gt($batas)) {
+                return 'Pengambilan sudah melewati jam terakhir pembelajaran (pukul '
+                    . $batas->format('H.i') . ').';
+            }
+
+            return null;
+        }
+
+        $batasHariIni = JadwalSekolah::kembaliTerakhir($sekarang);
+
+        if (! $batasHariIni) {
+            return 'Pengembalian hanya dapat dilakukan pada hari Senin sampai Jumat.';
+        }
+
+        if ($sekarang->gt($batasHariIni)) {
+            return 'Pengembalian paling lambat pukul ' . $batasHariIni->format('H.i')
+                . ' (jam terakhir pembelajaran). Silakan kembalikan pada hari sekolah berikutnya.';
+        }
+
+        return null;
     }
 }

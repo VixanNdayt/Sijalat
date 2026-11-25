@@ -195,6 +195,17 @@
 
         select.dataset.customSelectReady = 'true';
 
+        // Validasi `required` dipindahkan ke dropdown kustom. Kalau atribut
+        // required dibiarkan di <select> yang tersembunyi, browser akan
+        // memblokir submit dan menampilkan bubble di posisi 1x1px sehingga
+        // menu kustom tidak pernah muncul.
+        var wajib = select.required;
+
+        if (wajib) {
+            select.required = false;
+            select.dataset.customRequired = 'true';
+        }
+
         var wrapper = document.createElement('div');
         wrapper.className = 'cs-select';
         if (select.classList.contains('date-picker')) {
@@ -212,6 +223,10 @@
         trigger.className = 'cs-trigger';
         trigger.setAttribute('aria-haspopup', 'listbox');
         trigger.setAttribute('aria-expanded', 'false');
+
+        if (wajib) {
+            trigger.setAttribute('aria-required', 'true');
+        }
 
         if (select.id) {
             trigger.id = select.id + 'Trigger';
@@ -350,7 +365,9 @@
             select.form.addEventListener('submit', function (event) {
                 sync(instance);
 
-                if (select.required && !select.value) {
+                var harusDiisi = select.required || select.dataset.customRequired === 'true';
+
+                if (harusDiisi && !select.value) {
                     event.preventDefault();
                     wrapper.classList.add('is-invalid');
                     show(instance);

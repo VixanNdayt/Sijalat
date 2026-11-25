@@ -117,6 +117,11 @@
     font-weight: 800;
 }
 
+.chat-shell-head > div {
+    flex: 1;
+    min-width: 0;
+}
+
 .chat-shell-head p {
     margin: 2px 0 0;
     font-size: 11px;
@@ -236,6 +241,30 @@
     line-height: 1.5;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+}
+
+/* ---------------- Lampiran gambar ---------------- */
+
+.chat-image-link {
+    display: block;
+    margin: 2px 0 4px;
+    border-radius: 9px;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.chat-image {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 260px;
+    border-radius: 9px;
+    object-fit: cover;
+    background: #e2e8f0;
+}
+
+.chat-image-link + p {
+    margin-top: 6px;
 }
 
 .chat-time {
@@ -368,6 +397,163 @@
 .chat-send:disabled {
     background: #94a3b8;
     cursor: not-allowed;
+}
+
+/* ---------------- Tombol lampiran & pratinjau ---------------- */
+
+.chat-attach {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 43px;
+    height: 43px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #0f766e;
+    cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease,
+        color 0.18s ease;
+}
+
+.chat-attach:hover {
+    background: #ecfdf5;
+    border-color: #005c43;
+    color: #005c43;
+}
+
+.chat-attach:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.chat-preview {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 7px;
+    padding: 6px 8px;
+    border: 1px solid #d1fae5;
+    border-radius: 10px;
+    background: #f0fdf4;
+}
+
+.chat-preview[hidden] {
+    display: none;
+}
+
+.chat-preview img {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 7px;
+    object-fit: cover;
+    background: #e2e8f0;
+}
+
+.chat-preview-size {
+    flex: 1;
+    min-width: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0f766e;
+    overflow-wrap: anywhere;
+}
+
+.chat-preview-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #b91c1c;
+    cursor: pointer;
+}
+
+.chat-preview-remove:hover {
+    background: #fecaca;
+}
+
+/* ---------------- Menu klik kanan ---------------- */
+
+.chat-menu {
+    position: fixed;
+    z-index: 80;
+    min-width: 168px;
+    padding: 5px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+}
+
+.chat-menu[hidden] {
+    display: none;
+}
+
+.chat-menu-item {
+    display: block;
+    width: 100%;
+    padding: 9px 11px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.chat-menu-item:hover,
+.chat-menu-item:focus-visible {
+    outline: none;
+    background: #f1f5f9;
+}
+
+.chat-menu-item.danger {
+    color: #b91c1c;
+}
+
+.chat-menu-item.danger:hover,
+.chat-menu-item.danger:focus-visible {
+    background: #fef2f2;
+}
+
+.chat-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.12);
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.chat-shell-head .chat-clear:hover {
+    background: rgba(255, 255, 255, 0.26);
+}
+
+.chat-panel-head .chat-clear {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.chat-panel-head .chat-clear:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
 }
 
 .chat-hint {
@@ -777,6 +963,15 @@
     .chat-send {
         width: 41px;
         height: 41px;
+    }
+
+    .chat-attach {
+        width: 41px;
+        height: 41px;
+    }
+
+    .chat-image {
+        max-height: 200px;
     }
 }
 

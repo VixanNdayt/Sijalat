@@ -5,7 +5,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" style="font-size: 20px; font-weight: 800; letter-spacing: 1.5px; color: #004E39; text-decoration: none;">
+                    <a href="{{ route('dashboard') }}" class="nav-brand">
                         SIJALAT
                     </a>
                 </div>
@@ -48,9 +48,7 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                            <x-dropdown-link :href="route('logout')" data-logout>
                                 Keluar
                             </x-dropdown-link>
                         </form>
@@ -97,9 +95,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
 
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                    <x-responsive-nav-link :href="route('logout')" data-logout>
                         Keluar
                     </x-responsive-nav-link>
                 </form>

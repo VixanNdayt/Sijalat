@@ -1,5 +1,4 @@
 ﻿<!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="id">
     <head>
         <meta charset="UTF-8">
@@ -7,11 +6,12 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('svg/logo-sijalat.svg') }}">
         <title>@yield('title', 'SIJALAT - Dashboard')</title>
 
-        <link rel="stylesheet" href="{{ asset('css/univ.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard-a.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/univ.css') }}?v=3">
+        <link rel="stylesheet" href="{{ asset('css/dashboard-a.css') }}?v=2">
         <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
         @stack('styles')
+        @include('partials.theme-head')
     </head>
     <body>
         <div class="overlay" id="overlay"></div>
@@ -27,7 +27,7 @@
                 </a>
                 
                 @include('partials.brand')
-                <button class="toggle-btn" id="toggleBtn" aria-label="Buka menu"><x-icon name="menu" size="18" /></button>
+                @include('partials.navbar-actions')
             </nav>
 
             <script src="{{ asset('vendor/chart.umd.min.js') }}"></script>
@@ -89,14 +89,17 @@
                 </div>
             
                 <!-- Tabel Data Peminjaman -->
-                <div class="table-container">
+                <div class="table-container" id="tabel-transaksi">
                     <div class="table-header">
                         <span>No</span>
                         <span>Nama</span>
                         <span>NIS</span>
                         <span>Kelas</span>
                         <span>Item</span>
+                        <span>Guru</span>
+                        <span>Status</span>
                         <span>Waktu</span>
+                        <span class="table-action-head">Aksi</span>
                     </div>
 
                     @forelse($transaksis as $index => $trx)
@@ -106,13 +109,47 @@
                             <span>{{ $trx->user?->nis ?? '-' }}</span>
                             <span>{{ $trx->user?->kelas ?? '-' }}</span>
                             <span>{{ $trx->alat?->nama ?? 'Alat tidak tersedia' }}</span>
-                            <span>{{ $trx->created_at ? \Carbon\Carbon::parse($trx->created_at)->format('D, d-m-Y H:i') : '-' }}</span>
+                            <span>{{ $trx->guru?->nama ?? '-' }}</span>
+                            <span>
+                                <span class="status-badge status-{{ $trx->status_tone }}">{{ $trx->status_short_label }}</span>
+                            </span>
+                            <span>{{ $trx->created_at ? \Carbon\Carbon::parse($trx->created_at)->timezone('Asia/Jakarta')->format('D, d-m-Y H:i') : '-' }}</span>
+                            <span class="table-action">
+                                <button class="btn-detail"
+                                        type="button"
+                                        data-detail-url="{{ route('admin.transaksi.detail', $trx->id) }}">
+                                    <x-icon name="eye" size="14" /> Detail
+                                </button>
+                            </span>
                         </div>
                     @empty
                         <div class="table-empty">Belum ada data peminjaman.</div>
                     @endforelse
                 </div>
             </div>
+
+            <!-- Modal detail transaksi -->
+            <div class="detail-modal" id="detailModal" hidden>
+                <div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+                    <div class="detail-head">
+                        <div>
+                            <p class="detail-eyebrow" id="detailKode">&nbsp;</p>
+                            <h3 id="detailTitle">Detail Peminjaman</h3>
+                        </div>
+                        <button class="detail-close" type="button" data-close-detail aria-label="Tutup detail">
+                            <x-icon name="x" size="18" />
+                        </button>
+                    </div>
+                    <div class="detail-body" id="detailBody">
+                        <p class="detail-loading">Memuat detail...</p>
+                    </div>
+                    <div class="detail-foot">
+                        <a class="detail-qr" id="detailQr" href="#" hidden>Buka QR transaksi</a>
+                        <button class="detail-done" type="button" data-close-detail>Tutup</button>
+                    </div>
+                </div>
+            </div>
+
             @include('partials.footer')
         </main>
 
@@ -120,10 +157,12 @@
         @include('partials.sidebar-admin')
 
         <script src="{{ asset('js/univ.js') }}"></script>
-        <script>
-            window.chartLabels = @json($chartLabels);
-            window.chartData = @json($chartData);
+        <script type="application/json" id="dashboard-chart-data">
+{!! Illuminate\Support\Js::encode([
+    'labels' => $chartLabels,
+    'values' => $chartData,
+]) !!}
         </script>
-        <script src="{{ asset('js/admindash.js') }}"></script>
+        <script src="{{ asset('js/admindash.js') }}?v=3"></script>
     </body>
 </html>

@@ -10,13 +10,18 @@ class Message extends Model
         'user_id',
         'sender_id',
         'body',
+        'image_path',
+        'image_mime',
+        'image_size',
         'read_at',
+        'edited_at',
     ];
 
     protected function casts(): array
     {
         return [
             'read_at' => 'datetime',
+            'edited_at' => 'datetime',
         ];
     }
 

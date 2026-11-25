@@ -1,7 +1,8 @@
 (function () {
     'use strict';
 
-    var data = window.SIJALAT_HOME || {};
+    var homeDataEl = document.getElementById('home-data');
+    var data = homeDataEl ? JSON.parse(homeDataEl.textContent) : {};
     var STORAGE_KEY = 'sijalat_cart_v1';
 
     var alats = new Map();

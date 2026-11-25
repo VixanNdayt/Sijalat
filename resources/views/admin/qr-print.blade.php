@@ -7,6 +7,7 @@
         <title>QR {{ ucfirst($jenis) }} - {{ $pinjam->kode_pinjam }}</title>
 
         <link rel="stylesheet" href="{{ asset('css/qr-admin.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/csp.css') }}">
     </head>
     <body class="qr-print-body">
         @php
@@ -75,36 +76,23 @@
                     @endif
                 </p>
             @else
-                <p class="qr-print-note" style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46;">
+                <p class="qr-print-note is-success">
                     QR ini terikat pada transaksi <strong>{{ $pinjam->kode_pinjam }}</strong>.
                     Siswa tidak bisa memakainya untuk transaksi lain.
                 </p>
             @endif
 
             <div class="qr-print-actions no-print">
-                <button type="button" onclick="window.print()">
+                <button type="button" data-action="print">
                     Cetak QR
                 </button>
-                <button type="button" class="secondary" onclick="window.close()">
+                <button type="button" class="secondary" data-action="close">
                     Tutup
                 </button>
             </div>
         </div>
 
         <script src="{{ asset('vendor/qrcode-generator.js') }}"></script>
-        <script>
-            (function () {
-                var target = document.getElementById('qr-print-code');
-
-                if (!target || typeof qrcode !== 'function') {
-                    return;
-                }
-
-                var qr = qrcode(0, 'M');
-                qr.addData(target.dataset.kode);
-                qr.make();
-                target.innerHTML = qr.createSvgTag(6, 8);
-            })();
-        </script>
+        <script src="{{ asset('js/qr-print.js') }}"></script>
     </body>
 </html>

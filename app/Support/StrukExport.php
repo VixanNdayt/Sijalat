@@ -51,7 +51,7 @@ class StrukExport
         $pdf->setFont(false, 6.4);
         $pdf->fillColor(0.38, 0.44, 0.50);
         $pdf->textCenter($center, 62, 'SISTEM PEMINJAMAN ALAT SIJA');
-        $pdf->textCenter($center, 71, 'SMK NEGERI 2 DEPOK');
+        $pdf->textCenter($center, 71, mb_strtoupper((string) config('lab.sekolah', 'SMK Negeri 2 Yogyakarta')));
 
         self::dashed($pdf, 80);
 
